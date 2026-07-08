@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "godot": {
+      "type": "local",
+      "command": ["npx", "@coding-solo/godot-mcp"],
+      "enabled": true,
+      "environment": {
+        "GODOT_PATH": "/Applications/Godot.app/Contents/MacOS/Godot",
+        "DEBUG": "true",
+      },
+    },
+    "godot-mcp-docs": {
+      "type": "local",
+      "command": ["docker", "run", "--rm", "-i", "godot-mcp-docs:local"],
+      "enabled": true,
+    },
+  },
+}
