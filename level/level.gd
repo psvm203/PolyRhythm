@@ -3,6 +3,7 @@ extends Node2D
 @export var side_length: float = 100.0
 @export var base_midpoint := Vector2(500, 600)
 @export var sides_sequence: Array[int] = [3, 4, 3, 5, 3, 3, 3, 6, 4]
+@export var outline_width: float = 2.0
 
 @onready var player: Node2D = $Player
 @onready var conductor: Node = $Conductor
@@ -22,6 +23,9 @@ func _ready() -> void:
 func _draw() -> void:
 	for index in _shapes.size():
 		draw_colored_polygon(_shapes[index], _color_for_index(index))
+		var outline := _shapes[index]
+		outline.append(outline[0])
+		draw_polyline(outline, Color.BLACK, outline_width, true)
 
 
 func build_path() -> PackedVector2Array:
