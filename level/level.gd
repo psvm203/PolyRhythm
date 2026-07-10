@@ -4,37 +4,73 @@ extends Node2D
 @export var base_midpoint := Vector2(500, 600)
 @export var sides_sequence: Array[int] = [3, 4, 3, 5, 3, 3, 3, 6, 4]
 @export var outline_width: float = 2.0
+@export var faded_alpha: float = 0.3
 
 @onready var player: Node2D = $Player
 @onready var conductor: Node = $Conductor
 
 var _shapes: Array[PackedVector2Array] = []
 var _exit_edges: Array[PackedVector2Array] = []
+var _shape_start_indices: PackedInt32Array = PackedInt32Array()
+var _shape_alphas: PackedFloat32Array = PackedFloat32Array()
 
 
 func _ready() -> void:
 	_build_shapes()
-	queue_redraw()
 	var path := build_path()
 	player.setup(path)
 	conductor.setup(build_note_indices(path))
+	_shape_alphas.resize(_shapes.size())
+	_shape_alphas.fill(1.0)
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	var current := _current_shape()
+	var step: float = delta / player.seconds_per_edge
+	for index in _shape_alphas.size():
+		var target := _alpha_for_shape(index, current)
+		_shape_alphas[index] = move_toward(_shape_alphas[index], target, step)
+	queue_redraw()
 
 
 func _draw() -> void:
 	for index in _shapes.size():
-		draw_colored_polygon(_shapes[index], _color_for_index(index))
+		var alpha := _shape_alphas[index]
+		if alpha <= 0.001:
+			continue
+		var fill := _color_for_index(index)
+		fill.a = alpha
+		draw_colored_polygon(_shapes[index], fill)
 		var outline := _shapes[index]
 		outline.append(outline[0])
-		draw_polyline(outline, Color.BLACK, outline_width, true)
+		draw_polyline(outline, Color(0.0, 0.0, 0.0, alpha), outline_width, true)
+
+
+func _alpha_for_shape(index: int, current: int) -> float:
+	if index >= current:
+		return 1.0
+	return faded_alpha
+
+
+func _current_shape() -> int:
+	var segment := int(player.get_elapsed() / player.seconds_per_edge)
+	var current := 0
+	for index in _shape_start_indices.size():
+		if _shape_start_indices[index] <= segment:
+			current = index
+	return current
 
 
 func build_path() -> PackedVector2Array:
 	var path := PackedVector2Array()
+	_shape_start_indices.clear()
 	if _shapes.is_empty():
 		return path
 	var entry: Vector2 = _exit_edges[0][0]
 	path.append(entry)
 	for index in _shapes.size():
+		_shape_start_indices.append(path.size() - 1)
 		var poly := _shapes[index]
 		var entry_index := _index_of(poly, entry)
 		var is_last_shape := index >= _exit_edges.size()
