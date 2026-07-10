@@ -1,11 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://clqsykxc2qib0"]
+[gd_scene load_steps=4 format=3 uid="uid://clqsykxc2qib0"]
 
 [ext_resource type="Script" uid="uid://bs40xfk6x0fwe" path="res://level/level.gd" id="1_7lnir"]
 [ext_resource type="PackedScene" uid="uid://cplayerpoly01a" path="res://player/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://ccrwk4ebn0qoc" path="res://conductor/conductor.gd" id="3_conductor"]
 
 [node name="Node2D" type="Node2D" unique_id=1619794752]
 script = ExtResource("1_7lnir")
-player = NodePath("Player")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
+
+[node name="Conductor" type="Node" parent="."]
+script = ExtResource("3_conductor")
 

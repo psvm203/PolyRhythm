@@ -3,7 +3,9 @@ extends Node2D
 @export var side_length: float = 100.0
 @export var base_midpoint := Vector2(500, 600)
 @export var sides_sequence: Array[int] = [3, 4, 3, 5, 3, 3, 3, 6, 4]
-@export var player: Node2D
+
+@onready var player: Node2D = $Player
+@onready var conductor: Node = $Conductor
 
 var _shapes: Array[PackedVector2Array] = []
 var _exit_edges: Array[PackedVector2Array] = []
@@ -12,8 +14,9 @@ var _exit_edges: Array[PackedVector2Array] = []
 func _ready() -> void:
 	_build_shapes()
 	queue_redraw()
-	if player != null:
-		player.setup(build_path())
+	var path := build_path()
+	player.setup(path)
+	conductor.setup(path)
 
 
 func _draw() -> void:

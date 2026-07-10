@@ -5,30 +5,32 @@ extends Node2D
 @export var color := Color.WHITE
 
 var _path: PackedVector2Array
-var _segment_index: int = 0
-var _segment_progress: float = 0.0
+var _elapsed: float = 0.0
 
 
 func setup(path: PackedVector2Array) -> void:
 	_path = path
-	_segment_index = 0
-	_segment_progress = 0.0
+	_elapsed = 0.0
 	if _path.size() > 0:
 		position = _path[0]
 
 
+func get_elapsed() -> float:
+	return _elapsed
+
+
 func _process(delta: float) -> void:
 	var last_index := _path.size() - 1
-	if _path.size() < 2 or _segment_index >= last_index:
+	if _path.size() < 2:
 		return
-	_segment_progress += delta / seconds_per_edge
-	while _segment_progress >= 1.0 and _segment_index < last_index:
-		_segment_progress -= 1.0
-		_segment_index += 1
-	if _segment_index >= last_index:
+	_elapsed += delta
+	var progress := _elapsed / seconds_per_edge
+	if progress >= last_index:
 		position = _path[last_index]
 		return
-	position = _path[_segment_index].lerp(_path[_segment_index + 1], _segment_progress)
+	var segment_index := int(progress)
+	var segment_progress := progress - segment_index
+	position = _path[segment_index].lerp(_path[segment_index + 1], segment_progress)
 
 
 func _draw() -> void:
