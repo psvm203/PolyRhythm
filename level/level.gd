@@ -16,7 +16,7 @@ func _ready() -> void:
 	queue_redraw()
 	var path := build_path()
 	player.setup(path)
-	conductor.setup(path)
+	conductor.setup(build_note_indices(path))
 
 
 func _draw() -> void:
@@ -42,6 +42,21 @@ func build_path() -> PackedVector2Array:
 			path.append(poly[vertex_index])
 		entry = poly[chosen[chosen.size() - 1]]
 	return path
+
+
+func build_note_indices(path: PackedVector2Array) -> PackedInt32Array:
+	var indices := PackedInt32Array()
+	for index in range(1, path.size()):
+		if _is_shared_vertex(path[index]):
+			indices.append(index)
+	return indices
+
+
+func _is_shared_vertex(point: Vector2) -> bool:
+	for edge in _exit_edges:
+		if point.is_equal_approx(edge[0]) or point.is_equal_approx(edge[1]):
+			return true
+	return false
 
 
 func _append_final_loop(

@@ -1,6 +1,6 @@
 extends Node
 
-signal judged(result: String, beat_index: int)
+signal judged(result: String, note_index: int)
 
 @export var seconds_per_edge: float = 0.5
 @export var perfect_window: float = 0.06
@@ -8,43 +8,43 @@ signal judged(result: String, beat_index: int)
 
 @onready var player: Node2D = get_parent().get_node("Player")
 
-var _beat_count: int = 0
-var _next_beat: int = 1
+var _note_indices: PackedInt32Array = PackedInt32Array()
+var _next_note: int = 0
 
 
-func setup(path: PackedVector2Array) -> void:
+func setup(note_indices: PackedInt32Array) -> void:
 	player.seconds_per_edge = seconds_per_edge
-	_beat_count = path.size() - 1
-	_next_beat = 1
+	_note_indices = note_indices
+	_next_note = 0
 
 
 func _process(_delta: float) -> void:
 	var elapsed: float = player.get_elapsed()
-	while _next_beat <= _beat_count and elapsed > _beat_time(_next_beat) + good_window:
-		_emit_result("Miss", _next_beat)
-		_next_beat += 1
+	while _next_note < _note_indices.size() and elapsed > _note_time(_next_note) + good_window:
+		_emit_result("Miss", _note_indices[_next_note])
+		_next_note += 1
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("tap"):
 		return
-	if _next_beat > _beat_count:
+	if _next_note >= _note_indices.size():
 		return
 	var elapsed: float = player.get_elapsed()
-	var delta := absf(elapsed - _beat_time(_next_beat))
+	var delta := absf(elapsed - _note_time(_next_note))
 	if delta <= perfect_window:
-		_emit_result("Perfect", _next_beat)
+		_emit_result("Perfect", _note_indices[_next_note])
 	elif delta <= good_window:
-		_emit_result("Good", _next_beat)
+		_emit_result("Good", _note_indices[_next_note])
 	else:
 		return
-	_next_beat += 1
+	_next_note += 1
 
 
-func _beat_time(beat_index: int) -> float:
-	return beat_index * seconds_per_edge
+func _note_time(note: int) -> float:
+	return _note_indices[note] * seconds_per_edge
 
 
-func _emit_result(result: String, beat_index: int) -> void:
-	print("Beat %d: %s" % [beat_index, result])
-	judged.emit(result, beat_index)
+func _emit_result(result: String, note_index: int) -> void:
+	print("Note %d: %s" % [note_index, result])
+	judged.emit(result, note_index)
