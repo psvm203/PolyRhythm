@@ -5,8 +5,7 @@ signal judged(result: String, note_index: int)
 @export var seconds_per_edge: float = 0.5
 @export var perfect_window: float = 0.06
 @export var good_window: float = 0.12
-
-@onready var player: Node2D = get_parent().get_node("Player")
+@onready var player: Node2D = $"../Player"
 
 var _note_indices: PackedInt32Array = PackedInt32Array()
 var _next_note: int = 0
