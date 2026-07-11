@@ -16,4 +16,10 @@
       "enabled": true,
     },
   },
+  "formatter":{
+    "gdscript":{
+      "command": ["gdscript-formatter", "."],
+      "extensions": [".gd"]
+    }
+  }
 }
