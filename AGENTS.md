@@ -1,44 +1,45 @@
-# PolyRhythm
+# Godot 4.7 Rhythm Game (PC/Mobile)
 
-리듬게임 PolyRhythm입니다.
+## Execution
+- Main scene: `level/level.tscn` (defined in `project.godot` under `run/main_scene`).
+- Open the project using the `godot` MCP server.
 
-## 개발 환경
+## Architecture & Data Flow
+1. **Entry (`level/level.gd`)**
+   - Holds the `sides_sequence` array (e.g., `[3,4,3,5,3,3,3,6,4]`), which defines the entire level layout (vertex count per polygon).
+   - In `_ready`: Instantiates `ShapeFactory` → generates polygon vertices → passes to `PathFinder` → builds paths → connects `player` and `conductor`.
 
-- Godot 4.7
-- GDScript
+2. **Geometry (`level/shape_factory.gd`)**
+   - `class_name ShapeFactory` (`RefCounted`).
+   - Converts vertex counts into arrays of regular polygon vertices.
 
-## 프로젝트 구조
+3. **Pathfinding (`level/path_finder.gd`)**
+   - `class_name PathFinder` (`RefCounted`).
+   - Finds the longest path across shapes using shared exit edges.
+   - Simultaneously generates the note index list for the conductor.
 
-파일 타입이 아니라, 기능을 기반으로 폴더 구조를 구성하세요.
+4. **Timing (`level/conductor.gd`)**
+   - Handles note timing and judgment (`Perfect` / `Good` / `Miss`).
+   - Exports judgment windows (`perfect_window`, `good_window`, `seconds_per_edge`).
 
-## 코드 작성 워크플로우
+5. **Player (`player/player.gd`)**
+   - Animated dot following the generated path.
+   - Maintains the elapsed time clock.
 
-계획 - 구현 - 커밋 순으로 진행하세요.
+**Note**: `ShapeFactory` and `PathFinder` are **not** autoloads; they are instantiated per level build.
 
-### 계획
+## Conventions (DO NOT CHANGE)
+- **Renderer**: `mobile`. Stretch mode: `canvas_items` / `expand`. Do not switch to Forward+.
+- **UID Files** (`*.uid` and `uid://` lines in `.tscn`): Automatically managed. **Never edit manually**. The `res://` path in scenes is the source of truth for references.
+- **Level Definition**: `sides_sequence` is the sole source of truth. Changing it regenerates geometry, guided paths, and note edges. **There are no external note chart files**.
+- **Class Names**: Only use `class_name` for `ShapeFactory` and `PathFinder`. Do not expose `level.gd` or `conductor.gd` as class names.
 
-- Godot의 동작에 대해 일반적인 지식을 사용하거나 추측하지 말고 godot-mcp-docs 도구를 사용하세요.
-  - 먼저 get_documentation_tree()를 사용하여 문서 구조를 파악하세요.
-  - 그 다음 get_documentation_file()을 사용하여 클래스, 튜토리얼 또는 기능에 대한 구체적인 정보를 확인하세요.
-- 접근 방법을 사용자에게 알려주고 구현하기 전 허락을 받으세요.
-- 여러 선택지가 존재한다면 제시하세요.
-- 더 간단한 접근 방식이 있다면 알려주세요.
-- 불분명한 것이 있다면 무엇이 헷갈리는지 질문하세요.
+## MCP Tool Usage (Strict Rules)
+- **`godot` server**: Expects the Godot binary at `/Applications/Godot.app/Contents/MacOS/Godot`.
+- **`godot-mcp-docs` server**: Runs via Docker (`godot-mcp-docs:local`).
+  - **Rule**: When answering any Godot-related question, **always** query this MCP server first.
+  - **Workflow**: Start with `get_documentation_tree()` to locate the topic, then use `get_documentation_file()` to fetch specific class/tutorial details.
+  - **Priority**: Official documentation overrides general AI knowledge.
 
-### 구현
-
-- 문제를 해결하는 최소한의 코드를 작성하세요.
-- 요청된 기능 이상을 구현하지 마세요.
-- 일회용 코드를 추상화하지 마세요.
-- 불가능한 시나리오를 예외 처리하지 마세요.
-- 꼭 필요한 작업만을 진행하세요.
-- 작업과 관련 없는 코드를 개선하지 마세요.
-- 작업을 검증 가능한 목표로 전환하세요. (예: 버그 수정 -> 이를 재현하는 테스트를 작성한 후 통과시키세요.)
-- 장기적으로 필요한 작업이 있다면 사용자에게 알리고 TODO.md에 기록하세요.
-
-### 커밋
-
-- 커밋하기 전 **무조건** 사용자에게 허락을 받으세요.
-- 커밋 시 git status를 고려하세요.
-- uid 파일이 누락되지 않게 유의하세요.
-- 커밋 메시지는 Conventional Commits 형식을 사용하세요. (예: docs(agents): update commit guidelines)
+## Prohibited / Constraints
+- **Do not** alter renderer settings, physics engine flags, or UIDs.
