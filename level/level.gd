@@ -1,8 +1,8 @@
 extends Node2D
 
+@export var level_data: Resource
 @export var side_length: float = 100.0
 @export var base_midpoint := Vector2(500, 600)
-@export var sides_sequence: Array[int] = [3, 4, 3, 5, 3, 3, 3, 6, 4]
 @export var outline_width: float = 2.0
 @export var faded_alpha: float = 0.3
 
@@ -16,13 +16,14 @@ var _shape_alphas: PackedFloat32Array = PackedFloat32Array()
 
 
 func _ready() -> void:
-	var result := ShapeFactory.new().build(sides_sequence, side_length, base_midpoint)
+	var result := ShapeFactory.new().build(level_data.sides_sequence, side_length, base_midpoint)
 	_shapes = result["shapes"]
 	_exit_edges = result["exit_edges"]
 	var path_finder := PathFinder.new()
 	var path_result := path_finder.build(_shapes, _exit_edges)
 	var path: PackedVector2Array = path_result["path"]
 	_shape_start_indices = path_result["shape_start_indices"]
+	conductor.seconds_per_edge = level_data.seconds_per_edge
 	player.setup(path)
 	conductor.setup(path_finder.build_note_indices(path, _exit_edges))
 	_shape_alphas.resize(_shapes.size())
@@ -68,4 +69,4 @@ func _current_shape() -> int:
 
 
 func _color_for_index(index: int) -> Color:
-	return Color.from_hsv(float(index) / sides_sequence.size(), 0.6, 1.0)
+	return Color.from_hsv(float(index) / level_data.sides_sequence.size(), 0.6, 1.0)
