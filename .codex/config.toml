@@ -1,0 +1,15 @@
+[mcp_servers.godot]
+command = "npx"
+args = ["@coding-solo/godot-mcp"]
+enabled = true
+default_tools_approval_mode = "approve"
+
+[mcp_servers.godot.env]
+GODOT_PATH = "/Applications/Godot.app/Contents/MacOS/Godot"
+DEBUG = "true"
+
+[mcp_servers.godot-mcp-docs]
+command = "docker"
+args = ["run", "--rm", "-i", "godot-mcp-docs:local"]
+enabled = true
+default_tools_approval_mode = "approve"
