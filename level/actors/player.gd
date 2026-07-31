@@ -19,6 +19,19 @@ func get_elapsed() -> float:
 	return _elapsed
 
 
+func get_velocity() -> Vector2:
+	if _path.size() < 2:
+		return Vector2.ZERO
+	var last_index := _path.size() - 1
+	var progress := _elapsed / seconds_per_edge
+	if progress >= last_index:
+		return Vector2.ZERO
+	var segment_index := int(progress)
+	var start := _path[segment_index]
+	var end := _path[segment_index + 1]
+	return (end - start) / seconds_per_edge
+
+
 func _process(delta: float) -> void:
 	var last_index := _path.size() - 1
 	if _path.size() < 2:

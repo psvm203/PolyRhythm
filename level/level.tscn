@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://level/actors/conductor.tscn" id="3_conductor"]
 [ext_resource type="Resource" path="res://level/data/level_data.tres" id="4_level_data"]
 [ext_resource type="AudioStream" path="res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV" id="5_music"]
+[ext_resource type="Script" path="res://level/camera.gd" id="6_camera"]
 
 [node name="Node2D" type="Node2D" unique_id=1619794752]
 script = ExtResource("1_level")
@@ -17,3 +18,6 @@ level_data = ExtResource("4_level_data")
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=146481574]
 stream = ExtResource("5_music")
 autoplay = true
+
+[node name="Camera" type="Camera2D" parent="." unique_id=1928374651]
+script = ExtResource("6_camera")

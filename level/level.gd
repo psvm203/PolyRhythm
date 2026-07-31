@@ -8,6 +8,7 @@ extends Node2D
 
 @onready var player: Node2D = $Player
 @onready var conductor: Node = $Conductor
+@onready var camera: Camera2D = $Camera
 
 var _shapes: Array[PackedVector2Array] = []
 var _exit_edges: Array[PackedVector2Array] = []
@@ -25,6 +26,7 @@ func _ready() -> void:
 	_shape_start_indices = path_result["shape_start_indices"]
 	conductor.seconds_per_edge = level_data.seconds_per_edge
 	player.setup(path)
+	camera.setup(player)
 	conductor.setup(path_finder.build_note_indices(path, _exit_edges))
 	_shape_alphas.resize(_shapes.size())
 	_shape_alphas.fill(1.0)
