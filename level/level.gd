@@ -5,6 +5,10 @@ extends Node2D
 @export var base_midpoint := Vector2(500, 600)
 @export var outline_width: float = 2.0
 @export var faded_alpha: float = 0.3
+@export var highlight_color := Color.WHITE
+@export var highlight_width: float = 6.0
+@export var highlight_glow_width: float = 14.0
+@export_range(0.0, 1.0) var highlight_glow_alpha: float = 0.35
 
 @onready var player: Node2D = $Player
 @onready var conductor: Node = $Conductor
@@ -12,6 +16,7 @@ extends Node2D
 
 var _shapes: Array[PackedVector2Array] = []
 var _exit_edges: Array[PackedVector2Array] = []
+var _path: PackedVector2Array = PackedVector2Array()
 var _shape_start_indices: PackedInt32Array = PackedInt32Array()
 var _shape_alphas: PackedFloat32Array = PackedFloat32Array()
 
@@ -22,15 +27,27 @@ func _ready() -> void:
 	_exit_edges = result["exit_edges"]
 	var path_finder := PathFinder.new()
 	var path_result := path_finder.build(_shapes, _exit_edges)
-	var path: PackedVector2Array = path_result["path"]
+	_path = path_result["path"]
 	_shape_start_indices = path_result["shape_start_indices"]
 	conductor.seconds_per_edge = level_data.seconds_per_edge
-	player.setup(path)
-	camera.setup(player)
-	conductor.setup(path_finder.build_note_indices(path, _exit_edges))
+	player.setup(_path)
+	conductor.setup(path_result["note_indices"])
+	camera.setup(player, _build_shape_centers(), _shape_start_indices)
 	_shape_alphas.resize(_shapes.size())
 	_shape_alphas.fill(1.0)
 	queue_redraw()
+
+
+func _build_shape_centers() -> PackedVector2Array:
+	var centers := PackedVector2Array()
+	for shape in _shapes:
+		var center := Vector2.ZERO
+		for point in shape:
+			center += point
+		if not shape.is_empty():
+			center /= shape.size()
+		centers.append(center)
+	return centers
 
 
 func _process(delta: float) -> void:
@@ -53,6 +70,26 @@ func _draw() -> void:
 		var outline := _shapes[index]
 		outline.append(outline[0])
 		draw_polyline(outline, Color(0.0, 0.0, 0.0, alpha), outline_width, true)
+	_draw_active_edge()
+
+
+func _draw_active_edge() -> void:
+	var segment := _active_segment()
+	if segment < 0:
+		return
+	var glow_color := highlight_color
+	glow_color.a *= highlight_glow_alpha
+	draw_line(_path[segment], _path[segment + 1], glow_color, highlight_glow_width, true)
+	draw_line(_path[segment], _path[segment + 1], highlight_color, highlight_width, true)
+
+
+func _active_segment() -> int:
+	if _path.size() < 2 or player.seconds_per_edge <= 0.0:
+		return -1
+	var segment := int(player.get_elapsed() / player.seconds_per_edge)
+	if segment >= _path.size() - 1:
+		return -1
+	return segment
 
 
 func _alpha_for_shape(index: int, current: int) -> float:

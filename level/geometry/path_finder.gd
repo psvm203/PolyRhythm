@@ -4,12 +4,20 @@ extends RefCounted
 func build(shapes: Array[PackedVector2Array], exit_edges: Array[PackedVector2Array]) -> Dictionary:
 	var path := PackedVector2Array()
 	var shape_start_indices := PackedInt32Array()
+	var note_indices := PackedInt32Array()
 	if shapes.is_empty():
-		return { "path": path, "shape_start_indices": shape_start_indices }
+		return {
+			"path": path,
+			"shape_start_indices": shape_start_indices,
+			"note_indices": note_indices,
+		}
 	var entry: Vector2 = exit_edges[0][0]
 	path.append(entry)
 	for index in shapes.size():
-		shape_start_indices.append(path.size() - 1)
+		var shape_start := path.size() - 1
+		shape_start_indices.append(shape_start)
+		if index > 0:
+			note_indices.append(shape_start)
 		var poly := shapes[index]
 		var entry_index := _index_of(poly, entry)
 		var is_last_shape := index >= exit_edges.size()
@@ -20,25 +28,11 @@ func build(shapes: Array[PackedVector2Array], exit_edges: Array[PackedVector2Arr
 		for vertex_index in chosen:
 			path.append(poly[vertex_index])
 		entry = poly[chosen[chosen.size() - 1]]
-	return { "path": path, "shape_start_indices": shape_start_indices }
-
-
-func build_note_indices(
-		path: PackedVector2Array,
-		exit_edges: Array[PackedVector2Array],
-) -> PackedInt32Array:
-	var indices := PackedInt32Array()
-	for index in range(1, path.size()):
-		if _is_shared_vertex(path[index], exit_edges):
-			indices.append(index)
-	return indices
-
-
-func _is_shared_vertex(point: Vector2, exit_edges: Array[PackedVector2Array]) -> bool:
-	for edge in exit_edges:
-		if point.is_equal_approx(edge[0]) or point.is_equal_approx(edge[1]):
-			return true
-	return false
+	return {
+		"path": path,
+		"shape_start_indices": shape_start_indices,
+		"note_indices": note_indices,
+	}
 
 
 func _append_final_loop(

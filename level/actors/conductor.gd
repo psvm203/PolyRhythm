@@ -45,5 +45,5 @@ func _note_time(note: int) -> float:
 
 
 func _emit_result(result: String, note_index: int) -> void:
-	print("Note %d: %s" % [note_index, result])
+	print("Note %d: %s" % [_next_note + 1, result])
 	judged.emit(result, note_index)

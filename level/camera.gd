@@ -1,10 +1,10 @@
 extends Camera2D
 
-@export var look_ahead_distance: float = 80.0
-@export var min_velocity_for_look_ahead: float = 1.0
 @export var smoothing_speed: float = 5.0
 
 var _target: Node2D
+var _shape_centers: PackedVector2Array = PackedVector2Array()
+var _shape_start_indices: PackedInt32Array = PackedInt32Array()
 
 
 func _ready() -> void:
@@ -13,18 +13,39 @@ func _ready() -> void:
 	make_current()
 
 
-func setup(target: Node2D) -> void:
+func setup(
+		target: Node2D,
+		shape_centers: PackedVector2Array,
+		shape_start_indices: PackedInt32Array,
+) -> void:
 	_target = target
-	global_position = target.global_position
+	_shape_centers = shape_centers
+	_shape_start_indices = shape_start_indices
+	global_position = _tracking_position()
 	reset_smoothing()
 
 
 func _process(_delta: float) -> void:
 	if _target == null:
 		return
-	var look_ahead := Vector2.ZERO
-	if _target.has_method("get_velocity"):
-		var velocity: Vector2 = _target.get_velocity()
-		if velocity.length() > min_velocity_for_look_ahead:
-			look_ahead = velocity.normalized() * look_ahead_distance
-	global_position = _target.global_position + look_ahead
+	global_position = _tracking_position()
+
+
+func _tracking_position() -> Vector2:
+	var shape := _current_shape()
+	if shape < 0:
+		return _target.global_position
+	var center := _shape_centers[shape]
+	return _target.to_global(center - _target.position)
+
+
+func _current_shape() -> int:
+	if _shape_centers.is_empty() or _target.seconds_per_edge <= 0.0:
+		return -1
+	var segment := int(_target.get_elapsed() / _target.seconds_per_edge)
+	var current := 0
+	for index in _shape_start_indices.size():
+		if _shape_start_indices[index] > segment:
+			break
+		current = index
+	return mini(current, _shape_centers.size() - 1)
