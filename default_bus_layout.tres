@@ -1,17 +1,10 @@
-[gd_resource type="AudioBusLayout" load_steps=2 format=3]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://burbco8kf82uf"]
 
 [sub_resource type="AudioEffectSpectrumAnalyzer" id="AudioEffectSpectrumAnalyzer_menu"]
 resource_name = "Menu Spectrum"
 buffer_length = 0.5
-fft_size = 2
 
 [resource]
-bus/0/name = &"Master"
-bus/0/solo = false
-bus/0/mute = false
-bus/0/bypass_fx = false
-bus/0/volume_db = 0.0
-bus/0/send = &""
 bus/1/name = &"MenuMusic"
 bus/1/solo = false
 bus/1/mute = false

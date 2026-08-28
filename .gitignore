@@ -3,4 +3,6 @@
 /android/
 
 *.WAV
+!main/audio/ui_focus.wav
+!main/audio/ui_click.wav
 .DS_Store
