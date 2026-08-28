@@ -1,0 +1,852 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://main/main_screen.gd" id="1_main"]
+[ext_resource type="AudioStream" path="res://main/audio/main_background_bgm.wav" id="2_bgm"]
+[ext_resource type="Script" path="res://main/stage_record.gd" id="3_record"]
+
+[sub_resource type="StyleBoxFlat" id="StyleButtonNormal"]
+bg_color = Color(0.045, 0.075, 0.15, 0.84)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.52, 0.59, 0.76, 0.72)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
+bg_color = Color(0.055, 0.11, 0.2, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 0.88, 0.85, 1)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0.05, 0.9, 0.85, 0.25)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleButtonPressed"]
+bg_color = Color(0.07, 0.22, 0.28, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 1, 0.9, 1)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+
+[sub_resource type="StyleBoxFlat" id="StyleOverlay"]
+bg_color = Color(0.035, 0.06, 0.14, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.76, 0.82, 0.75)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleStageActive"]
+bg_color = Color(0.025, 0.075, 0.15, 0.72)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.05, 0.9, 0.92, 0.95)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.02, 0.8, 0.9, 0.18)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleStageLocked"]
+bg_color = Color(0.025, 0.045, 0.095, 0.76)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.46, 0.58, 0.72)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[sub_resource type="StyleBoxFlat" id="StyleBackButton"]
+bg_color = Color(0.035, 0.075, 0.15, 0.76)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1, 0.85, 0.9, 0.9)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBackHover"]
+bg_color = Color(0.045, 0.13, 0.2, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1, 0.95, 0.95, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.05, 0.9, 0.9, 0.22)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBackPressed"]
+bg_color = Color(0.055, 0.22, 0.26, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.15, 1, 0.95, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleSettingsPanel"]
+bg_color = Color(0.025, 0.055, 0.12, 0.82)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 0.55, 0.95, 0.82)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.38)
+shadow_size = 14
+
+[sub_resource type="StyleBoxEmpty" id="StyleEmpty"]
+
+[sub_resource type="LabelSettings" id="LabelTitleWhite"]
+font_size = 76
+font_color = Color(0.96, 0.95, 1, 1)
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.48)
+shadow_size = 10
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_offset = Vector2(4, 8)
+
+[sub_resource type="LabelSettings" id="LabelTitlePink"]
+font_size = 76
+font_color = Color(0.96, 0.025, 0.36, 1)
+outline_size = 7
+outline_color = Color(0.15, 0, 0.08, 0.65)
+shadow_size = 10
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_offset = Vector2(4, 8)
+
+[node name="MainScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_main")
+
+[node name="BackgroundMusic" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("2_bgm")
+volume_db = -2.0
+autoplay = true
+bus = &"MenuMusic"
+
+[node name="Content" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -295.0
+offset_right = 360.0
+offset_bottom = 335.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 22
+
+[node name="Logo" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -6
+
+[node name="Poly" type="Label" parent="Content/Logo"]
+layout_mode = 2
+text = "Poly"
+label_settings = SubResource("LabelTitleWhite")
+
+[node name="Rhythm" type="Label" parent="Content/Logo"]
+layout_mode = 2
+text = "Rhythm"
+label_settings = SubResource("LabelTitlePink")
+
+[node name="Spacer" type="Control" parent="Content"]
+custom_minimum_size = Vector2(0, 55)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Menu" type="VBoxContainer" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 14
+
+[node name="StartButton" type="Button" parent="Content/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 66)
+layout_mode = 2
+focus_neighbor_top = NodePath("../ExitButton")
+focus_neighbor_bottom = NodePath("../SettingsButton")
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "Start"
+
+[node name="SettingsButton" type="Button" parent="Content/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 66)
+layout_mode = 2
+focus_neighbor_top = NodePath("../StartButton")
+focus_neighbor_bottom = NodePath("../CreditsButton")
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "Settings"
+
+[node name="CreditsButton" type="Button" parent="Content/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 66)
+layout_mode = 2
+focus_neighbor_top = NodePath("../SettingsButton")
+focus_neighbor_bottom = NodePath("../ExitButton")
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "Credits"
+
+[node name="ExitButton" type="Button" parent="Content/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 66)
+layout_mode = 2
+focus_neighbor_top = NodePath("../CreditsButton")
+focus_neighbor_bottom = NodePath("../StartButton")
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "Exit"
+
+[node name="StageScreen" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackButton" type="Button" parent="StageScreen"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 38.0
+offset_top = 38.0
+offset_right = 102.0
+offset_bottom = 102.0
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBackButton")
+theme_override_styles/hover = SubResource("StyleBackHover")
+theme_override_styles/pressed = SubResource("StyleBackPressed")
+theme_override_styles/focus = SubResource("StyleBackHover")
+text = "←"
+
+[node name="StageLayout" type="VBoxContainer" parent="StageScreen"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -555.0
+offset_top = -395.0
+offset_right = 555.0
+offset_bottom = 365.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="SmallLogo" type="HBoxContainer" parent="StageScreen/StageLayout"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -3
+
+[node name="Poly" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 40
+text = "Poly"
+
+[node name="Rhythm" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.08, 0.42, 1)
+theme_override_font_sizes/font_size = 40
+text = "Rhythm"
+
+[node name="StageTitle" type="Label" parent="StageScreen/StageLayout"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 92)
+theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "•  S T A G E   S E L E C T  •"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Cards" type="HBoxContainer" parent="StageScreen/StageLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 34
+
+[node name="StageOne" type="PanelContainer" parent="StageScreen/StageLayout/Cards"]
+custom_minimum_size = Vector2(347, 510)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleStageActive")
+
+[node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/Cards/StageOne"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Stage" type="Label" parent="StageScreen/StageLayout/Cards/StageOne/Items"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 23
+text = "STAGE"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="Number" type="Label" parent="StageScreen/StageLayout/Cards/StageOne/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 56
+text = "·  01  ·"
+horizontal_alignment = 1
+
+[node name="Record" type="Control" parent="StageScreen/StageLayout/Cards/StageOne/Items"]
+custom_minimum_size = Vector2(0, 270)
+layout_mode = 2
+script = ExtResource("3_record")
+active = true
+
+[node name="Name" type="Label" parent="StageScreen/StageLayout/Cards/StageOne/Items"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.95, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Rhythm Start"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StageOneButton" type="Button" parent="StageScreen/StageLayout/Cards/StageOne"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true
+
+[node name="StageTwo" type="PanelContainer" parent="StageScreen/StageLayout/Cards"]
+custom_minimum_size = Vector2(347, 510)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleStageLocked")
+
+[node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/Cards/StageTwo"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Stage" type="Label" parent="StageScreen/StageLayout/Cards/StageTwo/Items"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.43, 0.46, 0.57, 1)
+theme_override_font_sizes/font_size = 23
+text = "STAGE"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="Number" type="Label" parent="StageScreen/StageLayout/Cards/StageTwo/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.51, 0.62, 1)
+theme_override_font_sizes/font_size = 56
+text = "·  02  ·"
+horizontal_alignment = 1
+
+[node name="Record" type="Control" parent="StageScreen/StageLayout/Cards/StageTwo/Items"]
+custom_minimum_size = Vector2(0, 270)
+layout_mode = 2
+script = ExtResource("3_record")
+
+[node name="Name" type="Label" parent="StageScreen/StageLayout/Cards/StageTwo/Items"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.55, 0.57, 0.66, 1)
+theme_override_font_sizes/font_size = 24
+text = "🔒  Beat Flow"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StageThree" type="PanelContainer" parent="StageScreen/StageLayout/Cards"]
+custom_minimum_size = Vector2(347, 510)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleStageLocked")
+
+[node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/Cards/StageThree"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Stage" type="Label" parent="StageScreen/StageLayout/Cards/StageThree/Items"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.43, 0.46, 0.57, 1)
+theme_override_font_sizes/font_size = 23
+text = "STAGE"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="Number" type="Label" parent="StageScreen/StageLayout/Cards/StageThree/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.51, 0.62, 1)
+theme_override_font_sizes/font_size = 56
+text = "·  03  ·"
+horizontal_alignment = 1
+
+[node name="Record" type="Control" parent="StageScreen/StageLayout/Cards/StageThree/Items"]
+custom_minimum_size = Vector2(0, 270)
+layout_mode = 2
+script = ExtResource("3_record")
+
+[node name="Name" type="Label" parent="StageScreen/StageLayout/Cards/StageThree/Items"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.55, 0.57, 0.66, 1)
+theme_override_font_sizes/font_size = 24
+text = "🔒  Pulse Master"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SettingsScreen" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsBackButton" type="Button" parent="SettingsScreen"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 38.0
+offset_top = 38.0
+offset_right = 102.0
+offset_bottom = 102.0
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBackButton")
+theme_override_styles/hover = SubResource("StyleBackHover")
+theme_override_styles/pressed = SubResource("StyleBackPressed")
+theme_override_styles/focus = SubResource("StyleBackHover")
+text = "←"
+
+[node name="SettingsLayout" type="VBoxContainer" parent="SettingsScreen"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -555.0
+offset_top = -395.0
+offset_right = 555.0
+offset_bottom = 365.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="SmallLogo" type="HBoxContainer" parent="SettingsScreen/SettingsLayout"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -3
+
+[node name="Poly" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 40
+text = "Poly"
+
+[node name="Rhythm" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.08, 0.42, 1)
+theme_override_font_sizes/font_size = 40
+text = "Rhythm"
+
+[node name="SettingsTitle" type="Label" parent="SettingsScreen/SettingsLayout"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "•  S E T T I N G S  •"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SettingsPanel" type="PanelContainer" parent="SettingsScreen/SettingsLayout"]
+custom_minimum_size = Vector2(0, 510)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleSettingsPanel")
+
+[node name="Margin" type="MarginContainer" parent="SettingsScreen/SettingsLayout/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 28
+
+[node name="Rows" type="VBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Fullscreen" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Fullscreen"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.38, 1, 1)
+theme_override_font_sizes/font_size = 34
+text = "▣"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Fullscreen"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Fullscreen"
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Fullscreen"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FullscreenToggle" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Fullscreen"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.58, 0.63, 0.74, 1)
+theme_override_colors/font_hover_color = Color(0.76, 0.8, 0.9, 1)
+theme_override_colors/font_pressed_color = Color(0.08, 1, 0.92, 1)
+theme_override_colors/font_focus_color = Color(0.76, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "OFF"
+
+[node name="Separator1" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="Master" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Master"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.35, 1, 1)
+theme_override_font_sizes/font_size = 34
+text = "◖))"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Master"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Master Volume"
+vertical_alignment = 1
+
+[node name="MasterSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Master"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 80.0
+
+[node name="MasterValue" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Master"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 24
+text = "80%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Separator2" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="Music" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Music"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.18, 0.62, 1)
+theme_override_font_sizes/font_size = 38
+text = "♫"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Music"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Music Volume"
+vertical_alignment = 1
+
+[node name="MusicSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Music"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+step = 1.0
+value = 70.0
+
+[node name="MusicValue" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Music"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 24
+text = "70%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Separator3" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="Sfx" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Sfx"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.35, 1, 1)
+theme_override_font_sizes/font_size = 27
+text = "▮▯▮"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Sfx"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "SFX Volume"
+vertical_alignment = 1
+
+[node name="SfxSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+step = 1.0
+value = 60.0
+
+[node name="SfxValue" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 24
+text = "60%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Overlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.005, 0.01, 0.035, 0.78)
+
+[node name="Center" type="CenterContainer" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Overlay/Center"]
+custom_minimum_size = Vector2(540, 310)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleOverlay")
+
+[node name="Margin" type="MarginContainer" parent="Overlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 52
+theme_override_constants/margin_top = 42
+theme_override_constants/margin_right = 52
+theme_override_constants/margin_bottom = 42
+
+[node name="Items" type="VBoxContainer" parent="Overlay/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="WarningBadge" type="PanelContainer" parent="Overlay/Center/Panel/Margin/Items"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleButtonNormal")
+
+[node name="Icon" type="Label" parent="Overlay/Center/Panel/Margin/Items/WarningBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.25, 0.52, 1)
+theme_override_font_sizes/font_size = 34
+text = "!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OverlayTitle" type="Label" parent="Overlay/Center/Panel/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.12, 0.48, 1)
+theme_override_font_sizes/font_size = 34
+text = "TITLE"
+horizontal_alignment = 1
+
+[node name="OverlayBody" type="Label" parent="Overlay/Center/Panel/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.86, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Body"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Overlay/Center/Panel/Margin/Items"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "Back"
+
+[node name="ExitButtons" type="HBoxContainer" parent="Overlay/Center/Panel/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CancelExitButton" type="Button" parent="Overlay/Center/Panel/Margin/Items/ExitButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "취소"
+
+[node name="ConfirmExitButton" type="Button" parent="Overlay/Center/Panel/Margin/Items/ExitButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.76, 0.86, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "나가기"
