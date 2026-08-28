@@ -6,8 +6,10 @@ const MAGENTA := Color("ed1671")
 
 @onready var menu: VBoxContainer = %Menu
 @onready var main_content: Control = %Content
+@onready var main_logo: Control = $Content/Logo
 @onready var stage_screen: Control = %StageScreen
 @onready var settings_screen: Control = %SettingsScreen
+@onready var transition_logo: Control = %TransitionLogo
 @onready var overlay: Control = %Overlay
 @onready var overlay_title: Label = %OverlayTitle
 @onready var overlay_body: Label = %OverlayBody
@@ -15,25 +17,37 @@ const MAGENTA := Color("ed1671")
 @onready var close_button: Button = %CloseButton
 @onready var warning_badge: Control = %WarningBadge
 @onready var background_music: AudioStreamPlayer = %BackgroundMusic
+@onready var focus_sfx: AudioStreamPlayer = %FocusSfx
+@onready var click_sfx: AudioStreamPlayer = %ClickSfx
 
 var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _motion_time := 0.0
 var _bass := 0.0
 var _mid := 0.0
 var _treble := 0.0
+var _last_slider_sfx_ms := 0
+var _transitioning := false
+var _stage_card_tweens: Dictionary = {}
 
 
 func _ready() -> void:
 	get_viewport().size_changed.connect(queue_redraw)
+	_connect_ui_sfx(self)
 	%StartButton.pressed.connect(_show_stage_select)
 	%BackButton.pressed.connect(_hide_stage_select)
 	%StageOneButton.pressed.connect(_start_game)
+	_setup_stage_card(%StageOneButton, $StageScreen/StageLayout/CardsSlot/Cards/StageOne, $StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record)
+	_setup_stage_card(%StageTwoButton, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record)
+	_setup_stage_card(%StageThreeButton, $StageScreen/StageLayout/CardsSlot/Cards/StageThree, $StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items/Record)
 	%SettingsButton.pressed.connect(_show_settings)
 	%SettingsBackButton.pressed.connect(_hide_settings)
 	%FullscreenToggle.toggled.connect(_set_fullscreen)
 	%MasterSlider.value_changed.connect(_set_master_volume)
 	%MusicSlider.value_changed.connect(_set_music_volume)
 	%SfxSlider.value_changed.connect(_set_sfx_volume)
+	%MasterSlider.value_changed.connect(_play_slider_sfx)
+	%MusicSlider.value_changed.connect(_play_slider_sfx)
+	%SfxSlider.value_changed.connect(_play_slider_sfx)
 	%CreditsButton.pressed.connect(_show_credits)
 	%ExitButton.pressed.connect(_show_exit)
 	close_button.pressed.connect(_hide_overlay)
@@ -41,7 +55,72 @@ func _ready() -> void:
 	%ConfirmExitButton.pressed.connect(get_tree().quit)
 	background_music.finished.connect(background_music.play)
 	_initialize_settings()
+	transition_logo.reset_size()
 	queue_redraw()
+
+
+func _connect_ui_sfx(node: Node) -> void:
+	if node is BaseButton:
+		var button := node as BaseButton
+		button.mouse_entered.connect(_play_focus_sfx)
+		button.focus_entered.connect(_play_focus_sfx)
+		button.pressed.connect(_play_click_sfx)
+	for child in node.get_children():
+		_connect_ui_sfx(child)
+
+
+func _play_focus_sfx() -> void:
+	focus_sfx.pitch_scale = 1.0
+	focus_sfx.play()
+
+
+func _play_click_sfx() -> void:
+	if focus_sfx.playing:
+		focus_sfx.stop()
+	click_sfx.play()
+
+
+func _play_slider_sfx(value: float) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_slider_sfx_ms < 45:
+		return
+	_last_slider_sfx_ms = now
+	focus_sfx.pitch_scale = lerpf(0.82, 1.18, clampf(value / 100.0, 0.0, 1.0))
+	focus_sfx.play()
+
+
+func _setup_stage_card(button: BaseButton, card: Control, record: Control) -> void:
+	button.mouse_entered.connect(_update_stage_card.bind(button, card, record))
+	button.mouse_exited.connect(_update_stage_card.bind(button, card, record))
+	button.focus_entered.connect(_update_stage_card.bind(button, card, record))
+	button.focus_exited.connect(_update_stage_card.bind(button, card, record))
+
+
+func _update_stage_card(button: BaseButton, card: Control, record: Control) -> void:
+	var highlighted := button.is_hovered() or button.has_focus()
+	var active: bool = record.get("active")
+	card.pivot_offset = card.size * 0.5
+	card.z_index = 2 if highlighted else 0
+	record.call("set_highlighted", highlighted)
+	var panel_style := card.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+	if highlighted:
+		panel_style.border_color = Color(0.08, 0.92, 0.94, 1.0) if active else Color(0.8, 0.8, 0.8, 0.82)
+		panel_style.shadow_color = Color(0.04, 0.86, 0.92, 0.28) if active else Color(0.76, 0.76, 0.76, 0.16)
+		panel_style.shadow_size = 14
+	else:
+		panel_style.border_color = Color(0.86, 0.89, 0.96, 0.76) if active else Color(0.74, 0.74, 0.74, 0.52)
+		panel_style.shadow_color = Color.TRANSPARENT
+		panel_style.shadow_size = 0
+	card.add_theme_stylebox_override("panel", panel_style)
+	if _stage_card_tweens.has(card):
+		var previous := _stage_card_tweens[card] as Tween
+		if previous != null and previous.is_valid():
+			previous.kill()
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "scale", Vector2.ONE * (1.04 if highlighted else 1.0), 0.18)
+	tween.tween_property(card, "modulate", Color(1.05, 1.05, 1.05, 1.0) if highlighted else Color.WHITE, 0.18)
+	_stage_card_tweens[card] = tween
 
 
 func _process(delta: float) -> void:
@@ -239,15 +318,11 @@ func _start_game() -> void:
 
 
 func _show_settings() -> void:
-	_clear_focus()
-	main_content.hide()
-	settings_screen.show()
+	_transition_to(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton)
 
 
 func _hide_settings() -> void:
-	_clear_focus()
-	settings_screen.hide()
-	main_content.show()
+	_transition_to_main(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton)
 
 
 func _initialize_settings() -> void:
@@ -333,15 +408,141 @@ func _hide_overlay() -> void:
 
 
 func _show_stage_select() -> void:
-	_clear_focus()
-	main_content.hide()
-	stage_screen.show()
+	_transition_to(stage_screen, $StageScreen/StageLayout/SmallLogo, %StageTitle, $StageScreen/StageLayout/CardsSlot/Cards, %BackButton)
 
 
 func _hide_stage_select() -> void:
+	_transition_to_main(stage_screen, $StageScreen/StageLayout/SmallLogo, %StageTitle, $StageScreen/StageLayout/CardsSlot/Cards, %BackButton)
+
+
+func _transition_to(
+	target_screen: Control,
+	target_logo: Control,
+	target_title: Control,
+	target_body: Control,
+	back_button: Control,
+) -> void:
+	if _transitioning:
+		return
+	_transitioning = true
 	_clear_focus()
-	stage_screen.hide()
+	target_screen.modulate.a = 0.0
+	transition_logo.modulate.a = 0.0
+	transition_logo.show()
+	target_screen.show()
+	await _wait_for_layout()
+
+	var content_home := main_content.position
+	var title_home := target_title.position
+	var body_home := target_body.position
+	var main_logo_scale := _logo_scale_for(main_logo)
+	var target_logo_scale := _logo_scale_for(target_logo)
+
+	transition_logo.position = main_logo.global_position
+	transition_logo.scale = main_logo_scale
+	transition_logo.modulate = Color.WHITE
+	main_logo.modulate.a = 0.0
+	target_logo.modulate.a = 0.0
+	target_title.modulate.a = 0.0
+	target_title.position = title_home + Vector2(0, 42)
+	target_body.modulate.a = 0.0
+	target_body.position = body_home + Vector2(0, 110)
+	back_button.modulate.a = 0.0
+	target_screen.modulate.a = 1.0
+
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(transition_logo, "position", target_logo.global_position, 0.52)
+	tween.tween_property(transition_logo, "scale", target_logo_scale, 0.52)
+	tween.tween_property(main_content, "position", content_home + Vector2(0, 74), 0.32)
+	tween.tween_property(main_content, "modulate:a", 0.0, 0.25)
+	tween.tween_property(target_title, "position", title_home, 0.42).set_delay(0.18)
+	tween.tween_property(target_title, "modulate:a", 1.0, 0.32).set_delay(0.18)
+	tween.tween_property(target_body, "position", body_home, 0.48).set_delay(0.22)
+	tween.tween_property(target_body, "modulate:a", 1.0, 0.36).set_delay(0.22)
+	tween.tween_property(back_button, "modulate:a", 1.0, 0.28).set_delay(0.25)
+	await tween.finished
+
+	main_content.hide()
+	main_content.position = content_home
+	main_content.modulate.a = 1.0
+	main_logo.modulate.a = 1.0
+	target_logo.modulate.a = 1.0
+	transition_logo.hide()
+	_transitioning = false
+
+
+func _transition_to_main(
+	current_screen: Control,
+	current_logo: Control,
+	current_title: Control,
+	current_body: Control,
+	back_button: Control,
+) -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	_clear_focus()
+	main_content.modulate.a = 0.0
+	transition_logo.modulate.a = 0.0
+	transition_logo.show()
 	main_content.show()
+	await _wait_for_layout()
+
+	var content_home := main_content.position
+	var title_home := current_title.position
+	var body_home := current_body.position
+	var current_logo_scale := _logo_scale_for(current_logo)
+	var main_logo_scale := _logo_scale_for(main_logo)
+	var main_logo_home_global := main_logo.global_position
+
+	main_logo.modulate.a = 0.0
+	main_content.position = content_home + Vector2(0, 74)
+	transition_logo.position = current_logo.global_position
+	transition_logo.scale = current_logo_scale
+	transition_logo.modulate = Color.WHITE
+	current_logo.modulate.a = 0.0
+
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(current_title, "position", title_home + Vector2(0, 42), 0.32)
+	tween.tween_property(current_title, "modulate:a", 0.0, 0.24)
+	tween.tween_property(current_body, "position", body_home + Vector2(0, 110), 0.38)
+	tween.tween_property(current_body, "modulate:a", 0.0, 0.28)
+	tween.tween_property(back_button, "modulate:a", 0.0, 0.2)
+	tween.tween_property(transition_logo, "position", main_logo_home_global, 0.52)
+	tween.tween_property(transition_logo, "scale", main_logo_scale, 0.52)
+	tween.tween_property(main_content, "position", content_home, 0.42).set_delay(0.18)
+	tween.tween_property(main_content, "modulate:a", 1.0, 0.3).set_delay(0.2)
+	await tween.finished
+
+	current_screen.hide()
+	current_logo.modulate.a = 1.0
+	current_title.position = title_home
+	current_title.modulate.a = 1.0
+	current_body.position = body_home
+	current_body.modulate.a = 1.0
+	back_button.modulate.a = 1.0
+	main_logo.modulate.a = 1.0
+	transition_logo.hide()
+	_transitioning = false
+
+
+func _wait_for_layout() -> void:
+	# Visible containers can enqueue another sort while their minimum sizes propagate.
+	# Two completed idle frames make all destination rectangles deterministic before
+	# the overlay logo samples global coordinates.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	transition_logo.reset_size()
+	await get_tree().process_frame
+
+
+func _logo_scale_for(logo: Control) -> Vector2:
+	return Vector2(
+		logo.size.x / maxf(transition_logo.size.x, 1.0),
+		logo.size.y / maxf(transition_logo.size.y, 1.0),
+	)
 
 
 func _clear_focus() -> void:
