@@ -3,3 +3,4 @@
 /android/
 
 *.WAV
+.DS_Store
