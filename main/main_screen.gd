@@ -27,7 +27,7 @@ var _mid := 0.0
 var _treble := 0.0
 var _last_slider_sfx_ms := 0
 var _transitioning := false
-var _stage_card_tweens: Dictionary = {}
+var _stage_card_tweens: Dictionary = { }
 
 
 func _ready() -> void:
@@ -137,7 +137,8 @@ func _update_audio_response(delta: float) -> void:
 		if bus_index < 0:
 			return
 		_analyzer = AudioServer.get_bus_effect_instance(
-			bus_index, 0
+			bus_index,
+			0,
 		) as AudioEffectSpectrumAnalyzerInstance
 	if _analyzer == null:
 		return
@@ -212,13 +213,13 @@ func _draw_orbits(view: Vector2) -> void:
 
 
 func _draw_arc_segments(
-	center: Vector2,
-	radius: float,
-	start_angle: float,
-	end_angle: float,
-	segments: int,
-	color: Color,
-	width: float,
+		center: Vector2,
+		radius: float,
+		start_angle: float,
+		end_angle: float,
+		segments: int,
+		color: Color,
+		width: float,
 ) -> void:
 	var previous := center + Vector2.from_angle(start_angle) * radius
 	for index in range(1, segments + 1):
@@ -305,11 +306,13 @@ func _draw_music_notes(view: Vector2) -> void:
 		var stem_bottom := origin + (Vector2(6.5, 0) * scale_value).rotated(sway)
 		var stem_top := origin + (Vector2(6.5, -31) * scale_value).rotated(sway)
 		draw_line(stem_bottom, stem_top, color, 4.0 * scale_value, true)
-		var flag := PackedVector2Array([
-			origin + (Vector2(6.5, -31) * scale_value).rotated(sway),
-			origin + (Vector2(22, -25) * scale_value).rotated(sway),
-			origin + (Vector2(7, -19) * scale_value).rotated(sway),
-		])
+		var flag := PackedVector2Array(
+			[
+				origin + (Vector2(6.5, -31) * scale_value).rotated(sway),
+				origin + (Vector2(22, -25) * scale_value).rotated(sway),
+				origin + (Vector2(7, -19) * scale_value).rotated(sway),
+			],
+		)
 		draw_colored_polygon(flag, color)
 
 
@@ -416,11 +419,11 @@ func _hide_stage_select() -> void:
 
 
 func _transition_to(
-	target_screen: Control,
-	target_logo: Control,
-	target_title: Control,
-	target_body: Control,
-	back_button: Control,
+		target_screen: Control,
+		target_logo: Control,
+		target_title: Control,
+		target_body: Control,
+		back_button: Control,
 ) -> void:
 	if _transitioning:
 		return
@@ -473,11 +476,11 @@ func _transition_to(
 
 
 func _transition_to_main(
-	current_screen: Control,
-	current_logo: Control,
-	current_title: Control,
-	current_body: Control,
-	back_button: Control,
+		current_screen: Control,
+		current_logo: Control,
+		current_title: Control,
+		current_body: Control,
+		back_button: Control,
 ) -> void:
 	if _transitioning:
 		return

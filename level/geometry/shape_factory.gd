@@ -4,6 +4,9 @@ extends RefCounted
 func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector2) -> Dictionary:
 	var shapes: Array[PackedVector2Array] = []
 	var exit_edges: Array[PackedVector2Array] = []
+	var polygon_centers := PackedVector2Array()
+	var exit_edge_local_indices := PackedInt32Array()
+	var sides_counts := PackedInt32Array()
 	var base_half_offset := Vector2(side_length / 2.0, 0.0)
 	var shape := _build_polygon(
 		sides_sequence[0],
@@ -11,6 +14,9 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 		base_midpoint + base_half_offset,
 	)
 	shapes.append(shape)
+	polygon_centers.append(_center_of(shape))
+	exit_edge_local_indices.append(_exit_local_index(0, shape.size()))
+	sides_counts.append(shape.size())
 	for index in range(1, sides_sequence.size()):
 		var use_left_edge := index % 2 == 1
 		var next_base_left: Vector2
@@ -24,7 +30,16 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 		exit_edges.append(PackedVector2Array([next_base_left, next_base_right]))
 		shape = _build_polygon(sides_sequence[index], next_base_left, next_base_right)
 		shapes.append(shape)
-	return { "shapes": shapes, "exit_edges": exit_edges }
+		polygon_centers.append(_center_of(shape))
+		exit_edge_local_indices.append(_exit_local_index(index, shape.size()))
+		sides_counts.append(shape.size())
+	return {
+		"shapes": shapes,
+		"exit_edges": exit_edges,
+		"polygon_centers": polygon_centers,
+		"exit_edge_local_indices": exit_edge_local_indices,
+		"sides_counts": sides_counts,
+	}
 
 
 func _build_polygon(side_count: int, base_left: Vector2, base_right: Vector2) -> PackedVector2Array:
@@ -36,3 +51,18 @@ func _build_polygon(side_count: int, base_left: Vector2, base_right: Vector2) ->
 	for i in side_count:
 		points.append(center + (base_left - center).rotated(i * TAU / side_count))
 	return points
+
+
+func _center_of(polygon: PackedVector2Array) -> Vector2:
+	if polygon.is_empty():
+		return Vector2.ZERO
+	var center := Vector2.ZERO
+	for point in polygon:
+		center += point
+	return center / polygon.size()
+
+
+func _exit_local_index(polygon_index: int, sides_count: int) -> int:
+	if polygon_index % 2 == 0:
+		return 0
+	return sides_count - 2
