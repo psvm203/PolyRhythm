@@ -3,23 +3,37 @@
 [ext_resource type="Script" uid="uid://bs40xfk6x0fwe" path="res://level/level.gd" id="1_level"]
 [ext_resource type="PackedScene" uid="uid://b3j4vnxq07ykw" path="res://level/actors/rotator.tscn" id="2_rotator"]
 [ext_resource type="PackedScene" path="res://level/actors/conductor.tscn" id="3_conductor"]
-[ext_resource type="Resource" uid="uid://8jn2r0h76syu" path="res://level/data/level_data.tres" id="4_level_data"]
-[ext_resource type="AudioStream" uid="uid://de46axs22otch" path="res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV" id="5_music"]
 [ext_resource type="Script" uid="uid://bajfi2s8iq4co" path="res://level/camera.gd" id="6_camera"]
 [ext_resource type="PackedScene" uid="uid://cvbnmlkjhgfds" path="res://level/ui/countdown_overlay.tscn" id="7_countdown"]
 [ext_resource type="PackedScene" uid="uid://d2gh6pqrstwxw" path="res://level/ui/judgement_overlay.tscn" id="8_judgement"]
+[ext_resource type="Script" uid="uid://bjtj2csi64hdw" path="res://level/ui/level_background.gd" id="9_background"]
+[ext_resource type="PackedScene" path="res://level/ui/pause_overlay.tscn" id="10_pause"]
+[ext_resource type="PackedScene" path="res://level/ui/dialogue_overlay.tscn" id="11_dialogue"]
+[ext_resource type="PackedScene" path="res://level/ui/gameplay_hud.tscn" id="12_hud"]
+[ext_resource type="PackedScene" path="res://level/ui/result_overlay.tscn" id="13_result"]
 
 [node name="Node2D" type="Node2D" unique_id=1619794752]
 script = ExtResource("1_level")
-level_data = ExtResource("4_level_data")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=108490001]
+layer = -10
+
+[node name="Background" type="Control" parent="BackgroundLayer" unique_id=1921213711]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("9_background")
 
 [node name="Rotator" parent="." unique_id=1890792036 instance=ExtResource("2_rotator")]
 
 [node name="Conductor" parent="." unique_id=511379966 instance=ExtResource("3_conductor")]
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=146481574]
-stream = ExtResource("5_music")
-autoplay = true
+bus = &"MenuMusic"
 
 [node name="Camera" type="Camera2D" parent="." unique_id=1928374651]
 script = ExtResource("6_camera")
@@ -27,3 +41,11 @@ script = ExtResource("6_camera")
 [node name="CountdownOverlay" parent="." unique_id=1154397491 instance=ExtResource("7_countdown")]
 
 [node name="JudgementOverlay" parent="." unique_id=2031827451 instance=ExtResource("8_judgement")]
+
+[node name="DialogueOverlay" parent="." unique_id=1045490870 instance=ExtResource("11_dialogue")]
+
+[node name="PauseOverlay" parent="." unique_id=1638523243 instance=ExtResource("10_pause")]
+
+[node name="GameplayHUD" parent="." instance=ExtResource("12_hud")]
+
+[node name="ResultOverlay" parent="." instance=ExtResource("13_result")]

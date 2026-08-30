@@ -41,4 +41,6 @@ func _color_for(result: String) -> Color:
 			return Color(0.6, 0.6, 0.85, 1.0)
 		"Too Slow":
 			return Color(0.85, 0.5, 0.5, 1.0)
+		"BLOCKED":
+			return Color(1.0, 0.18, 0.3, 1.0)
 	return Color.WHITE

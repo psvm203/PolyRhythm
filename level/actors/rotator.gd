@@ -9,9 +9,6 @@ var entrance_edges_world: Array[PackedVector2Array] = []
 var exit_angle_offsets: PackedFloat32Array = PackedFloat32Array()
 var start_offsets: PackedVector2Array = PackedVector2Array()
 
-var bpm: float = 120.0
-var beat_duration: float = 0.5
-var alignment_interval: float = 0.125
 var transition_duration: float = 0.32
 var current_index: int = 0
 var angle: float = 0.0
@@ -22,7 +19,6 @@ var paused: bool = true
 var _transition_time: float = 0.0
 var current_offset: Vector2 = Vector2.ZERO
 var _start_offset: Vector2 = Vector2.ZERO
-var rotation_period: float = 0.0
 
 var rotated_current: PackedVector2Array = PackedVector2Array()
 
@@ -33,7 +29,6 @@ func setup(
 		sides_counts_arg: PackedInt32Array,
 		entrance_edges_world_arg: Array[PackedVector2Array],
 		exit_angle_offsets_arg: PackedFloat32Array,
-		bpm_arg: float,
 		start_offsets_arg: PackedVector2Array,
 		transition_duration_arg: float,
 ) -> void:
@@ -42,9 +37,6 @@ func setup(
 	sides_counts = sides_counts_arg
 	entrance_edges_world = entrance_edges_world_arg
 	exit_angle_offsets = exit_angle_offsets_arg
-	bpm = maxf(bpm_arg, 0.0001)
-	beat_duration = 60.0 / bpm
-	alignment_interval = beat_duration / 4.0
 	start_offsets = start_offsets_arg
 	transition_duration = maxf(transition_duration_arg, 0.0)
 	current_index = 0
@@ -93,6 +85,12 @@ func snap_to_target() -> void:
 	_compute_rotated_current()
 
 
+func restart_current_transition() -> void:
+	if polygons.is_empty() or current_index < 0 or current_index > last_index:
+		return
+	_enter_polygon(current_index)
+
+
 func _start_offset_for(index: int) -> Vector2:
 	if index < 0 or index >= start_offsets.size():
 		return Vector2.ZERO
@@ -137,6 +135,20 @@ func get_rotated_exit_edge_world() -> PackedVector2Array:
 	var center: Vector2 = polygon_centers[current_index]
 	var rotated_a := center + (exit_a - center).rotated(angle)
 	var rotated_b := center + (exit_b - center).rotated(angle)
+	return PackedVector2Array([rotated_a, rotated_b])
+
+
+func get_rotated_entrance_edge_world() -> PackedVector2Array:
+	if polygons.is_empty() or current_index < 0 or current_index >= polygons.size():
+		return PackedVector2Array()
+	var poly := polygons[current_index]
+	if poly.size() < 2:
+		return PackedVector2Array()
+	var center: Vector2 = polygon_centers[current_index]
+	var world_center := center + current_offset
+	# ShapeFactory builds the shared base as the closing edge: last vertex -> first vertex.
+	var rotated_a := world_center + (poly[poly.size() - 1] - center).rotated(angle)
+	var rotated_b := world_center + (poly[0] - center).rotated(angle)
 	return PackedVector2Array([rotated_a, rotated_b])
 
 

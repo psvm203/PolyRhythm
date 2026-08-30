@@ -8,7 +8,7 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 	var exit_edge_local_indices := PackedInt32Array()
 	var sides_counts := PackedInt32Array()
 	var base_half_offset := Vector2(side_length / 2.0, 0.0)
-	var shape := _build_polygon(
+	var shape := build_polygon_on_edge(
 		sides_sequence[0],
 		base_midpoint - base_half_offset,
 		base_midpoint + base_half_offset,
@@ -28,7 +28,7 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 			next_base_left = shape[shape.size() - 2]
 			next_base_right = shape[shape.size() - 1]
 		exit_edges.append(PackedVector2Array([next_base_left, next_base_right]))
-		shape = _build_polygon(sides_sequence[index], next_base_left, next_base_right)
+		shape = build_polygon_on_edge(sides_sequence[index], next_base_left, next_base_right)
 		shapes.append(shape)
 		polygon_centers.append(_center_of(shape))
 		exit_edge_local_indices.append(_exit_local_index(index, shape.size()))
@@ -42,7 +42,7 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 	}
 
 
-func _build_polygon(side_count: int, base_left: Vector2, base_right: Vector2) -> PackedVector2Array:
+func build_polygon_on_edge(side_count: int, base_left: Vector2, base_right: Vector2) -> PackedVector2Array:
 	var edge := base_right - base_left
 	var radius := edge.length() / (2.0 * sin(TAU / (2.0 * side_count)))
 	var apothem := radius * cos(TAU / (2.0 * side_count))

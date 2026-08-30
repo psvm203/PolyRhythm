@@ -1,0 +1,231 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://level/ui/pause_overlay.gd" id="1_pause"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.025, 0.055, 0.12, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 0.75, 0.95, 0.85)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 24
+
+[node name="PauseOverlay" type="CanvasLayer"]
+layer = 200
+script = ExtResource("1_pause")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.025, 0.07, 0.82)
+
+[node name="Center" type="CenterContainer" parent="Dimmer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Dimmer/Center"]
+custom_minimum_size = Vector2(720, 590)
+layout_mode = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 34
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 34
+
+[node name="Rows" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Dimmer/Center/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
+theme_override_font_sizes/font_size = 34
+text = "•  P A U S E D  •"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="Dimmer/Center/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.72, 0.86, 1)
+theme_override_font_sizes/font_size = 17
+text = "ESC를 다시 누르면 게임으로 돌아갑니다"
+horizontal_alignment = 1
+
+[node name="Fullscreen" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Fullscreen"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Fullscreen"
+vertical_alignment = 1
+
+[node name="FullscreenToggle" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Fullscreen"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 4
+toggle_mode = true
+text = "OFF"
+
+[node name="Resolution" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Resolution"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Resolution"
+vertical_alignment = 1
+
+[node name="ResolutionOption" type="OptionButton" parent="Dimmer/Center/Panel/Margin/Rows/Resolution"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 50)
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 4
+
+[node name="Master" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Master Volume"
+vertical_alignment = 1
+
+[node name="MasterSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+
+[node name="MasterValue" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MasterEnabled" type="CheckButton" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
+[node name="Music" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Music Volume"
+vertical_alignment = 1
+
+[node name="MusicSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+
+[node name="MusicValue" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MusicEnabled" type="CheckButton" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
+[node name="Sfx" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "SFX Volume"
+vertical_alignment = 1
+
+[node name="SfxSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+
+[node name="SfxValue" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SfxEnabled" type="CheckButton" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
+[node name="ResumeButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.95, 0.92, 1)
+theme_override_font_sizes/font_size = 23
+text = "RESUME"
+
+[node name="ExitButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.48, 0.58, 1)
+theme_override_font_sizes/font_size = 21
+text = "RETURN TO EDITOR"

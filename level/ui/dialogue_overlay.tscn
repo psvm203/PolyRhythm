@@ -1,0 +1,110 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://level/ui/dialogue_overlay.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://level/ui/npc_portrait.gd" id="2_portrait"]
+
+[sub_resource type="StyleBoxFlat" id="DialoguePanel"]
+bg_color = Color(0.025, 0.055, 0.12, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.88, 0.9, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 20
+
+[node name="DialogueOverlay" type="CanvasLayer"]
+layer = 150
+script = ExtResource("1_dialogue")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.01, 0.02, 0.06, 0.12)
+
+[node name="DialoguePanel" type="PanelContainer" parent="."]
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = -390.0
+offset_right = -100.0
+offset_bottom = -55.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("DialoguePanel")
+
+[node name="Margin" type="MarginContainer" parent="DialoguePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 24
+
+[node name="Rows" type="VBoxContainer" parent="DialoguePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="DialoguePanel/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Portrait" type="Control" parent="DialoguePanel/Margin/Rows/Header"]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_portrait")
+
+[node name="Speaker" type="Label" parent="DialoguePanel/Margin/Rows/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
+theme_override_font_sizes/font_size = 23
+text = "POLY"
+vertical_alignment = 1
+
+[node name="Progress" type="Label" parent="DialoguePanel/Margin/Rows/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.62, 0.78, 1)
+theme_override_font_sizes/font_size = 17
+text = "1 / 1"
+vertical_alignment = 1
+
+[node name="SkipButton" type="Button" parent="DialoguePanel/Margin/Rows/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 44)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.72, 0.76, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 0.4, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "SKIP  »"
+
+[node name="Dialogue" type="Label" parent="DialoguePanel/Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 25
+text = "Dialogue"
+autowrap_mode = 2
+vertical_alignment = 1
+
+[node name="Continue" type="Label" parent="DialoguePanel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "클릭 또는 SPACE  ▶"
+horizontal_alignment = 2

@@ -1,0 +1,8 @@
+# Polygon placement for Stage 3
+sides_sequence: [3, 5, 4, 7, 3, 6, 8, 4, 5, 7, 3, 8, 6, 4, 7, 5, 3, 6, 4, 8, 5, 7, 6, 3]
+repeat_count: 8
+bpm: 3100.0
+music_path: "res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV"
+music_start_offset_sec: 0.0
+tutorial_speaker: "루미 · 리듬 안내자"
+tutorial_lines: ["마지막 레코드 Pulse Master가 깨어났어. 지금까지 익힌 빠른 반응과 긴 호흡이 한 길 안에서 모두 시험될 거야.", "연속된 변화에 흔들리면 다음 도형 하나만 바라봐. 한 번의 정확한 신호가 다시 리듬을 세워 줄 테니까.", "완벽함보다 끝까지 흐름을 지키는 게 중요해. 자, 마지막 무대의 박자를 함께 열어 보자!"]

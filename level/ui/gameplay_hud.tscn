@@ -1,0 +1,100 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://level/ui/gameplay_hud.gd" id="1_hud"]
+
+[node name="GameplayHUD" type="CanvasLayer"]
+layer = 70
+script = ExtResource("1_hud")
+
+[node name="Top" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 38.0
+offset_top = 28.0
+offset_right = -38.0
+offset_bottom = 78.0
+grow_horizontal = 2
+theme_override_constants/separation = 24
+
+[node name="Score" type="Label" parent="Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
+theme_override_font_sizes/font_size = 26
+text = "0000000"
+
+[node name="Gauge" type="ProgressBar" parent="Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 70.0
+show_percentage = false
+
+[node name="Accuracy" type="Label" parent="Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "0.0%"
+horizontal_alignment = 2
+
+[node name="Progress" type="Label" parent="Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.76, 0.9, 1)
+theme_override_font_sizes/font_size = 20
+text = "0 / 0"
+horizontal_alignment = 2
+
+[node name="Combo" type="Label" parent="."]
+unique_name_in_owner = true
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 92.0
+offset_right = 180.0
+offset_bottom = 142.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.3, 1)
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+
+[node name="BossPanel" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 150.0
+offset_right = 300.0
+offset_bottom = 220.0
+grow_horizontal = 2
+
+[node name="BossName" type="Label" parent="BossPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.28, 0.42, 1)
+theme_override_font_sizes/font_size = 22
+text = "BOSS"
+horizontal_alignment = 1
+
+[node name="BossHealth" type="ProgressBar" parent="BossPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(600, 20)
+layout_mode = 2
+show_percentage = false
+
+[node name="BossHint" type="Label" parent="BossPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.68, 0.28, 1)
+theme_override_font_sizes/font_size = 15
+text = "NEXT GUARD APPROACHING"
+horizontal_alignment = 1

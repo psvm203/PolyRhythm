@@ -1,8 +1,24 @@
 extends Control
 
 const LEVEL_SCENE := "res://level/level.tscn"
+const LEVEL_EDITOR_SCENE := "res://editor/level_editor.tscn"
+const ProgressStoreScript = preload("res://level/progress_store.gd")
+const SettingsStoreScript = preload("res://main/settings_store.gd")
+const STAGE_ONE_BGM: AudioStream = preload("res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV")
 const CYAN := Color("19e0db")
 const MAGENTA := Color("ed1671")
+const STAGE_TWO_UNLOCK_DIALOGUE: Array[String] = [
+	"해냈구나! 첫 번째 리듬의 길이 네 박자에 완전히 응답했어.",
+	"그 울림이 잠들어 있던 두 번째 레코드를 깨웠어. 이제 STAGE 02 · Beat Flow에 도전할 수 있어!",
+	"다음 길은 박자의 흐름이 조금 더 거세질 거야. 하지만 지금처럼 빛나는 변이 맞닿는 순간을 믿으면 돼.",
+	"준비가 되면 새로 열린 레코드를 선택해 줘. 다음 무대에서도 내가 함께할게!",
+]
+const STAGE_THREE_UNLOCK_DIALOGUE: Array[String] = [
+	"굉장해! Beat Flow의 거센 변화까지 네 리듬으로 이어 냈구나.",
+	"두 번째 레코드의 울림이 마지막 봉인을 열었어. STAGE 03 · Pulse Master가 이제 너를 기다리고 있어!",
+	"마지막 길에서는 빠른 박자와 긴 호흡이 예고 없이 교차할 거야. 눈앞의 도형 하나에 집중하면 흐름을 놓치지 않을 수 있어.",
+	"여기까지 온 네 박자라면 분명 해낼 수 있어. 마지막 레코드에서 만나자!",
+]
 
 @onready var menu: VBoxContainer = %Menu
 @onready var main_content: Control = %Content
@@ -17,8 +33,10 @@ const MAGENTA := Color("ed1671")
 @onready var close_button: Button = %CloseButton
 @onready var warning_badge: Control = %WarningBadge
 @onready var background_music: AudioStreamPlayer = %BackgroundMusic
+@onready var stage_preview_music: AudioStreamPlayer = %StagePreviewMusic
 @onready var focus_sfx: AudioStreamPlayer = %FocusSfx
 @onready var click_sfx: AudioStreamPlayer = %ClickSfx
+@onready var unlock_dialogue: CanvasLayer = $UnlockDialogue
 
 var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _motion_time := 0.0
@@ -28,6 +46,7 @@ var _treble := 0.0
 var _last_slider_sfx_ms := 0
 var _transitioning := false
 var _stage_card_tweens: Dictionary = { }
+var _stage_preview_tween: Tween
 
 
 func _ready() -> void:
@@ -35,16 +54,24 @@ func _ready() -> void:
 	_connect_ui_sfx(self)
 	%StartButton.pressed.connect(_show_stage_select)
 	%BackButton.pressed.connect(_hide_stage_select)
-	%StageOneButton.pressed.connect(_start_game)
-	_setup_stage_card(%StageOneButton, $StageScreen/StageLayout/CardsSlot/Cards/StageOne, $StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record)
-	_setup_stage_card(%StageTwoButton, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record)
-	_setup_stage_card(%StageThreeButton, $StageScreen/StageLayout/CardsSlot/Cards/StageThree, $StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items/Record)
+	%StageOneButton.pressed.connect(_start_game.bind(1))
+	%StageTwoButton.pressed.connect(_start_game.bind(2))
+	%StageThreeButton.pressed.connect(_start_game.bind(3))
+	%EditorButton.pressed.connect(get_tree().change_scene_to_file.bind(LEVEL_EDITOR_SCENE))
+	_refresh_stage_cards()
+	_setup_stage_card(%StageOneButton, $StageScreen/StageLayout/CardsSlot/Cards/StageOne, $StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record, STAGE_ONE_BGM)
+	_setup_stage_card(%StageTwoButton, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record, null)
+	_setup_stage_card(%StageThreeButton, $StageScreen/StageLayout/CardsSlot/Cards/StageThree, $StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items/Record, null)
 	%SettingsButton.pressed.connect(_show_settings)
 	%SettingsBackButton.pressed.connect(_hide_settings)
 	%FullscreenToggle.toggled.connect(_set_fullscreen)
-	%MasterSlider.value_changed.connect(_set_master_volume)
-	%MusicSlider.value_changed.connect(_set_music_volume)
-	%SfxSlider.value_changed.connect(_set_sfx_volume)
+	%ResolutionOption.item_selected.connect(SettingsStoreScript.save_resolution)
+	%MasterSlider.value_changed.connect(_set_volume.bind("master_volume", %MasterValue))
+	%MusicSlider.value_changed.connect(_set_volume.bind("music_volume", %MusicValue))
+	%SfxSlider.value_changed.connect(_set_volume.bind("sfx_volume", %SfxValue))
+	%MasterEnabled.toggled.connect(_set_audio_enabled.bind("master_enabled", %MasterEnabled))
+	%MusicEnabled.toggled.connect(_set_audio_enabled.bind("music_enabled", %MusicEnabled))
+	%SfxEnabled.toggled.connect(_set_audio_enabled.bind("sfx_enabled", %SfxEnabled))
 	%MasterSlider.value_changed.connect(_play_slider_sfx)
 	%MusicSlider.value_changed.connect(_play_slider_sfx)
 	%SfxSlider.value_changed.connect(_play_slider_sfx)
@@ -57,6 +84,54 @@ func _ready() -> void:
 	_initialize_settings()
 	transition_logo.reset_size()
 	queue_redraw()
+	%StartButton.grab_focus()
+	if ProgressStoreScript.show_stage_select_on_load or ProgressStoreScript.pending_unlock_dialogue() > 0:
+		ProgressStoreScript.show_stage_select_on_load = false
+		_show_unlock_flow.call_deferred()
+
+
+func _show_unlock_flow() -> void:
+	_show_stage_select()
+	await get_tree().create_timer(0.7).timeout
+	var unlocked_stage := ProgressStoreScript.consume_unlock_dialogue()
+	if unlocked_stage == 2:
+		unlock_dialogue.play(STAGE_TWO_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
+	elif unlocked_stage == 3:
+		unlock_dialogue.play(STAGE_THREE_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
+
+
+func _refresh_stage_cards() -> void:
+	var highest := ProgressStoreScript.highest_unlocked_stage()
+	var cards: Array[Control] = [
+		$StageScreen/StageLayout/CardsSlot/Cards/StageOne,
+		$StageScreen/StageLayout/CardsSlot/Cards/StageTwo,
+		$StageScreen/StageLayout/CardsSlot/Cards/StageThree,
+	]
+	var records: Array[Control] = [
+		$StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record,
+		$StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record,
+		$StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items/Record,
+	]
+	var buttons: Array[BaseButton] = [%StageOneButton, %StageTwoButton, %StageThreeButton]
+	var names := ["Rhythm Start", "Beat Flow", "Pulse Master"]
+	var active_style := cards[0].get_theme_stylebox("panel").duplicate()
+	var locked_style := cards[1].get_theme_stylebox("panel").duplicate()
+	for index in cards.size():
+		var active := index + 1 <= highest
+		records[index].set("active", active)
+		buttons[index].disabled = not active
+		buttons[index].focus_mode = Control.FOCUS_ALL if active else Control.FOCUS_NONE
+		cards[index].add_theme_stylebox_override("panel", active_style.duplicate() if active else locked_style.duplicate())
+		var items := cards[index].get_node("Items")
+		var text_color := Color("14e6f2") if active else Color(0.52, 0.52, 0.52, 1.0)
+		items.get_node("Stage").add_theme_color_override("font_color", text_color)
+		items.get_node("Number").add_theme_color_override("font_color", text_color)
+		items.get_node("Name").add_theme_color_override("font_color", Color(0.95, 0.96, 1, 1) if active else Color(0.57, 0.57, 0.57, 1))
+		items.get_node("Name").text = names[index] if active else "🔒  %s" % names[index]
+		var best: Label = items.get_node("Best")
+		var record := ProgressStoreScript.stage_record(index + 1)
+		best.visible = active
+		best.text = "BEST RECORD  %07d  ·  %s\nACC %.1f%%  ·  MAX COMBO %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "NO RECORD"
 
 
 func _connect_ui_sfx(node: Node) -> void:
@@ -89,11 +164,55 @@ func _play_slider_sfx(value: float) -> void:
 	focus_sfx.play()
 
 
-func _setup_stage_card(button: BaseButton, card: Control, record: Control) -> void:
-	button.mouse_entered.connect(_update_stage_card.bind(button, card, record))
-	button.mouse_exited.connect(_update_stage_card.bind(button, card, record))
+func _setup_stage_card(button: BaseButton, card: Control, record: Control, preview_stream: AudioStream) -> void:
+	var active: bool = record.get("active")
+	button.disabled = not active
+	button.focus_mode = Control.FOCUS_ALL if active else Control.FOCUS_NONE
+	button.mouse_entered.connect(_on_stage_mouse_entered.bind(button, card, record, preview_stream))
+	button.mouse_exited.connect(_on_stage_mouse_exited.bind(button, card, record))
 	button.focus_entered.connect(_update_stage_card.bind(button, card, record))
 	button.focus_exited.connect(_update_stage_card.bind(button, card, record))
+
+
+func _on_stage_mouse_entered(
+		button: BaseButton,
+		card: Control,
+		record: Control,
+		preview_stream: AudioStream,
+) -> void:
+	_update_stage_card(button, card, record)
+	_play_stage_preview(preview_stream)
+
+
+func _on_stage_mouse_exited(button: BaseButton, card: Control, record: Control) -> void:
+	_update_stage_card(button, card, record)
+	_stop_stage_preview()
+
+
+func _play_stage_preview(preview_stream: AudioStream) -> void:
+	if preview_stream == null:
+		_stop_stage_preview()
+		return
+	if _stage_preview_tween != null and _stage_preview_tween.is_valid():
+		_stage_preview_tween.kill()
+	stage_preview_music.stream = preview_stream
+	stage_preview_music.volume_db = -24.0
+	stage_preview_music.play()
+	_stage_preview_tween = create_tween().set_parallel(true)
+	_stage_preview_tween.tween_property(background_music, "volume_db", -24.0, 0.22)
+	_stage_preview_tween.tween_property(stage_preview_music, "volume_db", -2.0, 0.22)
+
+
+func _stop_stage_preview() -> void:
+	if not stage_preview_music.playing:
+		background_music.volume_db = -2.0
+		return
+	if _stage_preview_tween != null and _stage_preview_tween.is_valid():
+		_stage_preview_tween.kill()
+	_stage_preview_tween = create_tween().set_parallel(true)
+	_stage_preview_tween.tween_property(background_music, "volume_db", -2.0, 0.22)
+	_stage_preview_tween.tween_property(stage_preview_music, "volume_db", -24.0, 0.22)
+	_stage_preview_tween.chain().tween_callback(stage_preview_music.stop)
 
 
 func _update_stage_card(button: BaseButton, card: Control, record: Control) -> void:
@@ -316,7 +435,9 @@ func _draw_music_notes(view: Vector2) -> void:
 		draw_colored_polygon(flag, color)
 
 
-func _start_game() -> void:
+func _start_game(stage_number: int = 1) -> void:
+	ProgressStoreScript.selected_stage = stage_number
+	ProgressStoreScript.custom_level_path = ""
 	get_tree().change_scene_to_file(LEVEL_SCENE)
 
 
@@ -329,50 +450,50 @@ func _hide_settings() -> void:
 
 
 func _initialize_settings() -> void:
-	%FullscreenToggle.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	_update_fullscreen_toggle(%FullscreenToggle.button_pressed)
-	_update_volume_label(%MasterValue, %MasterSlider.value)
-	_update_volume_label(%MusicValue, %MusicSlider.value)
-	_update_volume_label(%SfxValue, %SfxSlider.value)
-	_set_master_volume(%MasterSlider.value)
-	_set_music_volume(%MusicSlider.value)
-	_set_sfx_volume(%SfxSlider.value)
+	var settings := SettingsStoreScript.load_settings()
+	SettingsStoreScript.apply(settings)
+	%FullscreenToggle.set_pressed_no_signal(settings["fullscreen"])
+	_setup_resolution(%ResolutionOption, settings)
+	for row in [[%MasterSlider, %MasterValue, %MasterEnabled, "master"], [%MusicSlider, %MusicValue, %MusicEnabled, "music"], [%SfxSlider, %SfxValue, %SfxEnabled, "sfx"]]:
+		row[0].set_value_no_signal(settings["%s_volume" % row[3]])
+		_update_volume_label(row[1], row[0].value)
+		_sync_audio_toggle(row[2], settings["%s_enabled" % row[3]])
+	_update_fullscreen_toggle(settings["fullscreen"])
 
 
 func _set_fullscreen(enabled: bool) -> void:
-	var mode := DisplayServer.WINDOW_MODE_FULLSCREEN if enabled else DisplayServer.WINDOW_MODE_WINDOWED
-	DisplayServer.window_set_mode(mode)
 	_update_fullscreen_toggle(enabled)
+	SettingsStoreScript.save_setting("fullscreen", enabled)
 
 
 func _update_fullscreen_toggle(enabled: bool) -> void:
 	%FullscreenToggle.text = "ON" if enabled else "OFF"
+	%ResolutionOption.disabled = enabled
 	var color := Color(0.08, 1.0, 0.92, 1.0) if enabled else Color(0.58, 0.63, 0.74, 1.0)
 	%FullscreenToggle.add_theme_color_override("font_color", color)
 	%FullscreenToggle.add_theme_color_override("font_pressed_color", color)
 
 
-func _set_master_volume(value: float) -> void:
-	_set_bus_volume(&"Master", value)
-	_update_volume_label(%MasterValue, value)
+func _set_audio_enabled(enabled: bool, key: String, toggle: CheckButton) -> void:
+	_sync_audio_toggle(toggle, enabled)
+	SettingsStoreScript.save_setting(key, enabled)
 
 
-func _set_music_volume(value: float) -> void:
-	_set_bus_volume(&"MenuMusic", value)
-	_update_volume_label(%MusicValue, value)
+func _sync_audio_toggle(toggle: CheckButton, enabled: bool) -> void:
+	toggle.set_pressed_no_signal(enabled)
+	toggle.text = "ON" if enabled else "OFF"
 
 
-func _set_sfx_volume(value: float) -> void:
-	_set_bus_volume(&"SFX", value)
-	_update_volume_label(%SfxValue, value)
+func _setup_resolution(option: OptionButton, settings: Dictionary) -> void:
+	option.clear()
+	for size in SettingsStoreScript.RESOLUTIONS:
+		option.add_item("%d × %d" % [size.x, size.y])
+	option.select(SettingsStoreScript.resolution_index(settings))
 
 
-func _set_bus_volume(bus_name: StringName, percent: float) -> void:
-	var bus_index := AudioServer.get_bus_index(bus_name)
-	if bus_index < 0:
-		return
-	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(percent / 100.0, 0.0001)))
-	AudioServer.set_bus_mute(bus_index, percent <= 0.0)
+func _set_volume(value: float, key: String, label: Label) -> void:
+	_update_volume_label(label, value)
+	SettingsStoreScript.save_setting(key, value)
 
 
 func _update_volume_label(label: Label, value: float) -> void:
@@ -390,6 +511,7 @@ func _show_exit() -> void:
 	exit_buttons.show()
 	close_button.hide()
 	_clear_focus()
+	%CancelExitButton.grab_focus()
 
 
 func _show_overlay(title: String, body: String) -> void:
@@ -402,19 +524,23 @@ func _show_overlay(title: String, body: String) -> void:
 	overlay.show()
 	menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_clear_focus()
+	close_button.grab_focus()
 
 
 func _hide_overlay() -> void:
 	_clear_focus()
 	overlay.hide()
 	menu.mouse_filter = Control.MOUSE_FILTER_PASS
+	%StartButton.grab_focus()
 
 
 func _show_stage_select() -> void:
+	_refresh_stage_cards()
 	_transition_to(stage_screen, $StageScreen/StageLayout/SmallLogo, %StageTitle, $StageScreen/StageLayout/CardsSlot/Cards, %BackButton)
 
 
 func _hide_stage_select() -> void:
+	_stop_stage_preview()
 	_transition_to_main(stage_screen, $StageScreen/StageLayout/SmallLogo, %StageTitle, $StageScreen/StageLayout/CardsSlot/Cards, %BackButton)
 
 
@@ -473,6 +599,7 @@ func _transition_to(
 	target_logo.modulate.a = 1.0
 	transition_logo.hide()
 	_transitioning = false
+	back_button.grab_focus()
 
 
 func _transition_to_main(
@@ -529,6 +656,7 @@ func _transition_to_main(
 	main_logo.modulate.a = 1.0
 	transition_logo.hide()
 	_transitioning = false
+	%StartButton.grab_focus()
 
 
 func _wait_for_layout() -> void:

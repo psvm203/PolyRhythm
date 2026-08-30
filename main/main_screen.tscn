@@ -1,10 +1,11 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://main/main_screen.gd" id="1_main"]
 [ext_resource type="AudioStream" path="res://main/audio/main_background_bgm.wav" id="2_bgm"]
 [ext_resource type="Script" path="res://main/stage_record.gd" id="3_record"]
 [ext_resource type="AudioStream" path="res://main/audio/ui_focus.wav" id="4_focus"]
 [ext_resource type="AudioStream" path="res://main/audio/ui_click.wav" id="5_click"]
+[ext_resource type="PackedScene" path="res://level/ui/dialogue_overlay.tscn" id="6_dialogue"]
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonNormal"]
 bg_color = Color(0.045, 0.075, 0.15, 0.84)
@@ -192,6 +193,11 @@ volume_db = -2.0
 autoplay = true
 bus = &"MenuMusic"
 
+[node name="StagePreviewMusic" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+volume_db = -24.0
+bus = &"MenuMusic"
+
 [node name="FocusSfx" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 stream = ExtResource("4_focus")
@@ -205,6 +211,8 @@ stream = ExtResource("5_click")
 volume_db = -5.0
 max_polyphony = 2
 bus = &"SFX"
+
+[node name="UnlockDialogue" parent="." instance=ExtResource("6_dialogue")]
 
 [node name="Content" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
@@ -270,7 +278,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(370, 66)
 layout_mode = 2
 focus_neighbor_top = NodePath("../StartButton")
-focus_neighbor_bottom = NodePath("../CreditsButton")
+focus_neighbor_bottom = NodePath("../EditorButton")
 theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
 theme_override_font_sizes/font_size = 27
 theme_override_styles/normal = SubResource("StyleButtonNormal")
@@ -279,11 +287,25 @@ theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
 text = "Settings"
 
-[node name="CreditsButton" type="Button" parent="Content/Menu"]
+[node name="EditorButton" type="Button" parent="Content/Menu"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(370, 66)
 layout_mode = 2
 focus_neighbor_top = NodePath("../SettingsButton")
+focus_neighbor_bottom = NodePath("../CreditsButton")
+theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "Level Editor"
+
+[node name="CreditsButton" type="Button" parent="Content/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(370, 66)
+layout_mode = 2
+focus_neighbor_top = NodePath("../EditorButton")
 focus_neighbor_bottom = NodePath("../ExitButton")
 theme_override_colors/font_color = Color(0.96, 0.97, 1, 1)
 theme_override_font_sizes/font_size = 27
@@ -436,6 +458,13 @@ text = "Rhythm Start"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Best" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+text = "NO RECORD"
+horizontal_alignment = 1
+
 [node name="StageOneButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageOne"]
 unique_name_in_owner = true
 layout_mode = 1
@@ -487,6 +516,13 @@ text = "🔒  Beat Flow"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Best" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+text = "NO RECORD"
+horizontal_alignment = 1
+
 [node name="StageTwoButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageTwo"]
 unique_name_in_owner = true
 layout_mode = 1
@@ -537,6 +573,13 @@ theme_override_font_sizes/font_size = 24
 text = "🔒  Pulse Master"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Best" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+text = "NO RECORD"
+horizontal_alignment = 1
 
 [node name="StageThreeButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageThree"]
 unique_name_in_owner = true
@@ -653,7 +696,7 @@ layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="Fullscreen" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Fullscreen"]
@@ -698,8 +741,40 @@ text = "OFF"
 layout_mode = 2
 modulate = Color(0.4, 0.5, 0.75, 0.25)
 
+[node name="Resolution" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Resolution"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.65, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "▭"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Resolution"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Resolution"
+vertical_alignment = 1
+
+[node name="ResolutionOption" type="OptionButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Resolution"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 54)
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 4
+
+[node name="SeparatorResolution" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
 [node name="Master" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Master"]
@@ -740,12 +815,19 @@ text = "80%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="MasterEnabled" type="CheckButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Master"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
 [node name="Separator2" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
 modulate = Color(0.4, 0.5, 0.75, 0.25)
 
 [node name="Music" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
@@ -785,12 +867,19 @@ text = "70%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="MusicEnabled" type="CheckButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+button_pressed = true
+text = "ON"
+
 [node name="Separator3" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
 modulate = Color(0.4, 0.5, 0.75, 0.25)
 
 [node name="Sfx" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Sfx"]
@@ -829,6 +918,13 @@ theme_override_font_sizes/font_size = 24
 text = "60%"
 horizontal_alignment = 2
 vertical_alignment = 1
+
+[node name="SfxEnabled" type="CheckButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+button_pressed = true
+text = "ON"
 
 [node name="TransitionLogo" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
