@@ -1,6 +1,7 @@
 extends Node
 
 const PlayInputScript = preload("res://main/play_input.gd")
+const RhythmClockScript = preload("res://level/timing/rhythm_clock.gd")
 
 signal judged(result: String, polygon_index: int, timing_delta_ms: float)
 
@@ -18,8 +19,7 @@ var paused: bool = true
 var scheduled_judgment_times: PackedFloat32Array = PackedFloat32Array()
 var game_time: float = 0.0
 var _judged: bool = false
-var _started_at_usec: int = 0
-var _paused_at_usec: int = 0
+var _clock = RhythmClockScript.new()
 var _pending_result: String = ""
 var _pending_timing_delta: float = 0.0
 var _last_logged_contact_index: int = -1
@@ -32,8 +32,8 @@ func setup(scheduled_times: PackedFloat32Array) -> void:
 	scheduled_judgment_times = scheduled_times
 	game_time = 0.0
 	_judged = false
-	_started_at_usec = 0
-	_paused_at_usec = 0
+	_sync_clock_source()
+	_clock.reset()
 	_pending_result = ""
 	_pending_timing_delta = 0.0
 	_last_logged_contact_index = -1
@@ -50,27 +50,25 @@ func setup(scheduled_times: PackedFloat32Array) -> void:
 
 func start() -> void:
 	game_time = 0.0
-	_started_at_usec = _now_usec()
+	_sync_clock_source()
+	_clock.start()
 	paused = false
-	_paused_at_usec = 0
 	if detailed_timing_logs:
-		print("[TIMING_START] clock_usec=%d" % _started_at_usec)
+		print("[TIMING_START] clock_usec=%d" % _clock.start_usec)
 
 
 func pause_clock() -> void:
 	if paused:
 		return
 	game_time = _get_game_time()
-	_paused_at_usec = _now_usec()
+	_clock.pause()
 	paused = true
 
 
 func resume_clock() -> void:
-	if _started_at_usec == 0:
+	if not _clock.running:
 		return
-	if _paused_at_usec > 0:
-		_started_at_usec += _now_usec() - _paused_at_usec
-	_paused_at_usec = 0
+	_clock.resume()
 	paused = false
 
 
@@ -166,17 +164,17 @@ func _accept_judgment(result: String, timing_delta: float) -> void:
 
 
 func _get_game_time() -> float:
-	if _started_at_usec == 0:
-		return 0.0
-	if paused and _paused_at_usec > 0:
-		return game_time
-	return float(_now_usec() - _started_at_usec) / 1_000_000.0
+	_sync_clock_source()
+	return _clock.elapsed_sec()
 
 
 func _now_usec() -> int:
-	if time_source_usec.is_valid():
-		return int(time_source_usec.call())
-	return Time.get_ticks_usec()
+	_sync_clock_source()
+	return _clock.now_usec()
+
+
+func _sync_clock_source() -> void:
+	_clock.time_source_usec = time_source_usec
 
 
 func _advance_polygon() -> void:
