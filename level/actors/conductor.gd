@@ -107,7 +107,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _judged:
 		return
-	if PlayInputScript.is_pressed(event):
+	var input_manager := get_node_or_null("/root/InputDeviceManager")
+	var gamepad_input := bool(input_manager.call("is_play_input", event)) if input_manager != null else false
+	if PlayInputScript.is_pressed(event) or gamepad_input:
 		game_time = _get_game_time()
 		if rotator.current_index >= scheduled_judgment_times.size():
 			return

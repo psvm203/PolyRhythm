@@ -37,16 +37,16 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Dimmer/Center"]
-custom_minimum_size = Vector2(720, 650)
+custom_minimum_size = Vector2(720, 710)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PanelStyle")
 
 [node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel"]
 layout_mode = 2
 theme_override_constants/margin_left = 56
-theme_override_constants/margin_top = 34
+theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 56
-theme_override_constants/margin_bottom = 34
+theme_override_constants/margin_bottom = 22
 
 [node name="Rows" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin"]
 layout_mode = 2
@@ -201,6 +201,46 @@ horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="SfxEnabled" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+button_pressed = true
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "On"
+
+[node name="Vibration" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Vibration"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "진동"
+vertical_alignment = 1
+
+[node name="VibrationSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Vibration"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 1.0
+value = 70.0
+
+[node name="VibrationValue" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Vibration"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+text = "70%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="VibrationEnabled" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Vibration"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(116, 54)
 layout_mode = 2

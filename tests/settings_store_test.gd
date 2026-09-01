@@ -15,6 +15,8 @@ func _init() -> void:
 		"resolution_width": 320,
 		"resolution_height": 200,
 		"timing_offset_ms": 240.0,
+		"controller_vibration_enabled": false,
+		"controller_vibration_strength": 140.0,
 	})
 	_expect(values["fullscreen"] == true, "fullscreen is preserved")
 	_expect(values["master_volume"] == 0.0, "low volume is clamped")
@@ -23,11 +25,13 @@ func _init() -> void:
 	_expect(values["music_enabled"] == false, "mute toggle is preserved")
 	_expect(Vector2i(values["resolution_width"], values["resolution_height"]) == Vector2i(1280, 720), "unknown resolution falls back to a preset")
 	_expect(values["timing_offset_ms"] == SettingsStoreScript.MAX_TIMING_OFFSET_MS, "timing offset is clamped")
+	_expect(values["controller_vibration_enabled"] == false, "vibration toggle is preserved")
+	_expect(values["controller_vibration_strength"] == 100.0, "vibration strength is clamped")
 	_expect(SettingsStoreScript.resolution_index(SettingsStoreScript.DEFAULTS) == 0, "default resolution selects first preset")
 	var defaults := SettingsStoreScript.normalized({})
 	_expect(defaults == SettingsStoreScript.DEFAULTS, "missing values use defaults")
 	if _failures == 0:
-		print("Settings store tests passed: 9 assertions")
+		print("Settings store tests passed: 11 assertions")
 		quit(0)
 	else:
 		push_error("Settings store tests failed: %d assertion(s)" % _failures)

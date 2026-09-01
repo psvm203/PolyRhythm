@@ -118,5 +118,5 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
 theme_override_font_sizes/font_size = 14
-text = "클릭 또는 Space 키로 계속"
+text = "클릭 또는 아무 키로 계속"
 horizontal_alignment = 2

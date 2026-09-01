@@ -42,6 +42,7 @@ const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
 @onready var click_sfx: AudioStreamPlayer = %ClickSfx
 @onready var unlock_dialogue: CanvasLayer = $UnlockDialogue
 @onready var timing_calibration: CanvasLayer = $TimingCalibrationOverlay
+@onready var controller_prompt: Label = %ControllerPrompt
 
 var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _motion_time := 0.0
@@ -59,6 +60,11 @@ var _original_mouse_filters: Dictionary = {}
 
 func _ready() -> void:
 	get_viewport().size_changed.connect(queue_redraw)
+	var input_manager := _input_manager()
+	if input_manager != null:
+		input_manager.connect("active_device_changed", _update_controller_prompt.unbind(1))
+		input_manager.connect("controller_connection_changed", _update_controller_prompt.unbind(2))
+	_update_controller_prompt()
 	_connect_ui_sfx(self)
 	%StartButton.pressed.connect(_show_stage_select)
 	%BackButton.pressed.connect(_hide_stage_select)
@@ -79,6 +85,8 @@ func _ready() -> void:
 	%MasterSlider.value_changed.connect(_set_volume.bind("master_volume", %MasterValue))
 	%MusicSlider.value_changed.connect(_set_volume.bind("music_volume", %MusicValue))
 	%SfxSlider.value_changed.connect(_set_volume.bind("sfx_volume", %SfxValue))
+	%VibrationSlider.value_changed.connect(_set_vibration_strength)
+	%VibrationEnabled.toggled.connect(_set_vibration_enabled)
 	%TimingSlider.value_changed.connect(_set_timing_offset)
 	%CalibrationButton.pressed.connect(timing_calibration.open)
 	timing_calibration.offset_selected.connect(_apply_calibrated_offset)
@@ -115,6 +123,17 @@ func _show_unlock_flow() -> void:
 		unlock_dialogue.play(STAGE_THREE_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
 	elif unlocked_stage == 4:
 		unlock_dialogue.play(STAGE_FOUR_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
+
+
+func _update_controller_prompt() -> void:
+	var input_manager := _input_manager()
+	controller_prompt.visible = input_manager != null and input_manager.get("active_device_type") == "gamepad"
+	if input_manager != null:
+		controller_prompt.text = "%s 선택    %s 뒤로" % [input_manager.call("confirm_prompt"), input_manager.call("cancel_prompt")]
+
+
+func _input_manager() -> Node:
+	return get_node_or_null("/root/InputDeviceManager")
 
 
 func _refresh_stage_cards() -> void:
@@ -569,6 +588,9 @@ func _initialize_settings() -> void:
 		row[0].set_value_no_signal(settings["%s_volume" % row[3]])
 		_update_volume_label(row[1], row[0].value)
 		_sync_audio_toggle(row[2], settings["%s_enabled" % row[3]])
+	%VibrationSlider.set_value_no_signal(settings["controller_vibration_strength"])
+	%VibrationValue.text = "%d%%" % roundi(settings["controller_vibration_strength"])
+	_sync_audio_toggle(%VibrationEnabled, settings["controller_vibration_enabled"])
 	_update_fullscreen_toggle(settings["fullscreen"])
 
 
@@ -614,6 +636,16 @@ func _setup_resolution(option: OptionButton, settings: Dictionary) -> void:
 func _set_volume(value: float, key: String, label: Label) -> void:
 	_update_volume_label(label, value)
 	SettingsStoreScript.save_setting(key, value)
+
+
+func _set_vibration_strength(value: float) -> void:
+	%VibrationValue.text = "%d%%" % roundi(value)
+	SettingsStoreScript.save_setting("controller_vibration_strength", value)
+
+
+func _set_vibration_enabled(enabled: bool) -> void:
+	_sync_audio_toggle(%VibrationEnabled, enabled)
+	SettingsStoreScript.save_setting("controller_vibration_enabled", enabled)
 
 
 func _update_volume_label(label: Label, value: float) -> void:

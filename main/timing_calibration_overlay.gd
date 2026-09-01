@@ -89,7 +89,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		close()
 		get_viewport().set_input_as_handled()
 		return
-	if not _running or not PlayInputScript.is_pressed(event):
+	var input_manager := get_node_or_null("/root/InputDeviceManager")
+	var gamepad_input := bool(input_manager.call("is_play_input", event)) if input_manager != null else false
+	if not _running or not (PlayInputScript.is_pressed(event) or gamepad_input):
 		return
 	_record_tap(Time.get_ticks_usec())
 	get_viewport().set_input_as_handled()

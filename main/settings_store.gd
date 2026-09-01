@@ -13,6 +13,8 @@ const DEFAULTS := {
 	"sfx_enabled": true,
 	"skip_seen_dialogue": false,
 	"timing_offset_ms": 0.0,
+	"controller_vibration_enabled": true,
+	"controller_vibration_strength": 70.0,
 	"resolution_width": 1280,
 	"resolution_height": 720,
 }
@@ -71,6 +73,8 @@ static func normalized(settings: Dictionary) -> Dictionary:
 			MIN_TIMING_OFFSET_MS,
 			MAX_TIMING_OFFSET_MS,
 		),
+		"controller_vibration_enabled": bool(settings.get("controller_vibration_enabled", DEFAULTS["controller_vibration_enabled"])),
+		"controller_vibration_strength": clampf(float(settings.get("controller_vibration_strength", DEFAULTS["controller_vibration_strength"])), 0.0, 100.0),
 	}
 	for prefix in AUDIO_BUSES:
 		values["%s_volume" % prefix] = clampf(float(settings.get("%s_volume" % prefix, 100.0)), 0.0, 100.0)

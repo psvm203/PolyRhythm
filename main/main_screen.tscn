@@ -225,6 +225,25 @@ bus = &"SFX"
 
 [node name="TimingCalibrationOverlay" parent="." instance=ExtResource("7_calibration")]
 
+[node name="ControllerPrompt" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -360.0
+offset_top = 28.0
+offset_right = -28.0
+offset_bottom = 68.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.55, 0.72, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "A 선택    B 뒤로"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="Content" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
@@ -244,14 +263,15 @@ theme_override_constants/separation = 22
 [node name="Logo" type="HBoxContainer" parent="Content"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = 8
+theme_override_constants/separation = 0
 
 [node name="Poly" type="Label" parent="Content/Logo"]
 layout_mode = 2
-text = "POLY"
+text = "Poly"
 label_settings = SubResource("LabelTitleWhite")
 
 [node name="Slash" type="Label" parent="Content/Logo"]
+visible = false
 layout_mode = 2
 text = "/"
 label_settings = SubResource("LabelTitleSlash")
@@ -259,7 +279,7 @@ vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="Content/Logo"]
 layout_mode = 2
-text = "RHYTHM"
+text = "Rhythm"
 label_settings = SubResource("LabelTitlePink")
 
 [node name="Spacer" type="Control" parent="Content"]
@@ -383,9 +403,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -555.0
-offset_top = -395.0
+offset_top = -430.0
 offset_right = 555.0
-offset_bottom = 365.0
+offset_bottom = 430.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 24
@@ -393,14 +413,15 @@ theme_override_constants/separation = 24
 [node name="SmallLogo" type="HBoxContainer" parent="StageScreen/StageLayout"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = 5
+theme_override_constants/separation = 0
 
 [node name="Poly" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
 layout_mode = 2
-text = "POLY"
+text = "Poly"
 label_settings = SubResource("LabelSmallTitleWhite")
 
 [node name="Slash" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
+visible = false
 layout_mode = 2
 text = "/"
 label_settings = SubResource("LabelSmallTitleSlash")
@@ -408,7 +429,7 @@ vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
 layout_mode = 2
-text = "RHYTHM"
+text = "Rhythm"
 label_settings = SubResource("LabelSmallTitlePink")
 
 [node name="StageTitleSlot" type="Control" parent="StageScreen/StageLayout"]
@@ -752,14 +773,15 @@ theme_override_constants/separation = 24
 [node name="SmallLogo" type="HBoxContainer" parent="SettingsScreen/SettingsLayout"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = 5
+theme_override_constants/separation = 0
 
 [node name="Poly" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
 layout_mode = 2
-text = "POLY"
+text = "Poly"
 label_settings = SubResource("LabelSmallTitleWhite")
 
 [node name="Slash" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
+visible = false
 layout_mode = 2
 text = "/"
 label_settings = SubResource("LabelSmallTitleSlash")
@@ -767,10 +789,11 @@ vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
 layout_mode = 2
-text = "RHYTHM"
+text = "Rhythm"
 label_settings = SubResource("LabelSmallTitlePink")
 
 [node name="SettingsTitleSlot" type="Control" parent="SettingsScreen/SettingsLayout"]
+visible = false
 custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
 mouse_filter = 2
@@ -790,14 +813,14 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SettingsPanelSlot" type="ScrollContainer" parent="SettingsScreen/SettingsLayout"]
-custom_minimum_size = Vector2(0, 570)
+custom_minimum_size = Vector2(0, 780)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="SettingsPanel" type="PanelContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 650)
+custom_minimum_size = Vector2(0, 780)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleSettingsPanel")
@@ -1069,6 +1092,65 @@ text = "On"
 layout_mode = 2
 modulate = Color(0.4, 0.5, 0.75, 0.25)
 
+[node name="Vibration" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.55, 0.28, 1)
+theme_override_font_sizes/font_size = 30
+text = "≈"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "진동"
+vertical_alignment = 1
+
+[node name="VibrationSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+step = 1.0
+value = 70.0
+
+[node name="VibrationValue" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 24
+text = "70%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="VibrationEnabled" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+button_pressed = true
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "On"
+
+[node name="SeparatorVibration" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
 [node name="Timing" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
@@ -1165,15 +1247,16 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 0
 mouse_filter = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 0
 
 [node name="Poly" type="Label" parent="TransitionLogo"]
 layout_mode = 2
 mouse_filter = 2
-text = "POLY"
+text = "Poly"
 label_settings = SubResource("LabelTitleWhite")
 
 [node name="Slash" type="Label" parent="TransitionLogo"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 text = "/"
@@ -1183,7 +1266,7 @@ vertical_alignment = 1
 [node name="Rhythm" type="Label" parent="TransitionLogo"]
 layout_mode = 2
 mouse_filter = 2
-text = "RHYTHM"
+text = "Rhythm"
 label_settings = SubResource("LabelTitlePink")
 
 [node name="Overlay" type="Control" parent="."]

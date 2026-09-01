@@ -176,6 +176,7 @@ func _on_judged(result: String, polygon_index: int, timing_delta_ms: float) -> v
 		elif guard_note and result != "Perfect" and result != "Too Fast":
 			display_result = "BLOCKED"
 		judgement.show_judgement(display_result)
+		_input_manager_call("play_rumble", [display_result])
 	if _boss_health > 0:
 		_boss_health = maxi(0, _boss_health - level_data.boss_damage(resolved_result, guard_note or time_note))
 		if _event_system.has_event(EVENT_SAMURAI):
@@ -219,15 +220,18 @@ func _finish_level(completed: bool) -> void:
 
 
 func _retry_level() -> void:
+	_input_manager_call("stop_rumble")
 	get_tree().reload_current_scene()
 
 
 func _return_to_stage_select() -> void:
+	_input_manager_call("stop_rumble")
 	ProgressStoreScript.show_stage_select_on_load = true
 	get_tree().change_scene_to_file(MAIN_SCENE)
 
 
 func _return_to_main_from_pause() -> void:
+	_input_manager_call("stop_rumble")
 	get_tree().paused = false
 	get_tree().change_scene_to_file(MAIN_SCENE)
 
@@ -247,13 +251,17 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and not _level_ended and not get_tree().paused:
+	var keyboard_cancel := event.is_action_pressed("ui_cancel") and not event is InputEventJoypadButton
+	var input_manager := get_node_or_null("/root/InputDeviceManager")
+	var pause_input := bool(input_manager.call("is_pause_input", event)) if input_manager != null else false
+	if (keyboard_cancel or pause_input) and not _level_ended and not get_tree().paused:
 		_set_game_paused(true)
 		get_viewport().set_input_as_handled()
 
 
 func _set_game_paused(value: bool) -> void:
 	if value:
+		_input_manager_call("stop_rumble")
 		set_process(false)
 		conductor.pause_clock()
 		music.stream_paused = true
@@ -265,6 +273,12 @@ func _set_game_paused(value: bool) -> void:
 		music.stream_paused = false
 		conductor.resume_clock()
 		set_process(true)
+
+
+func _input_manager_call(method: StringName, arguments: Array = []) -> void:
+	var input_manager := get_node_or_null("/root/InputDeviceManager")
+	if input_manager != null:
+		input_manager.callv(method, arguments)
 
 
 func _set_judgment_offset(offset_sec: float) -> void:

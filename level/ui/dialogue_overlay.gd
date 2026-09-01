@@ -27,6 +27,10 @@ func _ready() -> void:
 	hide()
 	set_process(false)
 	skip_button.pressed.connect(skip)
+	var input_manager := _input_manager()
+	if input_manager != null:
+		input_manager.connect("active_device_changed", _update_input_prompts.unbind(1))
+	_update_input_prompts()
 
 
 func _layout_to_viewport() -> void:
@@ -80,7 +84,9 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and skip_button.get_global_rect().has_point(event.position):
 		return
-	if event.is_action_pressed("tap") or event.is_action_pressed("ui_accept"):
+	var input_manager := _input_manager()
+	var gamepad_input := bool(input_manager.call("is_play_input", event)) if input_manager != null else false
+	if event.is_action_pressed("tap") or event.is_action_pressed("ui_accept") or gamepad_input:
 		advance()
 		get_viewport().set_input_as_handled()
 
@@ -103,12 +109,35 @@ func skip() -> void:
 
 
 func _show_current_line() -> void:
-	dialogue_label.text = _lines[_line_index]
+	dialogue_label.text = _format_input_prompts(_lines[_line_index])
 	dialogue_label.visible_characters = 0
 	_visible_characters_float = 0.0
 	_typing = true
 	continue_label.modulate.a = 0.35
 	progress_label.text = "%d / %d" % [_line_index + 1, _lines.size()]
+
+
+func _update_input_prompts() -> void:
+	var input_manager := _input_manager()
+	var gamepad_active: bool = input_manager != null and input_manager.get("active_device_type") == "gamepad"
+	continue_label.text = (
+		"%s으로 계속" % input_manager.call("play_prompt")
+		if gamepad_active
+		else "클릭 또는 아무 키로 계속"
+	)
+	if visible and not _lines.is_empty():
+		dialogue_label.text = _format_input_prompts(_lines[_line_index])
+
+
+func _format_input_prompts(text: String) -> String:
+	var input_manager := _input_manager()
+	if input_manager == null or input_manager.get("active_device_type") != "gamepad":
+		return text.replace("{play_input}", "아무 키").replace("{pause_input}", "ESC")
+	return text.replace("{play_input}", input_manager.call("play_prompt")).replace("{pause_input}", input_manager.call("pause_prompt"))
+
+
+func _input_manager() -> Node:
+	return get_node_or_null("/root/InputDeviceManager")
 
 
 func _finish_typing() -> void:
