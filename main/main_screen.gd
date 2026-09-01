@@ -9,17 +9,17 @@ const CYAN := Color("19e0db")
 const MAGENTA := Color("ed1671")
 const STAGE_TWO_UNLOCK_DIALOGUE: Array[String] = [
 	"첫 스테이지를 통과했네.",
-	"STAGE 02 · Beat Flow가 열렸어.",
+	"STAGE 02: Beat Flow가 열렸어.",
 	"이번에는 박자 변화가 더 잦아. 도형이 닿는 순간에 집중해.",
 ]
 const STAGE_THREE_UNLOCK_DIALOGUE: Array[String] = [
 	"Beat Flow 클리어. 감이 잡힌 것 같네.",
-	"STAGE 03 · Shape Samurai가 열렸어.",
+	"STAGE 03: Shape Samurai가 열렸어.",
 	"육각형이 둘로 갈라질 때 입력도 두 번 필요해. 경로를 잘 봐.",
 ]
 const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
 	"Shape Samurai를 쓰러뜨렸어.",
-	"마지막 스테이지, STAGE 04 · Time Rift가 열렸어.",
+	"마지막 스테이지, STAGE 04: Time Rift가 열렸어.",
 	"시간 정지가 풀리는 순간을 놓치지 마.",
 ]
 
@@ -100,11 +100,11 @@ func _show_unlock_flow() -> void:
 	await get_tree().create_timer(0.7).timeout
 	var unlocked_stage := ProgressStoreScript.consume_unlock_dialogue()
 	if unlocked_stage == 2:
-		unlock_dialogue.play(STAGE_TWO_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
+		unlock_dialogue.play(STAGE_TWO_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
 	elif unlocked_stage == 3:
-		unlock_dialogue.play(STAGE_THREE_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
+		unlock_dialogue.play(STAGE_THREE_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
 	elif unlocked_stage == 4:
-		unlock_dialogue.play(STAGE_FOUR_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
+		unlock_dialogue.play(STAGE_FOUR_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
 
 
 func _refresh_stage_cards() -> void:
@@ -136,13 +136,13 @@ func _refresh_stage_cards() -> void:
 		items.get_node("Stage").add_theme_color_override("font_color", text_color)
 		items.get_node("Number").add_theme_color_override("font_color", text_color)
 		items.get_node("Name").add_theme_color_override("font_color", Color(0.95, 0.96, 1, 1) if active else Color(0.57, 0.57, 0.57, 1))
-		items.get_node("Name").text = names[index] if active else "%s  ·  잠김" % names[index]
+		items.get_node("Name").text = names[index] if active else "%s (잠김)" % names[index]
 		var best: Label = items.get_node("Best")
 		var rating_label: Label = items.get_node("Rating")
 		var record := ProgressStoreScript.stage_record(index + 1)
 		best.visible = active
 		rating_label.visible = active
-		best.text = "최고 점수  %07d  ·  %s\n정확도 %.1f%%  ·  최대 콤보 %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "기록 없음"
+		best.text = "최고 점수 %07d / %s\n정확도 %.1f%% / 최대 콤보 %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "기록 없음"
 		if record["score"] > 0:
 			var rating := ProgressStoreScript.star_rating(record["accuracy"], record["cleared"])
 			rating_label.text = "★".repeat(rating["stars"])

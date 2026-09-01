@@ -190,7 +190,7 @@ text = "도형 선택 → 이벤트 선택\n→ APPLY 순서로 적용합니다.
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
 theme_override_font_sizes/font_size = 14
-text = "BOSS GUARD\nSAMURAI SPLIT · 6각형\nTIME STOP"
+text = "BOSS GUARD\nSAMURAI SPLIT (6각형)\nTIME STOP"
 
 [node name="MusicCard" type="PanelContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards"]
 layout_mode = 2
@@ -220,7 +220,7 @@ text = "▶로 음악을 미리 듣고\n슬라이더로 위치를 찾습니다.\
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
 theme_override_font_sizes/font_size = 14
-text = "SPACE · PLAY / PAUSE\nOPEN · SAVE · TEST PLAY"
+text = "SPACE: PLAY / PAUSE\nOPEN / SAVE / TEST PLAY"
 
 [node name="Footer" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 layout_mode = 2

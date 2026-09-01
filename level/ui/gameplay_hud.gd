@@ -28,14 +28,14 @@ func setup_boss(name: String, health: int, samurai: bool = false, time_mage: boo
 
 func update_boss(health: int, guard_active: bool) -> void:
 	%BossHealth.value = health
-	%BossHint.text = "⚠ GUARD BEAT · PERFECT ONLY" if guard_active else "NEXT GUARD APPROACHING"
+	%BossHint.text = "⚠ GUARD BEAT: PERFECT ONLY" if guard_active else "NEXT GUARD APPROACHING"
 
 
 func update_samurai_attack(health: int, attack_active: bool) -> void:
 	%BossHealth.value = health
-	%BossHint.text = "⚔ HEXAGON SPLIT · TWO TRIANGLE BEATS" if attack_active else "WATCH THE PATH CHANGE"
+	%BossHint.text = "⚔ HEXAGON SPLIT: TWO TRIANGLE BEATS" if attack_active else "WATCH THE PATH CHANGE"
 
 
 func update_time_spell(health: int, spell_active: bool, frozen: bool) -> void:
 	%BossHealth.value = health
-	%BossHint.text = "⏳ TIME STOP" if frozen else "◆ BREAK THE TIME SPELL · PERFECT" if spell_active else "TIME FLOW RESTORED"
+	%BossHint.text = "⏳ TIME STOP" if frozen else "◆ BREAK THE TIME SPELL: PERFECT" if spell_active else "TIME FLOW RESTORED"

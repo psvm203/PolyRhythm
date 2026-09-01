@@ -6,7 +6,7 @@ var sides: int
 func setup(value: int) -> void:
 	sides = value
 	custom_minimum_size = Vector2(68, 58)
-	tooltip_text = "%d각형 추가 · 숫자키 %d" % [sides, sides]
+	tooltip_text = "%d각형 추가 (숫자키 %d)" % [sides, sides]
 	focus_mode = Control.FOCUS_NONE
 	queue_redraw()
 
