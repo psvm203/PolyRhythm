@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://main/main_screen.gd" id="1_main"]
 [ext_resource type="AudioStream" path="res://main/audio/main_background_bgm.wav" id="2_bgm"]
@@ -6,6 +6,7 @@
 [ext_resource type="AudioStream" path="res://main/audio/ui_focus.wav" id="4_focus"]
 [ext_resource type="AudioStream" path="res://main/audio/ui_click.wav" id="5_click"]
 [ext_resource type="PackedScene" path="res://level/ui/dialogue_overlay.tscn" id="6_dialogue"]
+[ext_resource type="PackedScene" path="res://main/timing_calibration_overlay.tscn" id="7_calibration"]
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonNormal"]
 bg_color = Color(0.075, 0.082, 0.11, 0.96)
@@ -221,6 +222,8 @@ max_polyphony = 2
 bus = &"SFX"
 
 [node name="UnlockDialogue" parent="." instance=ExtResource("6_dialogue")]
+
+[node name="TimingCalibrationOverlay" parent="." instance=ExtResource("7_calibration")]
 
 [node name="Content" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
@@ -794,7 +797,7 @@ horizontal_scroll_mode = 0
 
 [node name="SettingsPanel" type="PanelContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 820)
+custom_minimum_size = Vector2(0, 650)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleSettingsPanel")
@@ -1107,80 +1110,19 @@ text = "+0 ms"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="SeparatorTiming" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-layout_mode = 2
-modulate = Color(0.4, 0.5, 0.75, 0.25)
-
-[node name="TapKey" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 82)
-layout_mode = 2
-
-[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
-custom_minimum_size = Vector2(92, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.55, 0.28, 1)
-theme_override_font_sizes/font_size = 30
-text = "⌨"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
-custom_minimum_size = Vector2(250, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 24
-text = "플레이 키"
-vertical_alignment = 1
-
-[node name="Spacer" type="Control" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TapKeyOption" type="OptionButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(260, 54)
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="SeparatorTapKey" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-layout_mode = 2
-modulate = Color(0.4, 0.5, 0.75, 0.25)
-
-[node name="ReducedMotionRow" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 82)
-layout_mode = 2
-
-[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/ReducedMotionRow"]
-custom_minimum_size = Vector2(92, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.5, 1, 1)
-theme_override_font_sizes/font_size = 30
-text = "◌"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/ReducedMotionRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 24
-text = "모션 감소"
-vertical_alignment = 1
-
-[node name="ReducedMotion" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/ReducedMotionRow"]
+[node name="CalibrationButton" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleButtonNormal")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
-toggle_mode = true
-text = "Off"
+text = "조정"
 
-[node name="SeparatorReducedMotion" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+[node name="SeparatorTiming" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
 modulate = Color(0.4, 0.5, 0.75, 0.25)
 

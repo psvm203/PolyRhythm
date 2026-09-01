@@ -37,16 +37,16 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Dimmer/Center"]
-custom_minimum_size = Vector2(720, 710)
+custom_minimum_size = Vector2(720, 650)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PanelStyle")
 
 [node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel"]
 layout_mode = 2
 theme_override_constants/margin_left = 56
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 34
 theme_override_constants/margin_right = 56
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_bottom = 34
 
 [node name="Rows" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin"]
 layout_mode = 2
@@ -239,45 +239,6 @@ theme_override_font_sizes/font_size = 20
 text = "+0 ms"
 horizontal_alignment = 2
 vertical_alignment = 1
-
-[node name="TapKey" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 58)
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/TapKey"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "플레이 키"
-vertical_alignment = 1
-
-[node name="TapKeyOption" type="OptionButton" parent="Dimmer/Center/Panel/Margin/Rows/TapKey"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 50)
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="ReducedMotionRow" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 58)
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/ReducedMotionRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "모션 감소"
-vertical_alignment = 1
-
-[node name="ReducedMotion" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/ReducedMotionRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(116, 54)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 24
-toggle_mode = true
-text = "Off"
 
 [node name="Dialogue" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 54)

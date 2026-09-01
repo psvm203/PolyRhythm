@@ -8,7 +8,6 @@ var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _bass: float = 0.0
 var _mid: float = 0.0
 var _treble: float = 0.0
-var reduced_motion := false
 
 
 func _ready() -> void:
@@ -18,19 +17,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if reduced_motion:
-		return
 	_motion_time += delta
 	_update_audio_response(delta)
-	queue_redraw()
-
-
-func set_reduced_motion(enabled: bool) -> void:
-	reduced_motion = enabled
-	if enabled:
-		_bass = 0.0
-		_mid = 0.0
-		_treble = 0.0
 	queue_redraw()
 
 

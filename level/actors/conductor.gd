@@ -1,5 +1,7 @@
 extends Node
 
+const PlayInputScript = preload("res://main/play_input.gd")
+
 signal judged(result: String, polygon_index: int, timing_delta_ms: float)
 
 # The judgment center matches the visual moment when the polygon edges meet.
@@ -105,7 +107,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _judged:
 		return
-	if event.is_action_pressed("tap"):
+	if PlayInputScript.is_pressed(event):
 		game_time = _get_game_time()
 		if rotator.current_index >= scheduled_judgment_times.size():
 			return

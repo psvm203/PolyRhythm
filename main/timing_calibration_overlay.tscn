@@ -1,0 +1,153 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://main/timing_calibration_overlay.gd" id="1_script"]
+[ext_resource type="AudioStream" path="res://main/audio/ui_click.wav" id="2_click"]
+[ext_resource type="Script" path="res://main/timing_calibration_visual.gd" id="3_visual"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.025, 0.055, 0.12, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.15, 0.88, 0.9, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.7)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="ButtonStyle"]
+bg_color = Color(0.075, 0.082, 0.11, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.42, 0.55, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="ButtonFocus"]
+bg_color = Color(0.07, 0.22, 0.28, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 1, 0.9, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="TimingCalibrationOverlay" type="CanvasLayer"]
+layer = 30
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.005, 0.01, 0.03, 0.9)
+
+[node name="Center" type="CenterContainer" parent="Dim"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Dim/Center"]
+custom_minimum_size = Vector2(760, 540)
+layout_mode = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="Dim/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 52
+theme_override_constants/margin_top = 38
+theme_override_constants/margin_right = 52
+theme_override_constants/margin_bottom = 38
+
+[node name="Rows" type="VBoxContainer" parent="Dim/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Dim/Center/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
+theme_override_font_sizes/font_size = 30
+text = "입력 타이밍 보정"
+horizontal_alignment = 1
+
+[node name="CalibrationVisual" type="Control" parent="Dim/Center/Panel/Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_visual")
+
+[node name="Progress" type="Label" parent="Dim/Center/Panel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0 / 8"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="Dim/Center/Panel/Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.93, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Start를 누른 뒤 삼각형의 변이 도형에 닿는 순간 입력하세요"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Dim/Center/Panel/Margin/Rows"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="StartButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ButtonStyle")
+theme_override_styles/hover = SubResource("ButtonFocus")
+theme_override_styles/focus = SubResource("ButtonFocus")
+text = "Start"
+
+[node name="ApplyButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 54)
+layout_mode = 2
+disabled = true
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ButtonStyle")
+theme_override_styles/hover = SubResource("ButtonFocus")
+theme_override_styles/focus = SubResource("ButtonFocus")
+text = "Apply"
+
+[node name="CancelButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ButtonStyle")
+theme_override_styles/hover = SubResource("ButtonFocus")
+theme_override_styles/focus = SubResource("ButtonFocus")
+text = "Cancel"
+
+[node name="ClickPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("2_click")
+volume_db = -2.0
+bus = &"SFX"

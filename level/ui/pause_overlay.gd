@@ -5,7 +5,6 @@ const SettingsStoreScript = preload("res://main/settings_store.gd")
 signal resume_requested
 signal exit_requested
 signal timing_offset_changed(offset_sec: float)
-signal reduced_motion_changed(enabled: bool)
 
 @onready var fullscreen_toggle: Button = %FullscreenToggle
 @onready var master_slider: HSlider = %MasterSlider
@@ -21,8 +20,6 @@ signal reduced_motion_changed(enabled: bool)
 @onready var sfx_enabled: Button = %SfxEnabled
 @onready var skip_seen_dialogue: Button = %SkipSeenDialogue
 @onready var resolution_option: OptionButton = %ResolutionOption
-@onready var tap_key_option: OptionButton = %TapKeyOption
-@onready var reduced_motion: Button = %ReducedMotion
 
 
 func _ready() -> void:
@@ -32,8 +29,6 @@ func _ready() -> void:
 	%ExitButton.pressed.connect(exit_requested.emit)
 	fullscreen_toggle.toggled.connect(_set_fullscreen)
 	resolution_option.item_selected.connect(SettingsStoreScript.save_resolution)
-	tap_key_option.item_selected.connect(_set_tap_key)
-	reduced_motion.toggled.connect(_set_reduced_motion)
 	master_slider.value_changed.connect(_set_volume.bind("master_volume", master_value))
 	music_slider.value_changed.connect(_set_volume.bind("music_volume", music_value))
 	sfx_slider.value_changed.connect(_set_volume.bind("sfx_volume", sfx_value))
@@ -69,8 +64,6 @@ func _sync_settings() -> void:
 	var settings := SettingsStoreScript.load_settings()
 	SettingsStoreScript.apply(settings)
 	_setup_resolution(settings)
-	_setup_tap_key(settings)
-	_sync_reduced_motion(settings["reduced_motion"])
 	fullscreen_toggle.set_pressed_no_signal(settings["fullscreen"])
 	_update_fullscreen_text(fullscreen_toggle.button_pressed)
 	_sync_slider(master_slider, master_value, settings["master_volume"])
@@ -140,25 +133,3 @@ func _setup_resolution(settings: Dictionary) -> void:
 		resolution_option.add_item("%d × %d" % [size.x, size.y])
 	resolution_option.select(SettingsStoreScript.resolution_index(settings))
 
-
-func _setup_tap_key(settings: Dictionary) -> void:
-	tap_key_option.clear()
-	for label in SettingsStoreScript.TAP_KEY_LABELS:
-		tap_key_option.add_item(label)
-	tap_key_option.select(SettingsStoreScript.tap_key_index(settings))
-
-
-func _set_tap_key(index: int) -> void:
-	var safe_index := clampi(index, 0, SettingsStoreScript.TAP_KEYCODES.size() - 1)
-	SettingsStoreScript.save_setting("tap_keycode", SettingsStoreScript.TAP_KEYCODES[safe_index])
-
-
-func _set_reduced_motion(enabled: bool) -> void:
-	_sync_reduced_motion(enabled)
-	SettingsStoreScript.save_setting("reduced_motion", enabled)
-	reduced_motion_changed.emit(enabled)
-
-
-func _sync_reduced_motion(enabled: bool) -> void:
-	reduced_motion.set_pressed_no_signal(enabled)
-	reduced_motion.text = "On" if enabled else "Off"

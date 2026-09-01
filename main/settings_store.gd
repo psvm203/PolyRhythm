@@ -13,8 +13,6 @@ const DEFAULTS := {
 	"sfx_enabled": true,
 	"skip_seen_dialogue": false,
 	"timing_offset_ms": 0.0,
-	"tap_keycode": KEY_SPACE,
-	"reduced_motion": false,
 	"resolution_width": 1280,
 	"resolution_height": 720,
 }
@@ -22,8 +20,6 @@ const RESOLUTIONS: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1600, 900), 
 const AUDIO_BUSES := {"master": &"Master", "music": &"MenuMusic", "sfx": &"SFX"}
 const MIN_TIMING_OFFSET_MS := -150.0
 const MAX_TIMING_OFFSET_MS := 150.0
-const TAP_KEYCODES: Array[int] = [KEY_SPACE, KEY_ENTER, KEY_F, KEY_J]
-const TAP_KEY_LABELS: Array[String] = ["Space", "Enter", "F", "J"]
 
 
 static func load_settings() -> Dictionary:
@@ -64,7 +60,6 @@ static func apply(settings: Dictionary) -> void:
 		DisplayServer.window_set_size(Vector2i(values["resolution_width"], values["resolution_height"]))
 	for prefix in AUDIO_BUSES:
 		_set_bus_volume(AUDIO_BUSES[prefix], values["%s_volume" % prefix], values["%s_enabled" % prefix])
-	_set_tap_key(values["tap_keycode"])
 
 
 static func normalized(settings: Dictionary) -> Dictionary:
@@ -76,8 +71,6 @@ static func normalized(settings: Dictionary) -> Dictionary:
 			MIN_TIMING_OFFSET_MS,
 			MAX_TIMING_OFFSET_MS,
 		),
-		"tap_keycode": _normalized_tap_keycode(int(settings.get("tap_keycode", DEFAULTS["tap_keycode"]))),
-		"reduced_motion": bool(settings.get("reduced_motion", DEFAULTS["reduced_motion"])),
 	}
 	for prefix in AUDIO_BUSES:
 		values["%s_volume" % prefix] = clampf(float(settings.get("%s_volume" % prefix, 100.0)), 0.0, 100.0)
@@ -99,28 +92,9 @@ static func save_resolution(index: int) -> void:
 	save_settings({"resolution_width": size.x, "resolution_height": size.y})
 
 
-static func tap_key_index(settings: Dictionary) -> int:
-	return maxi(TAP_KEYCODES.find(int(settings["tap_keycode"])), 0)
-
-
 static func _set_bus_volume(bus_name: StringName, percent: float, enabled: bool) -> void:
 	var bus_index := AudioServer.get_bus_index(bus_name)
 	if bus_index < 0:
 		return
 	AudioServer.set_bus_volume_db(bus_index, linear_to_db(maxf(percent / 100.0, 0.0001)))
 	AudioServer.set_bus_mute(bus_index, not enabled or percent <= 0.0)
-
-
-static func _normalized_tap_keycode(keycode: int) -> int:
-	return keycode if keycode in TAP_KEYCODES else KEY_SPACE
-
-
-static func _set_tap_key(keycode: int) -> void:
-	if not InputMap.has_action("tap"):
-		InputMap.add_action("tap")
-	for event in InputMap.action_get_events("tap"):
-		if event is InputEventKey:
-			InputMap.action_erase_event("tap", event)
-	var key_event := InputEventKey.new()
-	key_event.physical_keycode = _normalized_tap_keycode(keycode)
-	InputMap.action_add_event("tap", key_event)

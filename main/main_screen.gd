@@ -41,6 +41,7 @@ const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
 @onready var focus_sfx: AudioStreamPlayer = %FocusSfx
 @onready var click_sfx: AudioStreamPlayer = %ClickSfx
 @onready var unlock_dialogue: CanvasLayer = $UnlockDialogue
+@onready var timing_calibration: CanvasLayer = $TimingCalibrationOverlay
 
 var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _motion_time := 0.0
@@ -54,7 +55,6 @@ var _stage_preview_tween: Tween
 var _mouse_focus_enabled := true
 var _focusable_controls: Array[Control] = []
 var _original_mouse_filters: Dictionary = {}
-var _reduced_motion := false
 
 
 func _ready() -> void:
@@ -80,8 +80,9 @@ func _ready() -> void:
 	%MusicSlider.value_changed.connect(_set_volume.bind("music_volume", %MusicValue))
 	%SfxSlider.value_changed.connect(_set_volume.bind("sfx_volume", %SfxValue))
 	%TimingSlider.value_changed.connect(_set_timing_offset)
-	%TapKeyOption.item_selected.connect(_set_tap_key)
-	%ReducedMotion.toggled.connect(_set_reduced_motion)
+	%CalibrationButton.pressed.connect(timing_calibration.open)
+	timing_calibration.offset_selected.connect(_apply_calibrated_offset)
+	timing_calibration.closed.connect(%CalibrationButton.grab_focus)
 	%MasterEnabled.toggled.connect(_set_audio_enabled.bind("master_enabled", %MasterEnabled))
 	%MusicEnabled.toggled.connect(_set_audio_enabled.bind("music_enabled", %MusicEnabled))
 	%SfxEnabled.toggled.connect(_set_audio_enabled.bind("sfx_enabled", %SfxEnabled))
@@ -342,10 +343,6 @@ func _update_stage_card(button: BaseButton, card: Control, record: Control) -> v
 		var previous := _stage_card_tweens[card] as Tween
 		if previous != null and previous.is_valid():
 			previous.kill()
-	if _reduced_motion:
-		card.scale = Vector2.ONE
-		card.modulate = Color(1.05, 1.05, 1.05, 1.0) if highlighted else Color.WHITE
-		return
 	var tween := create_tween().set_parallel(true)
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(card, "scale", Vector2.ONE * (1.04 if highlighted else 1.0), 0.18)
@@ -354,8 +351,6 @@ func _update_stage_card(button: BaseButton, card: Control, record: Control) -> v
 
 
 func _process(delta: float) -> void:
-	if _reduced_motion:
-		return
 	_motion_time += delta
 	if background_music.playing:
 		_motion_time = background_music.get_playback_position()
@@ -569,9 +564,6 @@ func _initialize_settings() -> void:
 	_update_skip_seen_dialogue(settings["skip_seen_dialogue"])
 	%TimingSlider.set_value_no_signal(settings["timing_offset_ms"])
 	_update_timing_offset_label(settings["timing_offset_ms"])
-	_setup_tap_key(%TapKeyOption, settings)
-	%ReducedMotion.set_pressed_no_signal(settings["reduced_motion"])
-	_update_reduced_motion(settings["reduced_motion"])
 	_setup_resolution(%ResolutionOption, settings)
 	for row in [[%MasterSlider, %MasterValue, %MasterEnabled, "master"], [%MusicSlider, %MusicValue, %MusicEnabled, "music"], [%SfxSlider, %SfxValue, %SfxEnabled, "sfx"]]:
 		row[0].set_value_no_signal(settings["%s_volume" % row[3]])
@@ -619,34 +611,6 @@ func _setup_resolution(option: OptionButton, settings: Dictionary) -> void:
 	option.select(SettingsStoreScript.resolution_index(settings))
 
 
-func _setup_tap_key(option: OptionButton, settings: Dictionary) -> void:
-	option.clear()
-	for label in SettingsStoreScript.TAP_KEY_LABELS:
-		option.add_item(label)
-	option.select(SettingsStoreScript.tap_key_index(settings))
-
-
-func _set_tap_key(index: int) -> void:
-	var safe_index := clampi(index, 0, SettingsStoreScript.TAP_KEYCODES.size() - 1)
-	SettingsStoreScript.save_setting("tap_keycode", SettingsStoreScript.TAP_KEYCODES[safe_index])
-
-
-func _set_reduced_motion(enabled: bool) -> void:
-	_update_reduced_motion(enabled)
-	SettingsStoreScript.save_setting("reduced_motion", enabled)
-
-
-func _update_reduced_motion(enabled: bool) -> void:
-	_reduced_motion = enabled
-	%ReducedMotion.set_pressed_no_signal(enabled)
-	%ReducedMotion.text = "On" if enabled else "Off"
-	if enabled:
-		_bass = 0.0
-		_mid = 0.0
-		_treble = 0.0
-	queue_redraw()
-
-
 func _set_volume(value: float, key: String, label: Label) -> void:
 	_update_volume_label(label, value)
 	SettingsStoreScript.save_setting(key, value)
@@ -663,6 +627,11 @@ func _set_timing_offset(value: float) -> void:
 
 func _update_timing_offset_label(value: float) -> void:
 	%TimingValue.text = "%+d ms" % roundi(value)
+
+
+func _apply_calibrated_offset(value: float) -> void:
+	%TimingSlider.set_value_no_signal(value)
+	_set_timing_offset(value)
 
 
 func _show_credits() -> void:

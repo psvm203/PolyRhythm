@@ -54,7 +54,6 @@ signal level_finished(stats: Dictionary, completed: bool, rank: String)
 @onready var dialogue_overlay: CanvasLayer = $DialogueOverlay
 @onready var gameplay_hud: CanvasLayer = $GameplayHUD
 @onready var result_overlay: CanvasLayer = $ResultOverlay
-@onready var level_background: Control = $BackgroundLayer/Background
 
 var _shapes: Array[PackedVector2Array] = []
 var _starter_triangle: PackedVector2Array = PackedVector2Array()
@@ -114,7 +113,6 @@ func _ready() -> void:
 		transition_duration,
 	)
 	var game_settings := SettingsStoreScript.load_settings()
-	_set_reduced_motion(game_settings["reduced_motion"])
 	conductor.judgment_offset_sec = float(game_settings["timing_offset_ms"]) / 1000.0
 	conductor.setup(_compute_scheduled_judgment_times())
 	camera.setup(rotator, _polygon_centers)
@@ -132,7 +130,6 @@ func _ready() -> void:
 		pause_overlay.resume_requested.connect(_set_game_paused.bind(false))
 		pause_overlay.exit_requested.connect(_return_to_main_from_pause)
 		pause_overlay.timing_offset_changed.connect(_set_judgment_offset)
-		pause_overlay.reduced_motion_changed.connect(_set_reduced_motion)
 		pause_overlay.set_exit_visible(true)
 	if dialogue_overlay != null:
 		dialogue_overlay.dialogue_finished.connect(_on_dialogue_finished)
@@ -274,11 +271,6 @@ func _set_judgment_offset(offset_sec: float) -> void:
 	conductor.judgment_offset_sec = offset_sec
 	if conductor.detailed_timing_logs:
 		print("[TIMING_OFFSET_CHANGED] judgment_offset_ms=%.1f" % (offset_sec * 1000.0))
-
-
-func _set_reduced_motion(enabled: bool) -> void:
-	level_background.call("set_reduced_motion", enabled)
-	judgement.reduced_motion = enabled
 
 
 func _on_polygon_advanced(_from_index: int, to_index: int) -> void:
