@@ -59,8 +59,9 @@ func summary() -> Dictionary:
 
 func save_json(path: String, metadata: Dictionary = {}) -> Error:
 	var directory := path.get_base_dir()
-	if not directory.is_empty() and not DirAccess.dir_exists_absolute(directory):
-		var directory_error := DirAccess.make_dir_recursive_absolute(directory)
+	var absolute_directory := ProjectSettings.globalize_path(directory) if directory.contains("://") else directory
+	if not absolute_directory.is_empty() and not DirAccess.dir_exists_absolute(absolute_directory):
+		var directory_error := DirAccess.make_dir_recursive_absolute(absolute_directory)
 		if directory_error != OK:
 			return directory_error
 	var file := FileAccess.open(path, FileAccess.WRITE)

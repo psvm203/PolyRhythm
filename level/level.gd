@@ -44,6 +44,7 @@ signal level_finished(stats: Dictionary, completed: bool, rank: String)
 @export var shared_edge_color := Color(0.15, 1.0, 0.95, 1.0)
 @export var shared_edge_width: float = 5.0
 @export var shared_edge_glow_width: float = 15.0
+@export var timing_trace_path: String = "user://timing/latest_run.json"
 
 @onready var rotator: Node2D = $Rotator
 @onready var conductor: Node = $Conductor
@@ -225,14 +226,14 @@ func _finish_level(completed: bool) -> void:
 		music.stop()
 	var stats := _run_state.snapshot()
 	var final_rank := _run_state.rank(completed)
-	conductor.save_timing_trace("user://timing/latest_run.json", {
+	conductor.save_timing_trace(timing_trace_path, {
 		"stage": ProgressStoreScript.selected_stage,
 		"custom_level": _is_custom_level,
 		"bpm": level_data.bpm,
 		"completed": completed,
 		"rank": final_rank,
-		"resolved_notes": stats["resolved_notes"],
-		"total_notes": stats["total_notes"],
+		"resolved_notes": int(stats.get("resolved", 0)),
+		"total_notes": int(stats.get("total", _level_sequence.size())),
 	})
 	if not _is_custom_level:
 		ProgressStoreScript.record_run(ProgressStoreScript.selected_stage, stats, final_rank, completed)
