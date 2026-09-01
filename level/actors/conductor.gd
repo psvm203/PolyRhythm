@@ -4,6 +4,7 @@ const PlayInputScript = preload("res://main/play_input.gd")
 const RhythmClockScript = preload("res://level/timing/rhythm_clock.gd")
 const ContactSolverScript = preload("res://level/timing/contact_solver.gd")
 const TimingTraceScript = preload("res://level/timing/timing_trace.gd")
+const JudgmentPipelineScript = preload("res://level/timing/judgment_pipeline.gd")
 
 signal judged(result: String, polygon_index: int, timing_delta_ms: float)
 
@@ -23,6 +24,7 @@ var game_time: float = 0.0
 var _judged: bool = false
 var _clock = RhythmClockScript.new()
 var timing_trace = TimingTraceScript.new()
+var _judgment_pipeline = JudgmentPipelineScript.new()
 var _pending_result: String = ""
 var _pending_timing_delta: float = 0.0
 var _last_logged_contact_index: int = -1
@@ -41,6 +43,7 @@ func setup(scheduled_times: PackedFloat32Array) -> void:
 	_sync_clock_source()
 	_clock.reset()
 	timing_trace.clear()
+	_sync_judgment_pipeline()
 	_pending_result = ""
 	_pending_timing_delta = 0.0
 	_last_logged_contact_index = -1
@@ -124,8 +127,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_log_contact_if_reached()
 		var visual_schedule: float = scheduled_judgment_times[rotator.current_index]
 		var scheduled: float = _current_judgment_center()
-		var timing_delta: float = game_time - scheduled
-		var result := classify_timing_delta(timing_delta)
+		_sync_judgment_pipeline()
+		var evaluation: Dictionary = _judgment_pipeline.evaluate(game_time, scheduled)
+		var timing_delta: float = evaluation["delta_sec"]
+		var result: String = evaluation["result"]
 		_record_input_trace(event, visual_schedule, scheduled, timing_delta, result)
 		_log_input_timing(visual_schedule, scheduled, timing_delta, result)
 		if result == "Too Fast":
@@ -134,7 +139,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if result == "Too Slow":
 			_emit_result("Too Slow", rotator.current_index, timing_delta)
 			_advance_polygon()
-		elif should_defer_judgment(timing_delta, result):
+		elif bool(evaluation["defer_until_contact"]):
 			# Preserve the early hit, but show it only when the polygon actually lands.
 			_judged = true
 			_pending_result = result
@@ -144,19 +149,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func classify_timing_delta(timing_delta: float) -> String:
-	if timing_delta < -early_window_sec:
-		return "Too Fast"
-	if timing_delta < -perfect_window_sec:
-		return "Fast"
-	if timing_delta <= perfect_window_sec:
-		return "Perfect"
-	if timing_delta <= late_window_sec:
-		return "Slow"
-	return "Too Slow"
+	_sync_judgment_pipeline()
+	return _judgment_pipeline.classify_delta(timing_delta)
 
 
 func is_miss_due(current_time: float, scheduled_time: float) -> bool:
-	return current_time > scheduled_time + late_window_sec
+	_sync_judgment_pipeline()
+	return _judgment_pipeline.is_miss_due(current_time, scheduled_time)
 
 
 func get_judgment_time(visual_landing_time: float) -> float:
@@ -164,7 +163,12 @@ func get_judgment_time(visual_landing_time: float) -> float:
 
 
 func should_defer_judgment(timing_delta: float, result: String) -> bool:
-	return timing_delta < 0.0 and result != "Too Fast" and result != "Too Slow"
+	_sync_judgment_pipeline()
+	return _judgment_pipeline.should_defer(timing_delta, result)
+
+
+func _sync_judgment_pipeline() -> void:
+	_judgment_pipeline.configure(perfect_window_sec, early_window_sec, late_window_sec)
 
 
 func _accept_judgment(result: String, timing_delta: float) -> void:
