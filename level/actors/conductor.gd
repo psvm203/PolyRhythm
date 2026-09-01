@@ -3,6 +3,7 @@ extends Node
 const PlayInputScript = preload("res://main/play_input.gd")
 const RhythmClockScript = preload("res://level/timing/rhythm_clock.gd")
 const ContactSolverScript = preload("res://level/timing/contact_solver.gd")
+const TimingTraceScript = preload("res://level/timing/timing_trace.gd")
 
 signal judged(result: String, polygon_index: int, timing_delta_ms: float)
 
@@ -21,6 +22,7 @@ var scheduled_judgment_times: PackedFloat32Array = PackedFloat32Array()
 var game_time: float = 0.0
 var _judged: bool = false
 var _clock = RhythmClockScript.new()
+var timing_trace = TimingTraceScript.new()
 var _pending_result: String = ""
 var _pending_timing_delta: float = 0.0
 var _last_logged_contact_index: int = -1
@@ -38,6 +40,7 @@ func setup(scheduled_times: PackedFloat32Array) -> void:
 	_judged = false
 	_sync_clock_source()
 	_clock.reset()
+	timing_trace.clear()
 	_pending_result = ""
 	_pending_timing_delta = 0.0
 	_last_logged_contact_index = -1
@@ -123,6 +126,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var scheduled: float = _current_judgment_center()
 		var timing_delta: float = game_time - scheduled
 		var result := classify_timing_delta(timing_delta)
+		_record_input_trace(event, visual_schedule, scheduled, timing_delta, result)
 		_log_input_timing(visual_schedule, scheduled, timing_delta, result)
 		if result == "Too Fast":
 			_emit_result("Too Fast", rotator.current_index, timing_delta)
@@ -276,6 +280,44 @@ func _rotator_float(method: StringName, fallback: float) -> float:
 	if rotator != null and rotator.has_method(method):
 		return float(rotator.call(method))
 	return fallback
+
+
+func _record_input_trace(
+	event: InputEvent,
+	visual_time: float,
+	judgment_time: float,
+	timing_delta: float,
+	result: String,
+) -> void:
+	var index: int = rotator.current_index
+	var observed_contact := float(_observed_contact_times[index]) if _observed_contact_times.has(index) else visual_time
+	timing_trace.record_input({
+		"event_received_usec": _now_usec(),
+		"device": _input_device_name(event),
+		"polygon_index": index,
+		"game_time_sec": game_time,
+		"visual_contact_sec": visual_time,
+		"observed_contact_sec": observed_contact,
+		"judgment_center_sec": judgment_time,
+		"judgment_offset_ms": judgment_offset_sec * 1000.0,
+		"timing_delta_ms": timing_delta * 1000.0,
+		"result": result,
+		"perfect_window_ms": perfect_window_sec * 1000.0,
+		"early_window_ms": early_window_sec * 1000.0,
+		"late_window_ms": late_window_sec * 1000.0,
+		"fps": Engine.get_frames_per_second(),
+		"frame_time_ms": get_process_delta_time() * 1000.0,
+	})
+
+
+func _input_device_name(event: InputEvent) -> String:
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		return "gamepad"
+	if event is InputEventMouseButton:
+		return "mouse"
+	if event is InputEventKey:
+		return "keyboard"
+	return "unknown"
 
 
 func _current_judgment_center() -> float:
