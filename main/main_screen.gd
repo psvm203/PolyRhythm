@@ -311,24 +311,30 @@ func _smoothed_energy(current: float, target: float, delta: float, speed: float)
 
 func _draw() -> void:
 	var view := size
-	draw_rect(Rect2(Vector2.ZERO, view), Color("090b12"))
+	draw_rect(Rect2(Vector2.ZERO, view), Color("071126"))
 	_draw_background_gradient(view)
 	_draw_grid(view)
+	_draw_orbits(view)
 	_draw_particles(view)
+	_draw_music_notes(view)
 
 
 func _draw_background_gradient(view: Vector2) -> void:
-	var center := Vector2(view.x * 0.48, view.y * 0.42)
+	var center := Vector2(view.x * 0.46, view.y * 0.36)
 	var max_radius := view.length() * 0.68
 	for ring in range(48, 0, -1):
 		var ratio := float(ring) / 48.0
-		var color := Color(0.10, 0.12, 0.20, 0.010)
+		var color := Color(0.08, 0.14, 0.38, 0.012)
 		draw_circle(center, max_radius * ratio, color)
+	# A restrained lower glow anchors the menu without competing with it.
+	for ring in range(20, 0, -1):
+		var ratio := float(ring) / 20.0
+		draw_circle(Vector2(view.x * 0.5, view.y * 0.78), view.x * 0.24 * ratio, Color(0.15, 0.04, 0.28, 0.008))
 
 
 func _draw_grid(view: Vector2) -> void:
-	var spacing := maxf(96.0, view.x / 14.0)
-	var grid_color := Color(0.45, 0.48, 0.58, 0.035)
+	var spacing := maxf(80.0, view.x / 16.0)
+	var grid_color := Color(0.24, 0.38, 0.66, 0.055)
 	var x_offset := fmod(_motion_time * 12.0, spacing)
 	var y_offset := fmod(_motion_time * 7.0, spacing)
 	var x := x_offset - spacing
@@ -339,8 +345,6 @@ func _draw_grid(view: Vector2) -> void:
 	while y <= view.y:
 		draw_line(Vector2(0, y), Vector2(view.x, y), grid_color, 1.0)
 		y += spacing
-
-
 func _draw_orbits(view: Vector2) -> void:
 	var drift := Vector2(sin(_motion_time * 0.16) * view.x * 0.009, cos(_motion_time * 0.12) * view.y * 0.006)
 	var center := Vector2(view.x * 0.39, view.y * 0.92) + drift
@@ -371,10 +375,19 @@ func _draw_arc_segments(
 
 func _draw_particles(view: Vector2) -> void:
 	var particles := [
-		[Vector2(0.12, 0.24), Color("6f7dff"), 2.0],
-		[Vector2(0.22, 0.76), CYAN, 2.5],
-		[Vector2(0.78, 0.18), MAGENTA, 2.2],
-		[Vector2(0.88, 0.68), Color("6f7dff"), 2.0],
+		[Vector2(0.055, 0.36), Color("b56dff"), 2.3],
+		[Vector2(0.105, 0.55), Color("e8ff74"), 2.8],
+		[Vector2(0.225, 0.58), CYAN, 4.5],
+		[Vector2(0.61, 0.045), Color("29aaff"), 2.8],
+		[Vector2(0.67, 0.105), Color("15efff"), 2.1],
+		[Vector2(0.75, 0.085), MAGENTA, 2.8],
+		[Vector2(0.80, 0.24), CYAN, 4.0],
+		[Vector2(0.86, 0.34), Color("8957ff"), 2.8],
+		[Vector2(0.94, 0.21), MAGENTA, 2.2],
+		[Vector2(0.84, 0.58), MAGENTA, 4.5],
+		[Vector2(0.74, 0.82), Color("ff38c7"), 2.2],
+		[Vector2(0.85, 0.87), Color("397dff"), 4.0],
+		[Vector2(0.10, 0.89), Color("fff36a"), 2.2],
 	]
 	for index in particles.size():
 		var item: Array = particles[index]
@@ -391,9 +404,17 @@ func _draw_particles(view: Vector2) -> void:
 		var idle_pulse := (sin(_motion_time * 1.15 + phase) + 1.0) * 0.06
 		var radius: float = item[2] * (1.0 + idle_pulse + _treble * 0.32)
 		var glow := color
-		glow.a = 0.04 + _treble * 0.04
-		draw_circle(point, radius * 2.4, glow)
+		glow.a = 0.08 + _treble * 0.08
+		draw_circle(point, radius * 3.6, glow)
 		draw_circle(point, radius, color)
+		if index % 4 == 0:
+			var ring_color := color
+			ring_color.a = 0.12 + _treble * 0.12
+			draw_arc(point, radius * (2.2 + _bass * 0.8), 0.0, TAU, 24, ring_color, 1.0, true)
+	var turn := _motion_time * 0.035
+	_draw_polygon_outline(Vector2(0.18, 0.35) * view + Vector2(sin(_motion_time * 0.25), cos(_motion_time * 0.21)) * 5.0, 25.0 + _treble * 2.0, 4, 0.18 + turn, Color(0.05, 0.65, 0.95, 0.45 + _treble * 0.2))
+	_draw_polygon_outline(Vector2(0.88, 0.08) * view + Vector2(cos(_motion_time * 0.19), sin(_motion_time * 0.23)) * 6.0, 29.0 + _mid * 2.0, 4, 0.62 - turn * 0.7, Color(0.55, 0.17, 0.95, 0.44 + _treble * 0.18))
+	_draw_polygon_outline(Vector2(0.95, 0.89) * view + Vector2(sin(_motion_time * 0.17), cos(_motion_time * 0.20)) * 5.0, 24.0, 5, 0.20 + turn * 0.6, Color(0.55, 0.17, 0.95, 0.38 + _treble * 0.16))
 
 
 func _draw_polygon_outline(center: Vector2, radius: float, sides: int, rotation_angle: float, color: Color) -> void:
