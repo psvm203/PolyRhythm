@@ -25,6 +25,10 @@ func _init() -> void:
 	_expect(expanded == [3, 5, 4, 3, 5, 4, 3, 5, 4], "pattern repeats in order")
 	_expect(expanded.size() == 9, "expanded note count is correct")
 	_expect(expanded[0] == 3 and expanded[-1] == 4, "source order is preserved")
+	_expect(data.expand_layout({}) == [3], "missing sequence falls back to a safe triangle")
+	_expect(data.expand_layout({"sides_sequence": [0, 2, 13, "bad"]}) == [3], "invalid polygon sides cannot reach geometry generation")
+	_expect(data.expand_layout({"sides_sequence": [4], "repeat_count": 100000}).size() == 1000, "corrupt repeat counts are bounded")
+	_expect(not data.validate({"sides_sequence": "bad", "bpm": {}, "repeat_count": null}).is_empty(), "validation handles malformed value types")
 	_expect(stage_two.expanded_sequence().size() == 160, "stage two has a full arrangement")
 	_expect(stage_three.expanded_sequence().size() == 192, "stage three has a full arrangement")
 	_expect(stage_three.bpm > stage_two.bpm, "final stage increases tempo")
@@ -61,7 +65,7 @@ func _init() -> void:
 	_expect(stage_two.boss_damage("Slow", true) == 0, "imprecise hit is blocked")
 	_expect(stage_two.boss_damage("Perfect", false) == 2, "Perfect damages boss")
 	if _failures == 0:
-		print("Level data tests passed: 27 assertions")
+		print("Level data tests passed: 31 assertions")
 		quit(0)
 	else:
 		push_error("Level data tests failed: %d assertion(s)" % _failures)

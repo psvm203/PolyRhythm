@@ -2,14 +2,20 @@ class_name ShapeFactory
 extends RefCounted
 
 func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector2) -> Dictionary:
+	var safe_sequence: Array[int] = []
+	for sides in sides_sequence:
+		safe_sequence.append(clampi(sides, 3, 12))
+	if safe_sequence.is_empty():
+		safe_sequence.append(3)
+	var safe_side_length := side_length if is_finite(side_length) and side_length > 0.0 else 100.0
 	var shapes: Array[PackedVector2Array] = []
 	var exit_edges: Array[PackedVector2Array] = []
 	var polygon_centers := PackedVector2Array()
 	var exit_edge_local_indices := PackedInt32Array()
 	var sides_counts := PackedInt32Array()
-	var base_half_offset := Vector2(side_length / 2.0, 0.0)
+	var base_half_offset := Vector2(safe_side_length / 2.0, 0.0)
 	var shape := build_polygon_on_edge(
-		sides_sequence[0],
+		safe_sequence[0],
 		base_midpoint - base_half_offset,
 		base_midpoint + base_half_offset,
 	)
@@ -17,7 +23,7 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 	polygon_centers.append(_center_of(shape))
 	exit_edge_local_indices.append(_exit_local_index(0, shape.size()))
 	sides_counts.append(shape.size())
-	for index in range(1, sides_sequence.size()):
+	for index in range(1, safe_sequence.size()):
 		var use_left_edge := index % 2 == 1
 		var next_base_left: Vector2
 		var next_base_right: Vector2
@@ -28,7 +34,7 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 			next_base_left = shape[shape.size() - 2]
 			next_base_right = shape[shape.size() - 1]
 		exit_edges.append(PackedVector2Array([next_base_left, next_base_right]))
-		shape = build_polygon_on_edge(sides_sequence[index], next_base_left, next_base_right)
+		shape = build_polygon_on_edge(safe_sequence[index], next_base_left, next_base_right)
 		shapes.append(shape)
 		polygon_centers.append(_center_of(shape))
 		exit_edge_local_indices.append(_exit_local_index(index, shape.size()))
@@ -43,6 +49,7 @@ func build(sides_sequence: Array[int], side_length: float, base_midpoint: Vector
 
 
 func build_polygon_on_edge(side_count: int, base_left: Vector2, base_right: Vector2) -> PackedVector2Array:
+	side_count = clampi(side_count, 3, 12)
 	var edge := base_right - base_left
 	var radius := edge.length() / (2.0 * sin(TAU / (2.0 * side_count)))
 	var apothem := radius * cos(TAU / (2.0 * side_count))

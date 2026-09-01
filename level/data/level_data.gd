@@ -15,16 +15,22 @@ var _yaml: Dictionary = {}
 static func from_yaml(path: String) -> LevelData:
 	var result := LevelData.new()
 	result._yaml = result._parse_yaml(path)
-	result.bpm = float(result._yaml.get("bpm", result.bpm))
+	result.bpm = _positive_float(result._yaml.get("bpm", result.bpm), result.bpm)
 	result.music_path = str(result._yaml.get("music_path", ""))
-	result.music_start_offset_sec = float(result._yaml.get("music_start_offset_sec", 0.0))
+	result.music_start_offset_sec = maxf(_finite_float(result._yaml.get("music_start_offset_sec", 0.0), 0.0), 0.0)
 	result.boss_name = str(result._yaml.get("boss_name", ""))
-	result.boss_health = int(result._yaml.get("boss_health", 0))
-	for event in result._yaml.get("events", []):
+	result.boss_health = maxi(_safe_int(result._yaml.get("boss_health", 0), 0), 0)
+	var raw_events: Variant = result._yaml.get("events", [])
+	if not raw_events is Array:
+		raw_events = []
+	for event in raw_events:
 		if event is Dictionary:
 			result.events.append((event as Dictionary).duplicate(true))
 	result.tutorial_speaker = str(result._yaml.get("tutorial_speaker", "POLY"))
-	for line in result._yaml.get("tutorial_lines", []):
+	var raw_lines: Variant = result._yaml.get("tutorial_lines", [])
+	if not raw_lines is Array:
+		raw_lines = []
+	for line in raw_lines:
 		result.tutorial_lines.append(str(line))
 	return result
 
@@ -50,26 +56,59 @@ func _parse_yaml(path: String) -> Dictionary:
 
 static func expand_layout(layout: Dictionary) -> Array[int]:
 	var pattern: Array[int] = []
-	for sides in layout.get("sides_sequence", []):
-		pattern.append(int(sides))
+	var raw_sequence: Variant = layout.get("sides_sequence", [])
+	if raw_sequence is Array:
+		for sides in raw_sequence:
+			var side_count := _safe_int(sides, 0)
+			if side_count >= 3 and side_count <= 12:
+				pattern.append(side_count)
+	# Runtime callers need at least one valid polygon even if a custom file was
+	# deleted, truncated, or edited outside the level editor.
+	if pattern.is_empty():
+		pattern.append(3)
 	var result: Array[int] = []
-	for _repeat in maxi(int(layout.get("repeat_count", 1)), 1):
+	var repeat_count := clampi(_safe_int(layout.get("repeat_count", 1), 1), 1, 1000)
+	for _repeat in repeat_count:
 		result.append_array(pattern)
 	return result
 
 
+static func _safe_int(value: Variant, fallback: int) -> int:
+	if value is int or value is float:
+		return int(value)
+	if value is String and (value as String).is_valid_int():
+		return (value as String).to_int()
+	return fallback
+
+
+static func _finite_float(value: Variant, fallback: float) -> float:
+	var parsed := fallback
+	if value is int or value is float:
+		parsed = float(value)
+	elif value is String and (value as String).is_valid_float():
+		parsed = (value as String).to_float()
+	return parsed if is_finite(parsed) else fallback
+
+
+static func _positive_float(value: Variant, fallback: float) -> float:
+	var parsed := _finite_float(value, fallback)
+	return parsed if parsed > 0.0 else fallback
+
+
 static func validate(data: Dictionary) -> PackedStringArray:
 	var errors := PackedStringArray()
-	var sequence: Array = data.get("sides_sequence", [])
-	if sequence.is_empty():
+	var sequence: Variant = data.get("sides_sequence", [])
+	if not sequence is Array or sequence.is_empty():
 		errors.append("도형 배열을 하나 이상 입력하세요.")
-	for sides in sequence:
-		if int(sides) < 3 or int(sides) > 12:
-			errors.append("도형의 변 개수는 3~12여야 합니다.")
-			break
-	if float(data.get("bpm", 0.0)) <= 0.0:
+	if sequence is Array:
+		for sides in sequence:
+			var side_count := _safe_int(sides, 0)
+			if side_count < 3 or side_count > 12:
+				errors.append("도형의 변 개수는 3~12여야 합니다.")
+				break
+	if _finite_float(data.get("bpm", 0.0), 0.0) <= 0.0:
 		errors.append("BPM은 0보다 커야 합니다.")
-	if int(data.get("repeat_count", 1)) < 1:
+	if _safe_int(data.get("repeat_count", 1), 0) < 1:
 		errors.append("반복 횟수는 1 이상이어야 합니다.")
 	var music := str(data.get("music_path", ""))
 	if music.is_empty() or not FileAccess.file_exists(music):

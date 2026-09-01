@@ -13,8 +13,12 @@ func setup(definitions: Array) -> void:
 			var name := str(definition["name"])
 			_definitions[name] = (definition as Dictionary).duplicate(true)
 			var targets := {}
-			for polygon_number in definition.get("at", []):
-				targets[int(polygon_number)] = true
+			var configured_targets: Variant = definition.get("at", [])
+			if configured_targets is Array:
+				for polygon_number in configured_targets:
+					var target := _safe_side_or_index(polygon_number)
+					if target > 0:
+						targets[target] = true
 			_targets[name] = targets
 
 
@@ -38,10 +42,13 @@ func transform_sequence(sequence: Array[int]) -> Array[int]:
 			if not _targets[name].has(polygon_number):
 				continue
 			remapped_targets[name][transformed.size() + 1] = true
-			var configured: Array = _definitions[name].get("replace_with", [])
-			var required_sides := int(_definitions[name].get("when_sides", 0))
-			if not configured.is_empty() and (required_sides <= 0 or sequence[original_index] == required_sides):
-				replacement = configured
+			var configured: Variant = _definitions[name].get("replace_with", [])
+			var required_sides := _safe_side_or_index(_definitions[name].get("when_sides", 0))
+			if configured is Array and not configured.is_empty() and (required_sides <= 0 or sequence[original_index] == required_sides):
+				for sides in configured:
+					var side_count := _safe_side_or_index(sides)
+					if side_count >= 3 and side_count <= 12:
+						replacement.append(side_count)
 		if replacement.is_empty():
 			transformed.append(sequence[original_index])
 		else:
@@ -57,3 +64,11 @@ func value(name: String, key: String, fallback: Variant) -> Variant:
 
 func definition(name: String) -> Dictionary:
 	return _definitions.get(name, {})
+
+
+func _safe_side_or_index(value: Variant) -> int:
+	if value is int or value is float:
+		return int(value)
+	if value is String and (value as String).is_valid_int():
+		return (value as String).to_int()
+	return 0

@@ -357,7 +357,14 @@ func _trigger_time_stop() -> void:
 	rotator.paused = true
 	music.stream_paused = true
 	gameplay_hud.update_time_spell(_boss_health, true, true)
-	var duration := float(_event_system.value(EVENT_TIME_STOP, "duration_sec", 0.65))
+	var configured_duration: Variant = _event_system.value(EVENT_TIME_STOP, "duration_sec", 0.65)
+	var duration := 0.65
+	if configured_duration is int or configured_duration is float:
+		duration = float(configured_duration)
+	elif configured_duration is String and (configured_duration as String).is_valid_float():
+		duration = (configured_duration as String).to_float()
+	if not is_finite(duration):
+		duration = 0.65
 	await get_tree().create_timer(maxf(duration, 0.0)).timeout
 	if _level_ended:
 		return
