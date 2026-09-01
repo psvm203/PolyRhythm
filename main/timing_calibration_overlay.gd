@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 const PlayInputScript = preload("res://main/play_input.gd")
+const CalibrationStatisticsScript = preload("res://level/timing/calibration_statistics.gd")
 
 signal offset_selected(offset_ms: float)
 signal closed
@@ -22,6 +23,7 @@ var _next_beat_index := 0
 var _scheduled_beats: Array[int] = []
 var _used_beats: Dictionary = {}
 var _samples_ms: Array[float] = []
+var _sample_devices: Array[String] = []
 var _suggested_offset_ms := 0.0
 
 
@@ -51,6 +53,7 @@ func _reset() -> void:
 	_next_beat_index = 0
 	_used_beats.clear()
 	_samples_ms.clear()
+	_sample_devices.clear()
 	_suggested_offset_ms = 0.0
 	status_label.text = "Start를 누른 뒤 삼각형의 변이 도형에 닿는 순간 입력하세요"
 	%Progress.text = "0 / %d" % BEAT_COUNT
@@ -93,11 +96,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	var gamepad_input := bool(input_manager.call("is_play_input", event)) if input_manager != null else false
 	if not _running or not (PlayInputScript.is_pressed(event) or gamepad_input):
 		return
-	_record_tap(Time.get_ticks_usec())
+	_record_tap(Time.get_ticks_usec(), _input_device_name(event))
 	get_viewport().set_input_as_handled()
 
 
-func _record_tap(tap_usec: int) -> void:
+func _record_tap(tap_usec: int, device: String = "unknown") -> void:
 	var closest_index := -1
 	var closest_distance := ACCEPT_WINDOW_USEC + 1
 	for index in _scheduled_beats.size():
@@ -111,6 +114,7 @@ func _record_tap(tap_usec: int) -> void:
 		return
 	_used_beats[closest_index] = true
 	_samples_ms.append(float(tap_usec - _scheduled_beats[closest_index]) / 1000.0)
+	_sample_devices.append(device)
 	%Progress.text = "%d / %d" % [_samples_ms.size(), BEAT_COUNT]
 
 
@@ -125,9 +129,9 @@ func _finish_calibration() -> void:
 	if _samples_ms.size() < 4:
 		status_label.text = "입력이 부족합니다. 다시 측정해 주세요"
 		return
-	_suggested_offset_ms = clampf(calculate_median(_samples_ms), -150.0, 150.0)
-	var spread := calculate_mean_deviation(_samples_ms, _suggested_offset_ms)
-	status_label.text = "권장 보정  %+.0f ms    입력 편차  %.1f ms" % [_suggested_offset_ms, spread]
+	var report: Dictionary = CalibrationStatisticsScript.report(_samples_ms, _sample_devices)
+	_suggested_offset_ms = clampf(float(report["center_ms"]), -150.0, 150.0)
+	status_label.text = "권장 보정  %+.0f ms    입력 편차  %.1f ms    제외 %d" % [_suggested_offset_ms, report["spread_ms"], report["rejected_count"]]
 	apply_button.disabled = false
 	apply_button.grab_focus()
 
@@ -138,20 +142,18 @@ func _apply_result() -> void:
 
 
 static func calculate_median(samples: Array[float]) -> float:
-	if samples.is_empty():
-		return 0.0
-	var sorted := samples.duplicate()
-	sorted.sort()
-	var middle := sorted.size() / 2
-	if sorted.size() % 2 == 1:
-		return sorted[middle]
-	return (sorted[middle - 1] + sorted[middle]) * 0.5
+	return CalibrationStatisticsScript.median(samples)
 
 
 static func calculate_mean_deviation(samples: Array[float], center: float) -> float:
-	if samples.is_empty():
-		return 0.0
-	var total := 0.0
-	for sample in samples:
-		total += absf(sample - center)
-	return total / samples.size()
+	return CalibrationStatisticsScript.mean_deviation(samples, center)
+
+
+func _input_device_name(event: InputEvent) -> String:
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		return "gamepad"
+	if event is InputEventMouseButton:
+		return "mouse"
+	if event is InputEventKey:
+		return "keyboard"
+	return "unknown"
