@@ -472,7 +472,7 @@ theme_override_styles/panel = SubResource("StyleStageActive")
 
 [node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/CardsSlot/Cards/StageOne"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="Stage" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items"]
 custom_minimum_size = Vector2(0, 58)
@@ -538,7 +538,7 @@ theme_override_styles/panel = SubResource("StyleStageLocked")
 
 [node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/CardsSlot/Cards/StageTwo"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="Stage" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items"]
 custom_minimum_size = Vector2(0, 58)
@@ -603,7 +603,7 @@ theme_override_styles/panel = SubResource("StyleStageLocked")
 
 [node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/CardsSlot/Cards/StageThree"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="Stage" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items"]
 custom_minimum_size = Vector2(0, 58)
@@ -668,7 +668,7 @@ theme_override_styles/panel = SubResource("StyleStageLocked")
 
 [node name="Items" type="VBoxContainer" parent="StageScreen/StageLayout/CardsSlot/Cards/StageFour"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="Stage" type="Label" parent="StageScreen/StageLayout/CardsSlot/Cards/StageFour/Items"]
 custom_minimum_size = Vector2(0, 58)
@@ -771,6 +771,7 @@ grow_vertical = 2
 theme_override_constants/separation = 24
 
 [node name="SmallLogo" type="HBoxContainer" parent="SettingsScreen/SettingsLayout"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 0
@@ -813,14 +814,14 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SettingsPanelSlot" type="ScrollContainer" parent="SettingsScreen/SettingsLayout"]
-custom_minimum_size = Vector2(0, 780)
+custom_minimum_size = Vector2(0, 840)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="SettingsPanel" type="PanelContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 780)
+custom_minimum_size = Vector2(0, 840)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleSettingsPanel")
@@ -834,7 +835,7 @@ theme_override_constants/margin_bottom = 28
 
 [node name="Rows" type="VBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="Fullscreen" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
@@ -890,8 +891,8 @@ layout_mode = 2
 custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.65, 1, 1)
-theme_override_font_sizes/font_size = 32
-text = "▭"
+theme_override_font_sizes/font_size = 30
+text = "▦"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -917,6 +918,7 @@ modulate = Color(0.4, 0.5, 0.75, 0.25)
 [node name="Master" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Master"]
 custom_minimum_size = Vector2(92, 0)
@@ -937,7 +939,7 @@ vertical_alignment = 1
 
 [node name="MasterSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Master"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(410, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -977,6 +979,7 @@ modulate = Color(0.4, 0.5, 0.75, 0.25)
 [node name="Music" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
 custom_minimum_size = Vector2(92, 0)
@@ -997,7 +1000,7 @@ vertical_alignment = 1
 
 [node name="MusicSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(410, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -1036,6 +1039,7 @@ modulate = Color(0.4, 0.5, 0.75, 0.25)
 [node name="Sfx" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Sfx"]
 custom_minimum_size = Vector2(92, 0)
@@ -1056,7 +1060,7 @@ vertical_alignment = 1
 
 [node name="SfxSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Sfx"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(410, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -1095,6 +1099,7 @@ modulate = Color(0.4, 0.5, 0.75, 0.25)
 [node name="Vibration" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
 custom_minimum_size = Vector2(92, 0)
@@ -1110,12 +1115,12 @@ custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 24
-text = "진동"
+text = "컨트롤러 진동"
 vertical_alignment = 1
 
 [node name="VibrationSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Vibration"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(410, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -1154,6 +1159,7 @@ modulate = Color(0.4, 0.5, 0.75, 0.25)
 [node name="Timing" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 82)
 layout_mode = 2
+theme_override_constants/separation = 14
 
 [node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
 custom_minimum_size = Vector2(92, 0)
@@ -1174,7 +1180,7 @@ vertical_alignment = 1
 
 [node name="TimingSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(410, 0)
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
