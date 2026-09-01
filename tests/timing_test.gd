@@ -14,6 +14,7 @@ func _init() -> void:
 	_test_visual_landing_offset(conductor)
 	_test_early_judgment_deferral(conductor)
 	_test_clock_pause_and_resume(conductor)
+	_test_audio_reference_type(conductor)
 	_test_classification_continuity(conductor)
 	conductor.free()
 
@@ -103,6 +104,15 @@ func _test_clock_pause_and_resume(conductor: Node) -> void:
 	now_usec[0] += 150_000
 	_expect_approx(conductor._get_game_time(), 0.40, "clock continues after resume")
 	conductor.time_source_usec = Callable()
+
+
+func _test_audio_reference_type(conductor: Node) -> void:
+	var player := AudioStreamPlayer2D.new()
+	conductor.set_audio_reference(player, 1.25)
+	_expect_equal(conductor.audio_player, player, "2D level audio player is accepted as clock reference")
+	_expect_approx(conductor.audio_start_offset_sec, 1.25, "audio start offset is retained")
+	player.free()
+	conductor.audio_player = null
 
 
 func _test_classification_continuity(conductor: Node) -> void:

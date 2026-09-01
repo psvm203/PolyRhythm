@@ -32,7 +32,7 @@ var _observed_contact_times: Dictionary = {}
 var _previous_gap: float = INF
 var _previous_gap_time: float = 0.0
 var _previous_gap_index: int = -1
-var audio_player: AudioStreamPlayer
+var audio_player: Node
 var audio_start_offset_sec := 0.0
 var audio_drift_sec := 0.0
 # Tests can provide a deterministic microsecond clock; gameplay uses the engine clock.
@@ -195,7 +195,7 @@ func _sync_clock_source() -> void:
 	_clock.time_source_usec = time_source_usec
 
 
-func set_audio_reference(player: AudioStreamPlayer, start_offset_sec: float = 0.0) -> void:
+func set_audio_reference(player: Node, start_offset_sec: float = 0.0) -> void:
 	audio_player = player
 	audio_start_offset_sec = maxf(start_offset_sec, 0.0)
 
@@ -205,9 +205,11 @@ func save_timing_trace(path: String, metadata: Dictionary = {}) -> Error:
 
 
 func _discipline_clock_to_audio() -> void:
-	if audio_player == null or not audio_player.playing or audio_player.stream_paused:
+	if audio_player == null or not audio_player.has_method(&"get_playback_position"):
 		return
-	var relative_audio_sec := maxf(audio_player.get_playback_position() - audio_start_offset_sec, 0.0)
+	if not bool(audio_player.get("playing")) or bool(audio_player.get("stream_paused")):
+		return
+	var relative_audio_sec := maxf(float(audio_player.call("get_playback_position")) - audio_start_offset_sec, 0.0)
 	audio_drift_sec = _clock.discipline_to(relative_audio_sec)
 
 
