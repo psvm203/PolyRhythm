@@ -2,6 +2,7 @@ extends Node
 
 const PlayInputScript = preload("res://main/play_input.gd")
 const RhythmClockScript = preload("res://level/timing/rhythm_clock.gd")
+const ContactSolverScript = preload("res://level/timing/contact_solver.gd")
 
 signal judged(result: String, polygon_index: int, timing_delta_ms: float)
 
@@ -24,6 +25,9 @@ var _pending_result: String = ""
 var _pending_timing_delta: float = 0.0
 var _last_logged_contact_index: int = -1
 var _observed_contact_times: Dictionary = {}
+var _previous_gap: float = INF
+var _previous_gap_time: float = 0.0
+var _previous_gap_index: int = -1
 # Tests can provide a deterministic microsecond clock; gameplay uses the engine clock.
 var time_source_usec: Callable
 
@@ -38,6 +42,9 @@ func setup(scheduled_times: PackedFloat32Array) -> void:
 	_pending_timing_delta = 0.0
 	_last_logged_contact_index = -1
 	_observed_contact_times.clear()
+	_previous_gap = INF
+	_previous_gap_time = 0.0
+	_previous_gap_index = -1
 	if rotator != null and scheduled_judgment_times.size() > 0:
 		var initial_duration: float = maxf(scheduled_judgment_times[0], 0.05)
 		rotator.set_transition_duration(initial_duration)
@@ -221,24 +228,48 @@ func _log_input_timing(visual_time: float, judgment_time: float, timing_delta: f
 
 
 func _log_contact_if_reached() -> void:
-	if not detailed_timing_logs or rotator.current_index == _last_logged_contact_index:
+	if rotator.current_index == _last_logged_contact_index:
 		return
 	if not rotator.has_method(&"get_entrance_edge_gap"):
 		return
 	if rotator.has_method(&"is_fly_in_complete") and not rotator.is_fly_in_complete():
+		_sample_contact_gap()
 		return
 	var gap: float = rotator.get_entrance_edge_gap()
+	if _previous_gap_index != rotator.current_index:
+		_previous_gap = INF
+		_previous_gap_time = game_time
+		_previous_gap_index = rotator.current_index
 	if gap > contact_threshold_px:
+		_previous_gap = gap
+		_previous_gap_time = game_time
 		return
 	_last_logged_contact_index = rotator.current_index
-	_observed_contact_times[rotator.current_index] = game_time
+	var contact_time := ContactSolverScript.interpolate_contact_time(
+		_previous_gap_time,
+		game_time,
+		_previous_gap,
+		gap,
+		contact_threshold_px,
+	)
+	_observed_contact_times[rotator.current_index] = contact_time
+	if not detailed_timing_logs:
+		return
 	var visual_time: float = scheduled_judgment_times[rotator.current_index]
 	var transition_elapsed := _rotator_float(&"get_transition_elapsed", 0.0)
 	var offset: Vector2 = rotator.get_current_offset()
 	print(
 		"[POLYGON_CONTACT] polygon=%d observed_game_ms=%.3f scheduled_visual_ms=%.3f contact_delta_ms=%+.3f edge_gap_px=%.3f offset_length_px=%.3f transition_ms=%.3f frame_usec=%d"
-		% [rotator.current_index + 1, game_time * 1000.0, visual_time * 1000.0, (game_time - visual_time) * 1000.0, gap, offset.length(), transition_elapsed * 1000.0, _now_usec()],
+		% [rotator.current_index + 1, contact_time * 1000.0, visual_time * 1000.0, (contact_time - visual_time) * 1000.0, gap, offset.length(), transition_elapsed * 1000.0, _now_usec()],
 	)
+
+
+func _sample_contact_gap() -> void:
+	if not rotator.has_method(&"get_entrance_edge_gap"):
+		return
+	_previous_gap = float(rotator.get_entrance_edge_gap())
+	_previous_gap_time = game_time
+	_previous_gap_index = rotator.current_index
 
 
 func _rotator_float(method: StringName, fallback: float) -> float:

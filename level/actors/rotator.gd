@@ -1,5 +1,7 @@
 extends Node2D
 
+const ContactSolverScript = preload("res://level/timing/contact_solver.gd")
+
 signal polygon_advanced(from_index: int, to_index: int)
 
 var polygons: Array[PackedVector2Array] = []
@@ -173,18 +175,7 @@ func get_entrance_edge_gap() -> float:
 	var target_edge: PackedVector2Array = entrance_edges_world[current_index]
 	if moving_edge.size() < 2 or target_edge.size() < 2:
 		return INF
-	if Geometry2D.segment_intersects_segment(
-		moving_edge[0],
-		moving_edge[1],
-		target_edge[0],
-		target_edge[1],
-	) != null:
-		return 0.0
-	var moving_a_gap := moving_edge[0].distance_to(Geometry2D.get_closest_point_to_segment(moving_edge[0], target_edge[0], target_edge[1]))
-	var moving_b_gap := moving_edge[1].distance_to(Geometry2D.get_closest_point_to_segment(moving_edge[1], target_edge[0], target_edge[1]))
-	var target_a_gap := target_edge[0].distance_to(Geometry2D.get_closest_point_to_segment(target_edge[0], moving_edge[0], moving_edge[1]))
-	var target_b_gap := target_edge[1].distance_to(Geometry2D.get_closest_point_to_segment(target_edge[1], moving_edge[0], moving_edge[1]))
-	return minf(minf(moving_a_gap, moving_b_gap), minf(target_a_gap, target_b_gap))
+	return ContactSolverScript.segment_gap(moving_edge, target_edge)
 
 
 func get_target_world_position() -> Vector2:
