@@ -1,6 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://level/ui/result_overlay.gd" id="1_result"]
+[ext_resource type="Theme" path="res://main/poly_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://main/focus_coordinator.gd" id="3_focus"]
 
 [sub_resource type="StyleBoxFlat" id="ResultPanel"]
 bg_color = Color(0.025, 0.035, 0.065, 0.98)
@@ -28,47 +30,15 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
-[sub_resource type="StyleBoxFlat" id="ButtonNormal"]
-bg_color = Color(0.075, 0.085, 0.12, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.3, 0.34, 0.45, 1)
-corner_radius_top_left = 9
-corner_radius_top_right = 9
-corner_radius_bottom_right = 9
-corner_radius_bottom_left = 9
-
-[sub_resource type="StyleBoxFlat" id="ButtonFocus"]
-bg_color = Color(0.11, 0.13, 0.18, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.12, 0.9, 0.86, 1)
-corner_radius_top_left = 9
-corner_radius_top_right = 9
-corner_radius_bottom_right = 9
-corner_radius_bottom_left = 9
-
-[sub_resource type="StyleBoxFlat" id="ButtonPressed"]
-bg_color = Color(0.08, 0.24, 0.25, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.16, 1, 0.92, 1)
-corner_radius_top_left = 9
-corner_radius_top_right = 9
-corner_radius_bottom_right = 9
-corner_radius_bottom_left = 9
-
 [node name="ResultOverlay" type="CanvasLayer"]
 layer = 250
 script = ExtResource("1_result")
 
+[node name="FocusCoordinator" type="Node" parent="."]
+script = ExtResource("3_focus")
+
 [node name="Dim" type="ColorRect" parent="."]
+theme = ExtResource("2_theme")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -158,10 +128,6 @@ focus_neighbor_left = NodePath("../StageSelectButton")
 focus_neighbor_right = NodePath("../StageSelectButton")
 theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("ButtonNormal")
-theme_override_styles/hover = SubResource("ButtonFocus")
-theme_override_styles/pressed = SubResource("ButtonPressed")
-theme_override_styles/focus = SubResource("ButtonFocus")
 text = "Retry"
 
 [node name="StageSelectButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
@@ -172,8 +138,4 @@ focus_neighbor_left = NodePath("../RetryButton")
 focus_neighbor_right = NodePath("../RetryButton")
 theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("ButtonNormal")
-theme_override_styles/hover = SubResource("ButtonFocus")
-theme_override_styles/pressed = SubResource("ButtonPressed")
-theme_override_styles/focus = SubResource("ButtonFocus")
 text = "Back"

@@ -568,11 +568,11 @@ func _start_game(stage_number: int = 1) -> void:
 
 
 func _show_settings() -> void:
-	_transition_to(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton)
+	_transition_to(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton, null, false)
 
 
 func _hide_settings() -> void:
-	_transition_to_main(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton)
+	_transition_to_main(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton, false)
 
 
 func _initialize_settings() -> void:
@@ -722,9 +722,10 @@ func _transition_to(
 		target_screen: Control,
 		target_logo: Control,
 		target_title: Control,
-		target_body: Control,
+	target_body: Control,
 	back_button: Control,
 	focus_target: Control = null,
+	animate_logo: bool = true,
 ) -> void:
 	if _transitioning:
 		return
@@ -732,7 +733,10 @@ func _transition_to(
 	_clear_focus()
 	target_screen.modulate.a = 0.0
 	transition_logo.modulate.a = 0.0
-	transition_logo.show()
+	if animate_logo:
+		transition_logo.show()
+	else:
+		transition_logo.hide()
 	target_screen.show()
 	await _wait_for_layout()
 
@@ -782,8 +786,9 @@ func _transition_to_main(
 		current_screen: Control,
 		current_logo: Control,
 		current_title: Control,
-		current_body: Control,
-		back_button: Control,
+	current_body: Control,
+	back_button: Control,
+	animate_logo: bool = true,
 ) -> void:
 	if _transitioning:
 		return
@@ -791,7 +796,10 @@ func _transition_to_main(
 	_clear_focus()
 	main_content.modulate.a = 0.0
 	transition_logo.modulate.a = 0.0
-	transition_logo.show()
+	if animate_logo:
+		transition_logo.show()
+	else:
+		transition_logo.hide()
 	main_content.show()
 	await _wait_for_layout()
 

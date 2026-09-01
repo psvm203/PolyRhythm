@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://main/timing_calibration_overlay.gd" id="1_script"]
 [ext_resource type="AudioStream" path="res://main/audio/ui_click.wav" id="2_click"]
 [ext_resource type="Script" path="res://main/timing_calibration_visual.gd" id="3_visual"]
+[ext_resource type="Theme" path="res://main/poly_theme.tres" id="4_theme"]
+[ext_resource type="Script" path="res://main/focus_coordinator.gd" id="5_focus"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
 bg_color = Color(0.025, 0.055, 0.12, 0.98)
@@ -18,35 +20,15 @@ corner_radius_bottom_left = 22
 shadow_color = Color(0, 0, 0, 0.7)
 shadow_size = 24
 
-[sub_resource type="StyleBoxFlat" id="ButtonStyle"]
-bg_color = Color(0.075, 0.082, 0.11, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.28, 0.42, 0.55, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="ButtonFocus"]
-bg_color = Color(0.07, 0.22, 0.28, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.1, 1, 0.9, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
 [node name="TimingCalibrationOverlay" type="CanvasLayer"]
 layer = 30
 script = ExtResource("1_script")
 
+[node name="FocusCoordinator" type="Node" parent="."]
+script = ExtResource("5_focus")
+
 [node name="Dim" type="ColorRect" parent="."]
+theme = ExtResource("4_theme")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -120,9 +102,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(170, 54)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("ButtonStyle")
-theme_override_styles/hover = SubResource("ButtonFocus")
-theme_override_styles/focus = SubResource("ButtonFocus")
 text = "Start"
 
 [node name="ApplyButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
@@ -131,9 +110,6 @@ custom_minimum_size = Vector2(170, 54)
 layout_mode = 2
 disabled = true
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("ButtonStyle")
-theme_override_styles/hover = SubResource("ButtonFocus")
-theme_override_styles/focus = SubResource("ButtonFocus")
 text = "Apply"
 
 [node name="CancelButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
@@ -141,9 +117,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(170, 54)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("ButtonStyle")
-theme_override_styles/hover = SubResource("ButtonFocus")
-theme_override_styles/focus = SubResource("ButtonFocus")
 text = "Cancel"
 
 [node name="ClickPlayer" type="AudioStreamPlayer" parent="."]

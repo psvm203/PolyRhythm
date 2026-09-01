@@ -1,6 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://level/ui/pause_overlay.gd" id="1_pause"]
+[ext_resource type="Theme" path="res://main/poly_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://main/focus_coordinator.gd" id="3_focus"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
 bg_color = Color(0.025, 0.055, 0.12, 0.97)
@@ -20,7 +22,11 @@ shadow_size = 24
 layer = 200
 script = ExtResource("1_pause")
 
+[node name="FocusCoordinator" type="Node" parent="."]
+script = ExtResource("3_focus")
+
 [node name="Dimmer" type="ColorRect" parent="."]
+theme = ExtResource("2_theme")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

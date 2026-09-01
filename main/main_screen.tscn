@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://main/main_screen.gd" id="1_main"]
 [ext_resource type="AudioStream" path="res://main/audio/main_background_bgm.wav" id="2_bgm"]
@@ -7,6 +7,7 @@
 [ext_resource type="AudioStream" path="res://main/audio/ui_click.wav" id="5_click"]
 [ext_resource type="PackedScene" path="res://level/ui/dialogue_overlay.tscn" id="6_dialogue"]
 [ext_resource type="PackedScene" path="res://main/timing_calibration_overlay.tscn" id="7_calibration"]
+[ext_resource type="Theme" path="res://main/poly_theme.tres" id="8_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonNormal"]
 bg_color = Color(0.075, 0.082, 0.11, 0.96)
@@ -186,6 +187,7 @@ font_size = 31
 font_color = Color(0.12, 0.86, 0.84, 1)
 
 [node name="MainScreen" type="Control"]
+theme = ExtResource("8_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -529,6 +531,7 @@ grow_horizontal = 2
 grow_vertical = 2
 focus_neighbor_left = NodePath("../../StageFour/StageFourButton")
 focus_neighbor_right = NodePath("../../StageTwo/StageTwoButton")
+theme_override_styles/focus = SubResource("StyleEmpty")
 flat = true
 
 [node name="StageTwo" type="PanelContainer" parent="StageScreen/StageLayout/CardsSlot/Cards"]
@@ -594,6 +597,7 @@ grow_horizontal = 2
 grow_vertical = 2
 focus_neighbor_left = NodePath("../../StageOne/StageOneButton")
 focus_neighbor_right = NodePath("../../StageThree/StageThreeButton")
+theme_override_styles/focus = SubResource("StyleEmpty")
 flat = true
 
 [node name="StageThree" type="PanelContainer" parent="StageScreen/StageLayout/CardsSlot/Cards"]
@@ -659,6 +663,7 @@ grow_horizontal = 2
 grow_vertical = 2
 focus_neighbor_left = NodePath("../../StageTwo/StageTwoButton")
 focus_neighbor_right = NodePath("../../StageFour/StageFourButton")
+theme_override_styles/focus = SubResource("StyleEmpty")
 flat = true
 
 [node name="StageFour" type="PanelContainer" parent="StageScreen/StageLayout/CardsSlot/Cards"]
@@ -724,6 +729,7 @@ grow_horizontal = 2
 grow_vertical = 2
 focus_neighbor_left = NodePath("../../StageThree/StageThreeButton")
 focus_neighbor_right = NodePath("../../StageOne/StageOneButton")
+theme_override_styles/focus = SubResource("StyleEmpty")
 flat = true
 
 [node name="SettingsScreen" type="Control" parent="."]
@@ -763,9 +769,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -555.0
-offset_top = -395.0
+offset_top = -430.0
 offset_right = 555.0
-offset_bottom = 365.0
+offset_bottom = 430.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 24
