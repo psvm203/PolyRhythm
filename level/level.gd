@@ -7,6 +7,7 @@ const SettingsStoreScript = preload("res://main/settings_store.gd")
 const LevelDataScript = preload("res://level/data/level_data.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
 const LevelEventSystemScript = preload("res://level/events/level_event_system.gd")
+const NoteTimelineScript = preload("res://level/timing/note_timeline.gd")
 const EVENT_GUARD := "boss_guard"
 const EVENT_SAMURAI := "samurai_split"
 const EVENT_TIME_STOP := "time_stop"
@@ -67,6 +68,7 @@ var _level_ended: bool = false
 var _level_sequence: Array[int] = []
 var _boss_health: int = 0
 var _time_stopped := false
+var _note_timeline
 var _event_system: LevelEventSystem = LevelEventSystemScript.new()
 var level_data: LevelData
 var _is_custom_level := false
@@ -114,7 +116,15 @@ func _ready() -> void:
 	)
 	var game_settings := SettingsStoreScript.load_settings()
 	conductor.judgment_offset_sec = float(game_settings["timing_offset_ms"]) / 1000.0
-	conductor.setup(_compute_scheduled_judgment_times())
+	_note_timeline = NoteTimelineScript.build(
+		_level_sequence,
+		level_data.bpm,
+		conductor.perfect_window_sec,
+		conductor.early_window_sec,
+		conductor.late_window_sec,
+		conductor.judgment_offset_sec,
+	)
+	conductor.setup(_note_timeline.contact_times())
 	camera.setup(rotator, _polygon_centers)
 	rotator.polygon_advanced.connect(_on_polygon_advanced)
 	if conductor != null:
@@ -342,13 +352,9 @@ func _compute_start_offsets() -> PackedVector2Array:
 
 
 func _compute_scheduled_judgment_times() -> PackedFloat32Array:
-	var times := PackedFloat32Array()
-	var cumulative: float = 0.0
-	for sides in _level_sequence:
-		var period: float = float(sides) * 120.0 / maxf(level_data.bpm, 0.0001)
-		cumulative += period
-		times.append(cumulative)
-	return times
+	if _note_timeline != null:
+		return _note_timeline.contact_times()
+	return NoteTimelineScript.build(_level_sequence, level_data.bpm, 0.0, 0.0, 0.0).contact_times()
 
 
 func _draw() -> void:
