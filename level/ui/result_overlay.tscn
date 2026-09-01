@@ -50,7 +50,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
 theme_override_font_sizes/font_size = 34
-text = "STAGE CLEAR"
+text = "스테이지 클리어"
 horizontal_alignment = 1
 
 [node name="Rank" type="Label" parent="Dim/Center/Panel/Rows"]
@@ -87,10 +87,10 @@ theme_override_constants/separation = 20
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 58)
 layout_mode = 2
-text = "RETRY"
+text = "다시 하기"
 
 [node name="StageSelectButton" type="Button" parent="Dim/Center/Panel/Rows/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 58)
 layout_mode = 2
-text = "STAGE SELECT"
+text = "스테이지 선택"

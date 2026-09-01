@@ -8,22 +8,19 @@ const STAGE_ONE_BGM: AudioStream = preload("res://level/data/BR-Freaky_feat_Leza
 const CYAN := Color("19e0db")
 const MAGENTA := Color("ed1671")
 const STAGE_TWO_UNLOCK_DIALOGUE: Array[String] = [
-	"해냈구나! 첫 번째 리듬의 길이 네 박자에 완전히 응답했어.",
-	"그 울림이 잠들어 있던 두 번째 레코드를 깨웠어. 이제 STAGE 02 · Beat Flow에 도전할 수 있어!",
-	"다음 길은 박자의 흐름이 조금 더 거세질 거야. 하지만 지금처럼 빛나는 변이 맞닿는 순간을 믿으면 돼.",
-	"준비가 되면 새로 열린 레코드를 선택해 줘. 다음 무대에서도 내가 함께할게!",
+	"첫 스테이지를 통과했네.",
+	"STAGE 02 · Beat Flow가 열렸어.",
+	"이번에는 박자 변화가 더 잦아. 도형이 닿는 순간에 집중해.",
 ]
 const STAGE_THREE_UNLOCK_DIALOGUE: Array[String] = [
-	"굉장해! Beat Flow의 거센 변화까지 네 리듬으로 이어 냈구나.",
-	"두 번째 레코드의 울림이 마지막 봉인을 열었어. STAGE 03 · Pulse Master가 이제 너를 기다리고 있어!",
-	"마지막 길에서는 빠른 박자와 긴 호흡이 예고 없이 교차할 거야. 눈앞의 도형 하나에 집중하면 흐름을 놓치지 않을 수 있어.",
-	"여기까지 온 네 박자라면 분명 해낼 수 있어. 마지막 레코드에서 만나자!",
+	"Beat Flow 클리어. 감이 잡힌 것 같네.",
+	"STAGE 03 · Shape Samurai가 열렸어.",
+	"육각형이 둘로 갈라질 때 입력도 두 번 필요해. 경로를 잘 봐.",
 ]
 const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
-	"도형 사무라이의 칼날이 부서지자 멈춰 있던 시계탑의 문이 열렸어.",
-	"STAGE 04 · Time Rift가 해금됐어. 그 안에서는 시간술사가 박자의 흐름 자체를 멈추고 있어!",
-	"보라색 시간 문양에서는 멈춤이 끝난 직후의 단 한 순간에 집중해야 해.",
-	"시간을 되찾을 준비가 되면 마지막 시계탑으로 와 줘!",
+	"Shape Samurai를 쓰러뜨렸어.",
+	"마지막 스테이지, STAGE 04 · Time Rift가 열렸어.",
+	"시간 정지가 풀리는 순간을 놓치지 마.",
 ]
 
 @onready var menu: VBoxContainer = %Menu
@@ -139,13 +136,13 @@ func _refresh_stage_cards() -> void:
 		items.get_node("Stage").add_theme_color_override("font_color", text_color)
 		items.get_node("Number").add_theme_color_override("font_color", text_color)
 		items.get_node("Name").add_theme_color_override("font_color", Color(0.95, 0.96, 1, 1) if active else Color(0.57, 0.57, 0.57, 1))
-		items.get_node("Name").text = names[index] if active else "🔒  %s" % names[index]
+		items.get_node("Name").text = names[index] if active else "%s  ·  잠김" % names[index]
 		var best: Label = items.get_node("Best")
 		var rating_label: Label = items.get_node("Rating")
 		var record := ProgressStoreScript.stage_record(index + 1)
 		best.visible = active
 		rating_label.visible = active
-		best.text = "BEST RECORD  %07d  ·  %s\nACC %.1f%%  ·  MAX COMBO %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "NO RECORD"
+		best.text = "최고 점수  %07d  ·  %s\n정확도 %.1f%%  ·  최대 콤보 %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "기록 없음"
 		if record["score"] > 0:
 			var rating := ProgressStoreScript.star_rating(record["accuracy"], record["cleared"])
 			rating_label.text = "★".repeat(rating["stars"])
@@ -314,30 +311,24 @@ func _smoothed_energy(current: float, target: float, delta: float, speed: float)
 
 func _draw() -> void:
 	var view := size
-	draw_rect(Rect2(Vector2.ZERO, view), Color("071126"))
+	draw_rect(Rect2(Vector2.ZERO, view), Color("090b12"))
 	_draw_background_gradient(view)
 	_draw_grid(view)
-	_draw_orbits(view)
 	_draw_particles(view)
-	_draw_music_notes(view)
 
 
 func _draw_background_gradient(view: Vector2) -> void:
-	var center := Vector2(view.x * 0.46, view.y * 0.36)
+	var center := Vector2(view.x * 0.48, view.y * 0.42)
 	var max_radius := view.length() * 0.68
 	for ring in range(48, 0, -1):
 		var ratio := float(ring) / 48.0
-		var color := Color(0.08, 0.14, 0.38, 0.012)
+		var color := Color(0.10, 0.12, 0.20, 0.010)
 		draw_circle(center, max_radius * ratio, color)
-	# A restrained lower glow anchors the menu without competing with it.
-	for ring in range(20, 0, -1):
-		var ratio := float(ring) / 20.0
-		draw_circle(Vector2(view.x * 0.5, view.y * 0.78), view.x * 0.24 * ratio, Color(0.15, 0.04, 0.28, 0.008))
 
 
 func _draw_grid(view: Vector2) -> void:
-	var spacing := maxf(80.0, view.x / 16.0)
-	var grid_color := Color(0.24, 0.38, 0.66, 0.055)
+	var spacing := maxf(96.0, view.x / 14.0)
+	var grid_color := Color(0.45, 0.48, 0.58, 0.035)
 	var x_offset := fmod(_motion_time * 12.0, spacing)
 	var y_offset := fmod(_motion_time * 7.0, spacing)
 	var x := x_offset - spacing
@@ -380,19 +371,10 @@ func _draw_arc_segments(
 
 func _draw_particles(view: Vector2) -> void:
 	var particles := [
-		[Vector2(0.055, 0.36), Color("b56dff"), 2.3],
-		[Vector2(0.105, 0.55), Color("e8ff74"), 2.8],
-		[Vector2(0.225, 0.58), CYAN, 4.5],
-		[Vector2(0.61, 0.045), Color("29aaff"), 2.8],
-		[Vector2(0.67, 0.105), Color("15efff"), 2.1],
-		[Vector2(0.75, 0.085), MAGENTA, 2.8],
-		[Vector2(0.80, 0.24), CYAN, 4.0],
-		[Vector2(0.86, 0.34), Color("8957ff"), 2.8],
-		[Vector2(0.94, 0.21), MAGENTA, 2.2],
-		[Vector2(0.84, 0.58), MAGENTA, 4.5],
-		[Vector2(0.74, 0.82), Color("ff38c7"), 2.2],
-		[Vector2(0.85, 0.87), Color("397dff"), 4.0],
-		[Vector2(0.10, 0.89), Color("fff36a"), 2.2],
+		[Vector2(0.12, 0.24), Color("6f7dff"), 2.0],
+		[Vector2(0.22, 0.76), CYAN, 2.5],
+		[Vector2(0.78, 0.18), MAGENTA, 2.2],
+		[Vector2(0.88, 0.68), Color("6f7dff"), 2.0],
 	]
 	for index in particles.size():
 		var item: Array = particles[index]
@@ -409,17 +391,9 @@ func _draw_particles(view: Vector2) -> void:
 		var idle_pulse := (sin(_motion_time * 1.15 + phase) + 1.0) * 0.06
 		var radius: float = item[2] * (1.0 + idle_pulse + _treble * 0.32)
 		var glow := color
-		glow.a = 0.08 + _treble * 0.08
-		draw_circle(point, radius * 3.6, glow)
+		glow.a = 0.04 + _treble * 0.04
+		draw_circle(point, radius * 2.4, glow)
 		draw_circle(point, radius, color)
-		if index % 4 == 0:
-			var ring_color := color
-			ring_color.a = 0.12 + _treble * 0.12
-			draw_arc(point, radius * (2.2 + _bass * 0.8), 0.0, TAU, 24, ring_color, 1.0, true)
-	var turn := _motion_time * 0.035
-	_draw_polygon_outline(Vector2(0.18, 0.35) * view + Vector2(sin(_motion_time * 0.25), cos(_motion_time * 0.21)) * 5.0, 25.0 + _treble * 2.0, 4, 0.18 + turn, Color(0.05, 0.65, 0.95, 0.45 + _treble * 0.2))
-	_draw_polygon_outline(Vector2(0.88, 0.08) * view + Vector2(cos(_motion_time * 0.19), sin(_motion_time * 0.23)) * 6.0, 29.0 + _mid * 2.0, 4, 0.62 - turn * 0.7, Color(0.55, 0.17, 0.95, 0.44 + _treble * 0.18))
-	_draw_polygon_outline(Vector2(0.95, 0.89) * view + Vector2(sin(_motion_time * 0.17), cos(_motion_time * 0.20)) * 5.0, 24.0, 5, 0.20 + turn * 0.6, Color(0.55, 0.17, 0.95, 0.38 + _treble * 0.16))
 
 
 func _draw_polygon_outline(center: Vector2, radius: float, sides: int, rotation_angle: float, color: Color) -> void:
@@ -531,7 +505,7 @@ func _update_volume_label(label: Label, value: float) -> void:
 
 
 func _show_credits() -> void:
-	_show_overlay("CREDITS", "POLYRHYTHM\nCreated with Godot Engine")
+	_show_overlay("만든 사람", "POLYRHYTHM\nGodot Engine으로 제작")
 
 
 func _show_exit() -> void:

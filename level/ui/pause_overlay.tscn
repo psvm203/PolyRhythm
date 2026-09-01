@@ -56,7 +56,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
 theme_override_font_sizes/font_size = 34
-text = "•  P A U S E D  •"
+text = "일시 정지"
 horizontal_alignment = 1
 
 [node name="Hint" type="Label" parent="Dimmer/Center/Panel/Margin/Rows"]
@@ -75,7 +75,7 @@ custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Fullscreen"
+text = "전체 화면"
 vertical_alignment = 1
 
 [node name="FullscreenToggle" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Fullscreen"]
@@ -96,7 +96,7 @@ custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Resolution"
+text = "해상도"
 vertical_alignment = 1
 
 [node name="ResolutionOption" type="OptionButton" parent="Dimmer/Center/Panel/Margin/Rows/Resolution"]
@@ -115,7 +115,7 @@ custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Master Volume"
+text = "전체 음량"
 vertical_alignment = 1
 
 [node name="MasterSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
@@ -151,7 +151,7 @@ custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "Music Volume"
+text = "음악"
 vertical_alignment = 1
 
 [node name="MusicSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
@@ -187,7 +187,7 @@ custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "SFX Volume"
+text = "효과음"
 vertical_alignment = 1
 
 [node name="SfxSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
@@ -220,7 +220,7 @@ custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.95, 0.92, 1)
 theme_override_font_sizes/font_size = 23
-text = "RESUME"
+text = "계속하기"
 
 [node name="ExitButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true

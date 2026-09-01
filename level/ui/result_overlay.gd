@@ -19,14 +19,14 @@ func _ready() -> void:
 
 
 func show_result(stats: Dictionary, completed: bool, rank: String) -> void:
-	title_label.text = "STAGE CLEAR" if completed else "RHYTHM LOST"
+	title_label.text = "스테이지 클리어" if completed else "도전 종료"
 	rank_label.text = rank
 	var rating := ProgressStoreScript.star_rating(stats["accuracy"], completed)
 	rating_label.text = "★".repeat(rating["stars"]) if completed else ""
 	rating_label.add_theme_color_override("font_color", _rating_color(rating["tier"]))
 	var counts: Dictionary = stats["judgments"]
 	summary_label.text = (
-		"SCORE  %07d\nACCURACY  %.1f%%\nMAX COMBO  %d\n\nPERFECT  %d    FAST  %d    SLOW  %d    MISS  %d"
+		"점수  %07d\n정확도  %.1f%%\n최대 콤보  %d\n\nPERFECT  %d    FAST  %d    SLOW  %d    MISS  %d"
 		% [stats["score"], stats["accuracy"], stats["max_combo"], counts["Perfect"], counts["Fast"], counts["Slow"], counts["Too Slow"]]
 	)
 	show()
