@@ -1,6 +1,8 @@
 class_name JudgmentPipeline
 extends RefCounted
 
+const BOUNDARY_EPSILON_SEC := 0.0000005
+
 var perfect_window_sec := 0.025
 var early_window_sec := 0.050
 var late_window_sec := 0.100
@@ -27,19 +29,19 @@ func evaluate(input_time_sec: float, center_time_sec: float) -> Dictionary:
 
 
 func classify_delta(delta_sec: float) -> String:
-	if delta_sec < -early_window_sec:
+	if delta_sec < -early_window_sec - BOUNDARY_EPSILON_SEC:
 		return "Too Fast"
-	if delta_sec < -perfect_window_sec:
+	if delta_sec < -perfect_window_sec - BOUNDARY_EPSILON_SEC:
 		return "Fast"
-	if delta_sec <= perfect_window_sec:
+	if delta_sec <= perfect_window_sec + BOUNDARY_EPSILON_SEC:
 		return "Perfect"
-	if delta_sec <= late_window_sec:
+	if delta_sec <= late_window_sec + BOUNDARY_EPSILON_SEC:
 		return "Slow"
 	return "Too Slow"
 
 
 func is_miss_due(current_time_sec: float, center_time_sec: float) -> bool:
-	return current_time_sec > center_time_sec + late_window_sec
+	return current_time_sec > center_time_sec + late_window_sec + BOUNDARY_EPSILON_SEC
 
 
 func should_defer(delta_sec: float, result: String) -> bool:
