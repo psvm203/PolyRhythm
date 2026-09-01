@@ -5,7 +5,7 @@ const SAVE_PATH := "user://progress.cfg"
 const SECTION := "progress"
 const UNLOCKED_KEY := "highest_unlocked_stage"
 const PENDING_DIALOGUE_KEY := "pending_unlock_dialogue"
-const LAST_STAGE := 3
+const LAST_STAGE := 4
 
 static var selected_stage := 1
 static var show_stage_select_on_load := false
@@ -75,6 +75,18 @@ static func record_run(stage: int, stats: Dictionary, rank: String, completed: b
 
 static func is_better_record(score: int, completed: bool, previous_score: int) -> bool:
 	return completed and score > previous_score
+
+
+static func star_rating(accuracy: float, completed: bool = true) -> Dictionary:
+	if not completed:
+		return {"tier": "none", "stars": 0}
+	if is_equal_approx(accuracy, 100.0):
+		return {"tier": "diamond", "stars": 3}
+	if accuracy >= 90.0:
+		return {"tier": "gold", "stars": 3}
+	if accuracy >= 75.0:
+		return {"tier": "silver", "stars": 2}
+	return {"tier": "bronze", "stars": 1}
 
 
 static func _load() -> ConfigFile:

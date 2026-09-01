@@ -43,4 +43,10 @@ func _color_for(result: String) -> Color:
 			return Color(0.85, 0.5, 0.5, 1.0)
 		"BLOCKED":
 			return Color(1.0, 0.18, 0.3, 1.0)
+		"HEX SPLIT":
+			return Color(1.0, 0.42, 0.24, 1.0)
+		"TIME BREAK":
+			return Color(0.55, 1.0, 0.95, 1.0)
+		"TIME LOST":
+			return Color(0.7, 0.3, 1.0, 1.0)
 	return Color.WHITE

@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://editor/level_editor.gd" id="1"]
 [ext_resource type="Script" path="res://editor/sequence_timeline.gd" id="2"]
+[ext_resource type="PackedScene" path="res://editor/ui/editor_guide.tscn" id="3_guide"]
 [sub_resource type="StyleBoxFlat" id="Panel"]
 bg_color = Color(0.035, 0.065, 0.12, 0.98)
 border_width_left = 1
@@ -132,7 +133,7 @@ alignment = 1
 theme_override_constants/separation = 6
 
 [node name="Settings" type="HBoxContainer" parent="Root"]
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 theme_override_constants/separation = 10
 
@@ -194,6 +195,24 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "0:00 / 0:00"
 vertical_alignment = 1
+[node name="EventLabel" type="Label" parent="Root/Settings/LevelPanel/LevelGrid"]
+layout_mode = 2
+text = "EVENT"
+vertical_alignment = 1
+[node name="EventType" type="OptionButton" parent="Root/Settings/LevelPanel/LevelGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 38)
+layout_mode = 2
+[node name="EventApply" type="Button" parent="Root/Settings/LevelPanel/LevelGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 38)
+layout_mode = 2
+text = "APPLY"
+[node name="EventRemove" type="Button" parent="Root/Settings/LevelPanel/LevelGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 38)
+layout_mode = 2
+text = "REMOVE"
 [node name="Footer" type="HBoxContainer" parent="Root"]
 layout_mode = 2
 [node name="Status" type="Label" parent="Root/Footer"]
@@ -206,14 +225,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 42)
 layout_mode = 2
 text = "VALIDATE"
-
-[node name="GuideDialog" type="AcceptDialog" parent="."]
-unique_name_in_owner = true
-title = "LEVEL EDITOR GUIDE"
-initial_position = 2
-size = Vector2i(720, 560)
-dialog_text = "레벨 제작\n\n• TIMELINE은 일직선 편집, MAP은 실제 게임 배치를 표시합니다.\n• 팔레트 또는 숫자키 3~8로 타일을 추가합니다.\n• 타일을 드래그해 순서를 변경합니다.\n• Delete로 삭제하고 Ctrl+D로 복제합니다.\n• Ctrl+Z로 실행 취소, Ctrl+Shift+Z로 다시 실행합니다.\n\n음악\n\n• ▶/⏸로 미리듣고 ■로 정지합니다. Space도 사용할 수 있습니다.\n• 슬라이더로 재생 위치를 이동합니다.\n• OFFSET은 미리듣기와 플레이가 시작될 위치입니다.\n\n파일과 테스트\n\n• 변경 사항은 자동 저장되며 다음 진입 시 복구됩니다.\n• OPEN YAML로 불러오고 SAVE YAML로 저장합니다.\n• TEST PLAY 중 ESC → RETURN TO EDITOR로 돌아옵니다."
-ok_button_text = "CLOSE"
 
 [node name="ImportDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
@@ -239,3 +250,6 @@ bus = &"MenuMusic"
 unique_name_in_owner = true
 wait_time = 0.5
 one_shot = true
+
+[node name="GuideOverlay" parent="." instance=ExtResource("3_guide")]
+unique_name_in_owner = true

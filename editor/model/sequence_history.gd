@@ -1,18 +1,18 @@
 class_name SequenceHistory
 extends RefCounted
 
-var _entries: Array[Array] = []
+var _entries: Array[Variant] = []
 var _cursor := -1
 
 
-func reset(sequence: Array[int]) -> void:
-	_entries = [sequence.duplicate()]
+func reset(state: Variant) -> void:
+	_entries = [state.duplicate(true)]
 	_cursor = 0
 
 
-func record(sequence: Array[int]) -> void:
+func record(state: Variant) -> void:
 	_entries.resize(_cursor + 1)
-	_entries.append(sequence.duplicate())
+	_entries.append(state.duplicate(true))
 	_cursor = _entries.size() - 1
 
 
@@ -24,11 +24,11 @@ func can_redo() -> bool:
 	return _cursor < _entries.size() - 1
 
 
-func undo() -> Array:
+func undo() -> Variant:
 	_cursor -= 1
-	return _entries[_cursor].duplicate()
+	return _entries[_cursor].duplicate(true)
 
 
-func redo() -> Array:
+func redo() -> Variant:
 	_cursor += 1
-	return _entries[_cursor].duplicate()
+	return _entries[_cursor].duplicate(true)

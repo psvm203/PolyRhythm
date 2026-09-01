@@ -19,6 +19,12 @@ const STAGE_THREE_UNLOCK_DIALOGUE: Array[String] = [
 	"마지막 길에서는 빠른 박자와 긴 호흡이 예고 없이 교차할 거야. 눈앞의 도형 하나에 집중하면 흐름을 놓치지 않을 수 있어.",
 	"여기까지 온 네 박자라면 분명 해낼 수 있어. 마지막 레코드에서 만나자!",
 ]
+const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
+	"도형 사무라이의 칼날이 부서지자 멈춰 있던 시계탑의 문이 열렸어.",
+	"STAGE 04 · Time Rift가 해금됐어. 그 안에서는 시간술사가 박자의 흐름 자체를 멈추고 있어!",
+	"보라색 시간 문양에서는 멈춤이 끝난 직후의 단 한 순간에 집중해야 해.",
+	"시간을 되찾을 준비가 되면 마지막 시계탑으로 와 줘!",
+]
 
 @onready var menu: VBoxContainer = %Menu
 @onready var main_content: Control = %Content
@@ -57,11 +63,13 @@ func _ready() -> void:
 	%StageOneButton.pressed.connect(_start_game.bind(1))
 	%StageTwoButton.pressed.connect(_start_game.bind(2))
 	%StageThreeButton.pressed.connect(_start_game.bind(3))
+	%StageFourButton.pressed.connect(_start_game.bind(4))
 	%EditorButton.pressed.connect(get_tree().change_scene_to_file.bind(LEVEL_EDITOR_SCENE))
 	_refresh_stage_cards()
 	_setup_stage_card(%StageOneButton, $StageScreen/StageLayout/CardsSlot/Cards/StageOne, $StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record, STAGE_ONE_BGM)
 	_setup_stage_card(%StageTwoButton, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record, null)
 	_setup_stage_card(%StageThreeButton, $StageScreen/StageLayout/CardsSlot/Cards/StageThree, $StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items/Record, null)
+	_setup_stage_card(%StageFourButton, $StageScreen/StageLayout/CardsSlot/Cards/StageFour, $StageScreen/StageLayout/CardsSlot/Cards/StageFour/Items/Record, null)
 	%SettingsButton.pressed.connect(_show_settings)
 	%SettingsBackButton.pressed.connect(_hide_settings)
 	%FullscreenToggle.toggled.connect(_set_fullscreen)
@@ -98,6 +106,8 @@ func _show_unlock_flow() -> void:
 		unlock_dialogue.play(STAGE_TWO_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
 	elif unlocked_stage == 3:
 		unlock_dialogue.play(STAGE_THREE_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
+	elif unlocked_stage == 4:
+		unlock_dialogue.play(STAGE_FOUR_UNLOCK_DIALOGUE, "루미 · 리듬 안내자")
 
 
 func _refresh_stage_cards() -> void:
@@ -106,14 +116,16 @@ func _refresh_stage_cards() -> void:
 		$StageScreen/StageLayout/CardsSlot/Cards/StageOne,
 		$StageScreen/StageLayout/CardsSlot/Cards/StageTwo,
 		$StageScreen/StageLayout/CardsSlot/Cards/StageThree,
+		$StageScreen/StageLayout/CardsSlot/Cards/StageFour,
 	]
 	var records: Array[Control] = [
 		$StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record,
 		$StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record,
 		$StageScreen/StageLayout/CardsSlot/Cards/StageThree/Items/Record,
+		$StageScreen/StageLayout/CardsSlot/Cards/StageFour/Items/Record,
 	]
-	var buttons: Array[BaseButton] = [%StageOneButton, %StageTwoButton, %StageThreeButton]
-	var names := ["Rhythm Start", "Beat Flow", "Pulse Master"]
+	var buttons: Array[BaseButton] = [%StageOneButton, %StageTwoButton, %StageThreeButton, %StageFourButton]
+	var names := ["Rhythm Start", "Beat Flow", "Shape Samurai", "Time Rift"]
 	var active_style := cards[0].get_theme_stylebox("panel").duplicate()
 	var locked_style := cards[1].get_theme_stylebox("panel").duplicate()
 	for index in cards.size():
@@ -129,9 +141,27 @@ func _refresh_stage_cards() -> void:
 		items.get_node("Name").add_theme_color_override("font_color", Color(0.95, 0.96, 1, 1) if active else Color(0.57, 0.57, 0.57, 1))
 		items.get_node("Name").text = names[index] if active else "🔒  %s" % names[index]
 		var best: Label = items.get_node("Best")
+		var rating_label: Label = items.get_node("Rating")
 		var record := ProgressStoreScript.stage_record(index + 1)
 		best.visible = active
+		rating_label.visible = active
 		best.text = "BEST RECORD  %07d  ·  %s\nACC %.1f%%  ·  MAX COMBO %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "NO RECORD"
+		if record["score"] > 0:
+			var rating := ProgressStoreScript.star_rating(record["accuracy"], record["cleared"])
+			rating_label.text = "★".repeat(rating["stars"])
+			rating_label.add_theme_color_override("font_color", _rating_color(rating["tier"]))
+		else:
+			rating_label.text = "☆☆☆"
+			rating_label.add_theme_color_override("font_color", Color("52647a"))
+
+
+func _rating_color(tier: String) -> Color:
+	match tier:
+		"diamond": return Color("76f7ff")
+		"gold": return Color("ffd84d")
+		"silver": return Color("c7d1dc")
+		"bronze": return Color("c98252")
+	return Color("52647a")
 
 
 func _connect_ui_sfx(node: Node) -> void:

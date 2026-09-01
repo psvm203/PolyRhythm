@@ -6,7 +6,7 @@ var music_path: String = ""
 var music_start_offset_sec: float = 0.0
 var boss_name: String = ""
 var boss_health: int = 0
-var guard_interval: int = 0
+var events: Array[Dictionary] = []
 var tutorial_speaker: String = "POLY"
 var tutorial_lines: Array[String] = []
 var _yaml: Dictionary = {}
@@ -20,7 +20,9 @@ static func from_yaml(path: String) -> LevelData:
 	result.music_start_offset_sec = float(result._yaml.get("music_start_offset_sec", 0.0))
 	result.boss_name = str(result._yaml.get("boss_name", ""))
 	result.boss_health = int(result._yaml.get("boss_health", 0))
-	result.guard_interval = int(result._yaml.get("guard_interval", 0))
+	for event in result._yaml.get("events", []):
+		if event is Dictionary:
+			result.events.append((event as Dictionary).duplicate(true))
 	result.tutorial_speaker = str(result._yaml.get("tutorial_speaker", "POLY"))
 	for line in result._yaml.get("tutorial_lines", []):
 		result.tutorial_lines.append(str(line))
@@ -76,7 +78,7 @@ static func validate(data: Dictionary) -> PackedStringArray:
 
 
 static func to_yaml(data: Dictionary) -> String:
-	var keys := ["sides_sequence", "repeat_count", "bpm", "music_path", "music_start_offset_sec", "boss_name", "boss_health", "guard_interval", "tutorial_speaker", "tutorial_lines"]
+	var keys := ["sides_sequence", "repeat_count", "bpm", "music_path", "music_start_offset_sec", "boss_name", "boss_health", "events", "tutorial_speaker", "tutorial_lines"]
 	var lines := PackedStringArray(["# Polyrhythm custom level"])
 	for key in keys:
 		if data.has(key):
@@ -92,10 +94,6 @@ func clamped_music_start_offset(stream_length_sec: float) -> float:
 	if stream_length_sec <= 0.0:
 		return maxf(music_start_offset_sec, 0.0)
 	return clampf(music_start_offset_sec, 0.0, stream_length_sec)
-
-
-func is_guard_note(index: int) -> bool:
-	return boss_health > 0 and guard_interval > 0 and (index + 1) % guard_interval == 0
 
 
 func boss_damage(result: String, guard_note: bool) -> int:

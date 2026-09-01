@@ -5,6 +5,9 @@ const ShapeFactoryScript = preload("res://level/geometry/shape_factory.gd")
 
 signal selection_changed(index: int)
 signal sequence_changed(sequence: Array[int])
+signal tile_inserted(index: int)
+signal tile_removed(index: int)
+signal tile_moved(from_index: int, to_index: int)
 
 const TILE_SIZE := 74.0
 const TILE_GAP := 24.0
@@ -20,6 +23,7 @@ var _map_shapes: Array[PackedVector2Array] = []
 var _map_centers := PackedVector2Array()
 var _map_starter := PackedVector2Array()
 var _map_offset := Vector2.ZERO
+var _event_tiles: Dictionary = {}
 
 
 func _ready() -> void:
@@ -40,9 +44,20 @@ func set_map_mode(enabled: bool) -> void:
 	_refresh()
 
 
+func set_events(events: Array) -> void:
+	_event_tiles.clear()
+	for event in events:
+		if not event is Dictionary:
+			continue
+		for polygon_number in event.get("at", []):
+			_event_tiles[int(polygon_number) - 1] = true
+	queue_redraw()
+
+
 func add_tile(sides: int) -> void:
 	var insert_at := selected_index + 1 if selected_index >= 0 else sequence.size()
 	sequence.insert(insert_at, sides)
+	tile_inserted.emit(insert_at)
 	select(insert_at)
 	_changed()
 
@@ -51,6 +66,7 @@ func delete_selected() -> void:
 	if selected_index < 0 or selected_index >= sequence.size():
 		return
 	sequence.remove_at(selected_index)
+	tile_removed.emit(selected_index)
 	select(mini(selected_index, sequence.size() - 1))
 	_changed()
 
@@ -59,6 +75,7 @@ func duplicate_selected() -> void:
 	if selected_index < 0 or selected_index >= sequence.size():
 		return
 	sequence.insert(selected_index + 1, sequence[selected_index])
+	tile_inserted.emit(selected_index + 1)
 	select(selected_index + 1)
 	_changed()
 
@@ -85,6 +102,7 @@ func _gui_input(event: InputEvent) -> void:
 					target -= 1
 				target = clampi(target, 0, sequence.size())
 				sequence.insert(target, value)
+				tile_moved.emit(_drag_from, target)
 				select(target)
 				_changed()
 			_drag_from = -1
@@ -193,6 +211,7 @@ func _draw_tile(index: int) -> void:
 	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
 	draw_string(font, center + Vector2(-width * 0.5, 7), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color.WHITE)
 	draw_string(font, center + Vector2(-8, 61), str(index + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("7799ad"))
+	_draw_event_marker(index, center + Vector2(25, -28))
 
 
 func _draw_drag_preview() -> void:
@@ -230,6 +249,14 @@ func _draw_map() -> void:
 		var label := str(sequence[index])
 		var width := ThemeDB.fallback_font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
 		draw_string(ThemeDB.fallback_font, center + Vector2(-width * 0.5, 6), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+		_draw_event_marker(index, center + Vector2(22, -22))
+
+
+func _draw_event_marker(index: int, position: Vector2) -> void:
+	if not _event_tiles.has(index):
+		return
+	draw_circle(position, 8.0, Color("ffb84d"))
+	draw_string(ThemeDB.fallback_font, position + Vector2(-4, 4), "E", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color("151020"))
 
 
 func _draw_polygon_outline(points: PackedVector2Array, color: Color, width: float) -> void:

@@ -5,10 +5,15 @@ const RunStateScript = preload("res://level/run_state.gd")
 const ProgressStoreScript = preload("res://level/progress_store.gd")
 const LevelDataScript = preload("res://level/data/level_data.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
+const LevelEventSystemScript = preload("res://level/events/level_event_system.gd")
+const EVENT_GUARD := "boss_guard"
+const EVENT_SAMURAI := "samurai_split"
+const EVENT_TIME_STOP := "time_stop"
 const STAGE_DATA := {
 	1: "res://level/data/level_1.yaml",
 	2: "res://level/data/level_2.yaml",
 	3: "res://level/data/level_3.yaml",
+	4: "res://level/data/level_4.yaml",
 }
 const MAIN_SCENE := "res://main/main_screen.tscn"
 const LEVEL_EDITOR_SCENE := "res://editor/level_editor.tscn"
@@ -61,6 +66,8 @@ var _run_state: RunState = RunStateScript.new()
 var _level_ended: bool = false
 var _level_sequence: Array[int] = []
 var _boss_health: int = 0
+var _time_stopped := false
+var _event_system: LevelEventSystem = LevelEventSystemScript.new()
 var level_data: LevelData
 var _is_custom_level := false
 
@@ -71,7 +78,8 @@ func _ready() -> void:
 	if data_path.is_empty():
 		data_path = STAGE_DATA.get(ProgressStoreScript.selected_stage, STAGE_DATA[1])
 	level_data = LevelDataScript.from_yaml(data_path)
-	_level_sequence = level_data.expanded_sequence()
+	_event_system.setup(level_data.events)
+	_level_sequence = _event_system.transform_sequence(level_data.expanded_sequence())
 	music.stream = AudioStreamLoaderScript.load_stream(level_data.music_path)
 	if music.stream == null:
 		push_error("Level music not found: %s" % level_data.music_path)
@@ -112,7 +120,7 @@ func _ready() -> void:
 	_run_state.failed.connect(_on_run_failed)
 	_run_state.setup(_level_sequence.size())
 	_boss_health = level_data.boss_health
-	gameplay_hud.setup_boss(level_data.boss_name, _boss_health)
+	gameplay_hud.setup_boss(level_data.boss_name, _boss_health, _event_system.has_event(EVENT_SAMURAI), _event_system.has_event(EVENT_TIME_STOP))
 	if countdown != null:
 		countdown.countdown_finished.connect(_on_countdown_finished)
 	if pause_overlay != null:
@@ -131,6 +139,7 @@ func _ready() -> void:
 	else:
 		_start_countdown()
 	queue_redraw()
+	set_process(false)
 
 
 func _start_countdown() -> void:
@@ -143,15 +152,26 @@ func _start_countdown() -> void:
 
 
 func _on_judged(result: String, polygon_index: int) -> void:
-	var guard_note: bool = level_data.is_guard_note(polygon_index)
+	var guard_note := _event_system.occurs(EVENT_GUARD, polygon_index)
+	var time_note := _event_system.occurs(EVENT_TIME_STOP, polygon_index)
 	var resolved_result := result
-	if guard_note and result != "Perfect" and result != "Too Fast":
+	if (guard_note or time_note) and result != "Perfect" and result != "Too Fast":
 		resolved_result = "Too Slow"
 	if judgement != null:
-		judgement.show_judgement("BLOCKED" if guard_note and result != "Perfect" and result != "Too Fast" else result)
+		var display_result := result
+		if time_note and result != "Too Fast":
+			display_result = "TIME BREAK" if result == "Perfect" else "TIME LOST"
+		elif guard_note and result != "Perfect" and result != "Too Fast":
+			display_result = "BLOCKED"
+		judgement.show_judgement(display_result)
 	if _boss_health > 0:
-		_boss_health = maxi(0, _boss_health - level_data.boss_damage(resolved_result, guard_note))
-		gameplay_hud.update_boss(_boss_health, level_data.is_guard_note(polygon_index + 1))
+		_boss_health = maxi(0, _boss_health - level_data.boss_damage(resolved_result, guard_note or time_note))
+		if _event_system.has_event(EVENT_SAMURAI):
+			gameplay_hud.update_samurai_attack(_boss_health, _event_system.occurs(EVENT_SAMURAI, polygon_index + 1))
+		elif _event_system.has_event(EVENT_TIME_STOP):
+			gameplay_hud.update_time_spell(_boss_health, _event_system.occurs(EVENT_TIME_STOP, polygon_index + 1), false)
+		else:
+			gameplay_hud.update_boss(_boss_health, _event_system.occurs(EVENT_GUARD, polygon_index + 1))
 	_run_state.apply_judgment(resolved_result, polygon_index)
 	if not _level_ended and _run_state.resolved_notes >= _run_state.total_notes:
 		_finish_level(_boss_health <= 0)
@@ -170,6 +190,7 @@ func _finish_level(completed: bool) -> void:
 	if _level_ended:
 		return
 	_level_ended = true
+	set_process(false)
 	if completed and not _is_custom_level:
 		ProgressStoreScript.unlock_next_stage(ProgressStoreScript.selected_stage)
 	conductor.pause_clock()
@@ -207,6 +228,7 @@ func _exit_test_play() -> void:
 func _on_countdown_finished() -> void:
 	_current_started_at = Time.get_ticks_msec() / 1000.0
 	rotator.paused = false
+	set_process(true)
 	conductor.start()
 	if music != null:
 		var stream_length := music.stream.get_length() if music.stream != null else 0.0
@@ -225,6 +247,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _set_game_paused(value: bool) -> void:
 	if value:
+		set_process(false)
 		conductor.pause_clock()
 		music.stream_paused = true
 		pause_overlay.open()
@@ -234,11 +257,43 @@ func _set_game_paused(value: bool) -> void:
 		pause_overlay.close()
 		music.stream_paused = false
 		conductor.resume_clock()
+		set_process(true)
 
 
 func _on_polygon_advanced(_from_index: int, to_index: int) -> void:
 	_current_index = to_index
 	_current_started_at = Time.get_ticks_msec() / 1000.0
+	queue_redraw()
+	if _event_system.has_event(EVENT_SAMURAI):
+		gameplay_hud.update_samurai_attack(_boss_health, _event_system.occurs(EVENT_SAMURAI, to_index))
+		if _event_system.occurs(EVENT_SAMURAI, to_index):
+			judgement.show_judgement("HEX SPLIT")
+	elif _event_system.has_event(EVENT_TIME_STOP):
+		gameplay_hud.update_time_spell(_boss_health, _event_system.occurs(EVENT_TIME_STOP, to_index), false)
+		if _event_system.occurs(EVENT_TIME_STOP, to_index):
+			_trigger_time_stop.call_deferred()
+
+
+func _trigger_time_stop() -> void:
+	if _time_stopped or _level_ended:
+		return
+	_time_stopped = true
+	conductor.pause_clock()
+	rotator.paused = true
+	music.stream_paused = true
+	gameplay_hud.update_time_spell(_boss_health, true, true)
+	var duration := float(_event_system.value(EVENT_TIME_STOP, "duration_sec", 0.65))
+	await get_tree().create_timer(maxf(duration, 0.0)).timeout
+	if _level_ended:
+		return
+	gameplay_hud.update_time_spell(_boss_health, true, false)
+	if get_tree().paused:
+		_time_stopped = false
+		return
+	music.stream_paused = false
+	rotator.paused = false
+	conductor.resume_clock()
+	_time_stopped = false
 
 
 func _compute_start_offsets() -> PackedVector2Array:
@@ -391,8 +446,10 @@ func _landing_pulse_strength(elapsed: float, landing_time: float) -> float:
 
 
 func _color_for_index(index: int) -> Color:
-	if level_data != null and level_data.is_guard_note(index):
+	if _event_system.occurs(EVENT_GUARD, index) or _event_system.occurs(EVENT_SAMURAI, index):
 		return Color("ff294f")
+	if _event_system.occurs(EVENT_TIME_STOP, index):
+		return Color("a45cff")
 	if NEON_PALETTE.is_empty():
 		return Color.WHITE
 	return NEON_PALETTE[index % NEON_PALETTE.size()]

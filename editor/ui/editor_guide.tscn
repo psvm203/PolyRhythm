@@ -1,0 +1,246 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://editor/ui/editor_guide.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="MainPanel"]
+bg_color = Color(0.025, 0.055, 0.12, 0.99)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16, 0.92, 0.84, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_left = 22
+corner_radius_bottom_right = 22
+shadow_color = Color(0, 0, 0, 0.7)
+shadow_size = 28
+
+[sub_resource type="StyleBoxFlat" id="Card"]
+bg_color = Color(0.045, 0.09, 0.17, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.48, 0.62, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
+
+[sub_resource type="StyleBoxFlat" id="CloseButton"]
+bg_color = Color(0.08, 0.24, 0.3, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.95, 0.88, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+
+[sub_resource type="StyleBoxFlat" id="CloseButtonHover"]
+bg_color = Color(0.12, 0.42, 0.44, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 1, 0.9, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+shadow_color = Color(0.1, 1, 0.85, 0.25)
+shadow_size = 8
+
+[node name="EditorGuide" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.005, 0.012, 0.035, 0.88)
+
+[node name="Center" type="CenterContainer" parent="Dimmer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Dimmer/Center"]
+custom_minimum_size = Vector2(960, 620)
+layout_mode = 2
+theme_override_styles/panel = SubResource("MainPanel")
+
+[node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 28
+
+[node name="Rows" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+layout_mode = 2
+
+[node name="HeaderText" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Header/HeaderText"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.9, 1)
+theme_override_font_sizes/font_size = 31
+text = "LEVEL EDITOR GUIDE"
+
+[node name="Subtitle" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Header/HeaderText"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.7, 0.84, 1)
+theme_override_font_sizes/font_size = 16
+text = "도형을 배치하고 이벤트와 음악을 더해 나만의 리듬을 만드세요."
+
+[node name="Badge" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.72, 0.3, 1)
+theme_override_font_sizes/font_size = 18
+text = "●  QUICK START"
+vertical_alignment = 1
+
+[node name="Divider" type="HSeparator" parent="Dimmer/Center/Panel/Margin/Rows"]
+layout_mode = 2
+
+[node name="Cards" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="EditCard" type="PanelContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Card")
+[node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EditCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+[node name="Text" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EditCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="Icon" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EditCard/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "◇  EDIT"
+[node name="Body" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EditCard/Margin/Text"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.82, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 16
+text = "3~8 아이콘이나 숫자키로\n도형을 추가합니다.\n\n드래그로 순서를 바꾸고\n← → 로 선택을 이동합니다."
+[node name="Keys" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EditCard/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
+theme_override_font_sizes/font_size = 14
+text = "3–8   DELETE   CTRL+D\nCTRL+Z   CTRL+SHIFT+Z"
+
+[node name="EventCard" type="PanelContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Card")
+[node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+[node name="Text" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="Icon" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.47, 0.35, 1)
+theme_override_font_sizes/font_size = 28
+text = "◆  EVENT"
+[node name="Body" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard/Margin/Text"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.82, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 16
+text = "도형 선택 → 이벤트 선택\n→ APPLY 순서로 적용합니다.\n\n이벤트 도형에는 주황색 E가\n표시되며 REMOVE로 지웁니다."
+[node name="Types" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
+theme_override_font_sizes/font_size = 14
+text = "BOSS GUARD\nSAMURAI SPLIT · 6각형\nTIME STOP"
+
+[node name="MusicCard" type="PanelContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Card")
+[node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+[node name="Text" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="Icon" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.45, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "♫  PLAY"
+[node name="Body" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard/Margin/Text"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.82, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 16
+text = "▶로 음악을 미리 듣고\n슬라이더로 위치를 찾습니다.\n\nOFFSET은 음악과 테스트가\n시작되는 시간을 지정합니다."
+[node name="Keys" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
+theme_override_font_sizes/font_size = 14
+text = "SPACE · PLAY / PAUSE\nOPEN · SAVE · TEST PLAY"
+
+[node name="Footer" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+layout_mode = 2
+
+[node name="Tip" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.5, 0.66, 0.78, 1)
+theme_override_font_sizes/font_size = 14
+text = "TIP  변경 사항은 자동 저장되며 다음 진입 시 복구됩니다."
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 1, 0.97, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("CloseButton")
+theme_override_styles/hover = SubResource("CloseButtonHover")
+theme_override_styles/pressed = SubResource("CloseButton")
+theme_override_styles/focus = SubResource("CloseButtonHover")
+text = "GOT IT"
