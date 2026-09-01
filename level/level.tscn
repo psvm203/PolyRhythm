@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://level/ui/dialogue_overlay.tscn" id="11_dialogue"]
 [ext_resource type="PackedScene" path="res://level/ui/gameplay_hud.tscn" id="12_hud"]
 [ext_resource type="PackedScene" path="res://level/ui/result_overlay.tscn" id="13_result"]
+[ext_resource type="PackedScene" path="res://level/ui/timing_debug_overlay.tscn" id="14_timing_debug"]
 
 [node name="Node2D" type="Node2D" unique_id=1619794752]
 script = ExtResource("1_level")
@@ -49,3 +50,5 @@ script = ExtResource("6_camera")
 [node name="GameplayHUD" parent="." instance=ExtResource("12_hud")]
 
 [node name="ResultOverlay" parent="." instance=ExtResource("13_result")]
+
+[node name="TimingDebugOverlay" parent="." instance=ExtResource("14_timing_debug")]

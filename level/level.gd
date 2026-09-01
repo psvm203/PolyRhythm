@@ -55,6 +55,7 @@ signal level_finished(stats: Dictionary, completed: bool, rank: String)
 @onready var dialogue_overlay: CanvasLayer = $DialogueOverlay
 @onready var gameplay_hud: CanvasLayer = $GameplayHUD
 @onready var result_overlay: CanvasLayer = $ResultOverlay
+@onready var timing_debug_overlay: CanvasLayer = $TimingDebugOverlay
 
 var _shapes: Array[PackedVector2Array] = []
 var _starter_triangle: PackedVector2Array = PackedVector2Array()
@@ -126,6 +127,7 @@ func _ready() -> void:
 	)
 	conductor.setup(_note_timeline.contact_times())
 	conductor.set_audio_reference(music, level_data.music_start_offset_sec)
+	timing_debug_overlay.set_sources(conductor, rotator, music, _note_timeline)
 	camera.setup(rotator, _polygon_centers)
 	rotator.polygon_advanced.connect(_on_polygon_advanced)
 	if conductor != null:
@@ -262,6 +264,10 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
+		timing_debug_overlay.toggle()
+		get_viewport().set_input_as_handled()
+		return
 	var keyboard_cancel := event.is_action_pressed("ui_cancel") and not event is InputEventJoypadButton
 	var input_manager := get_node_or_null("/root/InputDeviceManager")
 	var pause_input := bool(input_manager.call("is_pause_input", event)) if input_manager != null else false
