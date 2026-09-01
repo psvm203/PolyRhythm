@@ -12,6 +12,8 @@ const LAST_STAGE := 4
 static var selected_stage := 1
 static var show_stage_select_on_load := false
 static var custom_level_path := ""
+static var editor_working_file_path := ""
+static var editor_saved_signature := ""
 
 
 static func highest_unlocked_stage() -> int:

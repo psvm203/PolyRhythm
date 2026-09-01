@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://editor/level_editor.gd" id="1"]
 [ext_resource type="Script" path="res://editor/sequence_timeline.gd" id="2"]
@@ -14,6 +14,20 @@ corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_left = 10
 corner_radius_bottom_right = 10
+
+[sub_resource type="StyleBoxFlat" id="ExitPanel"]
+bg_color = Color(0.025, 0.055, 0.12, 0.99)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16, 0.92, 0.84, 0.9)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.7)
+shadow_size = 24
 
 [node name="LevelEditor" type="Control"]
 layout_mode = 3
@@ -51,34 +65,48 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 44)
 layout_mode = 2
-text = "← BACK"
+text = "← 돌아가기"
+[node name="UndoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 44)
+layout_mode = 2
+disabled = true
+tooltip_text = "실행 취소 (Ctrl+Z)"
+text = "↶"
+[node name="RedoButton" type="Button" parent="Root/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 44)
+layout_mode = 2
+disabled = true
+tooltip_text = "다시 실행 (Ctrl+Shift+Z 또는 Ctrl+Y)"
+text = "↷"
 [node name="Title" type="Label" parent="Root/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.18, 1, 0.88, 1)
 theme_override_font_sizes/font_size = 27
-text = "POLYRHYTHM  /  LEVEL EDITOR"
+text = "PolyRhythm 레벨 에디터"
 vertical_alignment = 1
 [node name="GuideButton" type="Button" parent="Root/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 44)
 layout_mode = 2
-text = "? GUIDE"
+text = "? 도움말"
 [node name="ImportButton" type="Button" parent="Root/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(118, 44)
 layout_mode = 2
-text = "OPEN YAML"
+text = "불러오기"
 [node name="ExportButton" type="Button" parent="Root/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(118, 44)
 layout_mode = 2
-text = "SAVE YAML"
+text = "저장"
 [node name="PlayButton" type="Button" parent="Root/Header"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(130, 44)
 layout_mode = 2
-text = "▶ TEST PLAY"
+text = "▶ 플레이"
 
 [node name="CanvasPanel" type="PanelContainer" parent="Root"]
 layout_mode = 2
@@ -93,20 +121,20 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "0 TILES"
+text = "도형 0개"
 [node name="TimelineMode" type="Button" parent="Root/CanvasPanel/CanvasRows/CanvasHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 34)
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
-text = "TIMELINE"
+text = "타임라인"
 [node name="MapMode" type="Button" parent="Root/CanvasPanel/CanvasRows/CanvasHeader"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(82, 34)
 layout_mode = 2
 toggle_mode = true
-text = "MAP"
+text = "맵"
 [node name="TimelineScroll" type="ScrollContainer" parent="Root/CanvasPanel/CanvasRows"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -157,14 +185,14 @@ step = 0.01
 value = 120.0
 [node name="OffsetLabel" type="Label" parent="Root/Settings/LevelPanel/LevelGrid"]
 layout_mode = 2
-text = "OFFSET"
+text = "시작 지점"
 [node name="MusicOffset" type="SpinBox" parent="Root/Settings/LevelPanel/LevelGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 38)
 layout_mode = 2
 max_value = 600.0
 step = 0.01
-suffix = " sec"
+suffix = "초"
 [node name="MusicPath" type="LineEdit" parent="Root/Settings/LevelPanel/LevelGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(290, 38)
@@ -173,7 +201,7 @@ placeholder_text = "WAV 또는 res:// 음악 경로"
 [node name="MusicButton" type="Button" parent="Root/Settings/LevelPanel/LevelGrid"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "BROWSE WAV"
+text = "음악 찾기"
 [node name="MusicPreviewButton" type="Button" parent="Root/Settings/LevelPanel/LevelGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(72, 38)
@@ -197,7 +225,7 @@ text = "0:00 / 0:00"
 vertical_alignment = 1
 [node name="EventLabel" type="Label" parent="Root/Settings/LevelPanel/LevelGrid"]
 layout_mode = 2
-text = "EVENT"
+text = "이벤트"
 vertical_alignment = 1
 [node name="EventType" type="OptionButton" parent="Root/Settings/LevelPanel/LevelGrid"]
 unique_name_in_owner = true
@@ -207,12 +235,12 @@ layout_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 38)
 layout_mode = 2
-text = "APPLY"
+text = "적용"
 [node name="EventRemove" type="Button" parent="Root/Settings/LevelPanel/LevelGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 38)
 layout_mode = 2
-text = "REMOVE"
+text = "제거"
 [node name="Footer" type="HBoxContainer" parent="Root"]
 layout_mode = 2
 [node name="Status" type="Label" parent="Root/Footer"]
@@ -224,23 +252,26 @@ text = "팔레트에서 도형을 추가해 레벨을 만드세요."
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 42)
 layout_mode = 2
-text = "VALIDATE"
+text = "검사"
 
 [node name="ImportDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
 access = 2
 file_mode = 0
-filters = PackedStringArray("*.yaml ; YAML Level")
+title = "레벨 불러오기"
+filters = PackedStringArray("*.yaml ; YAML 레벨 파일")
 [node name="ExportDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
 access = 2
 file_mode = 4
-filters = PackedStringArray("*.yaml ; YAML Level")
+title = "레벨 저장"
+filters = PackedStringArray("*.yaml ; YAML 레벨 파일")
 [node name="MusicDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
 access = 2
 file_mode = 0
-filters = PackedStringArray("*.wav ; WAV Audio")
+title = "음악 파일 선택"
+filters = PackedStringArray("*.wav ; WAV 음악 파일")
 
 [node name="MusicPreview" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
@@ -253,3 +284,146 @@ one_shot = true
 
 [node name="GuideOverlay" parent="." instance=ExtResource("3_guide")]
 unique_name_in_owner = true
+
+[node name="ExitDialog" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.005, 0.012, 0.035, 0.88)
+
+[node name="Center" type="CenterContainer" parent="ExitDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="ExitDialog/Center"]
+custom_minimum_size = Vector2(520, 210)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ExitPanel")
+
+[node name="Margin" type="MarginContainer" parent="ExitDialog/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 32
+
+[node name="Rows" type="VBoxContainer" parent="ExitDialog/Center/Panel/Margin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 28
+
+[node name="Message" type="Label" parent="ExitDialog/Center/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "레벨 에디터를 닫으시겠습니까?"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="ExitDialog/Center/Panel/Margin/Rows"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="CloseEditorButton" type="Button" parent="ExitDialog/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 54)
+layout_mode = 2
+focus_neighbor_left = NodePath("../ReturnEditorButton")
+focus_neighbor_right = NodePath("../ReturnEditorButton")
+text = "닫기"
+
+[node name="ReturnEditorButton" type="Button" parent="ExitDialog/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 54)
+layout_mode = 2
+focus_neighbor_left = NodePath("../CloseEditorButton")
+focus_neighbor_right = NodePath("../CloseEditorButton")
+text = "돌아가기"
+
+[node name="UnsavedDialog" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.005, 0.012, 0.035, 0.9)
+
+[node name="Center" type="CenterContainer" parent="UnsavedDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="UnsavedDialog/Center"]
+custom_minimum_size = Vector2(690, 230)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ExitPanel")
+
+[node name="Margin" type="MarginContainer" parent="UnsavedDialog/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 42
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 42
+theme_override_constants/margin_bottom = 32
+
+[node name="Rows" type="VBoxContainer" parent="UnsavedDialog/Center/Panel/Margin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="Message" type="Label" parent="UnsavedDialog/Center/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "저장되지 않은 변경 사항이 있습니다."
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="UnsavedDialog/Center/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.72, 0.84, 1)
+theme_override_font_sizes/font_size = 17
+text = "계속하기 전에 변경 사항을 저장하시겠습니까?"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="UnsavedDialog/Center/Panel/Margin/Rows"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="SaveChangesButton" type="Button" parent="UnsavedDialog/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 54)
+layout_mode = 2
+focus_neighbor_left = NodePath("../CancelChangesButton")
+focus_neighbor_right = NodePath("../DiscardChangesButton")
+text = "저장"
+
+[node name="DiscardChangesButton" type="Button" parent="UnsavedDialog/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 54)
+layout_mode = 2
+focus_neighbor_left = NodePath("../SaveChangesButton")
+focus_neighbor_right = NodePath("../CancelChangesButton")
+text = "버리기"
+
+[node name="CancelChangesButton" type="Button" parent="UnsavedDialog/Center/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 54)
+layout_mode = 2
+focus_neighbor_left = NodePath("../DiscardChangesButton")
+focus_neighbor_right = NodePath("../SaveChangesButton")
+text = "취소"

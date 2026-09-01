@@ -1,5 +1,7 @@
 extends Control
 
+const LOCK_OFFSET_Y := 100.0
+
 @export var active := false
 
 var _highlighted := false
@@ -39,7 +41,7 @@ func _draw() -> void:
 	draw_circle(center, radius * 0.30, label_color)
 	draw_circle(center, radius * 0.055, Color("071126"))
 	if not active:
-		_draw_lock(center + Vector2(0.0, 16.0))
+		_draw_lock(center + Vector2(0.0, LOCK_OFFSET_Y))
 
 
 func _draw_lock(center: Vector2) -> void:

@@ -72,7 +72,7 @@ func _ready() -> void:
 	%StageTwoButton.pressed.connect(_start_game.bind(2))
 	%StageThreeButton.pressed.connect(_start_game.bind(3))
 	%StageFourButton.pressed.connect(_start_game.bind(4))
-	%EditorButton.pressed.connect(get_tree().change_scene_to_file.bind(LEVEL_EDITOR_SCENE))
+	%EditorButton.pressed.connect(_open_level_editor)
 	_refresh_stage_cards()
 	_setup_stage_card(%StageOneButton, $StageScreen/StageLayout/CardsSlot/Cards/StageOne, $StageScreen/StageLayout/CardsSlot/Cards/StageOne/Items/Record, STAGE_ONE_BGM)
 	_setup_stage_card(%StageTwoButton, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo, $StageScreen/StageLayout/CardsSlot/Cards/StageTwo/Items/Record, null)
@@ -567,6 +567,13 @@ func _start_game(stage_number: int = 1) -> void:
 	get_tree().change_scene_to_file(LEVEL_SCENE)
 
 
+func _open_level_editor() -> void:
+	ProgressStoreScript.custom_level_path = ""
+	ProgressStoreScript.editor_working_file_path = ""
+	ProgressStoreScript.editor_saved_signature = ""
+	get_tree().change_scene_to_file(LEVEL_EDITOR_SCENE)
+
+
 func _show_settings() -> void:
 	_transition_to(settings_screen, $SettingsScreen/SettingsLayout/SmallLogo, %SettingsTitle, %SettingsPanel, %SettingsBackButton, null, false)
 
@@ -749,7 +756,9 @@ func _transition_to(
 	transition_logo.position = main_logo.global_position
 	transition_logo.scale = main_logo_scale
 	transition_logo.modulate = Color.WHITE
-	main_logo.modulate.a = 0.0
+	# Settings does not use the travelling logo. Let the real title fade with the
+	# main content instead of keeping it hidden until the whole transition ends.
+	main_logo.modulate.a = 0.0 if animate_logo else 1.0
 	target_logo.modulate.a = 0.0
 	target_title.modulate.a = 0.0
 	target_title.position = title_home + Vector2(0, 42)
@@ -810,7 +819,7 @@ func _transition_to_main(
 	var main_logo_scale := _logo_scale_for(main_logo)
 	var main_logo_home_global := main_logo.global_position
 
-	main_logo.modulate.a = 0.0
+	main_logo.modulate.a = 0.0 if animate_logo else 1.0
 	main_content.position = content_home + Vector2(0, 74)
 	transition_logo.position = current_logo.global_position
 	transition_logo.scale = current_logo_scale
@@ -826,8 +835,11 @@ func _transition_to_main(
 	tween.tween_property(back_button, "modulate:a", 0.0, 0.2)
 	tween.tween_property(transition_logo, "position", main_logo_home_global, 0.52)
 	tween.tween_property(transition_logo, "scale", main_logo_scale, 0.52)
-	tween.tween_property(main_content, "position", content_home, 0.42).set_delay(0.18)
-	tween.tween_property(main_content, "modulate:a", 1.0, 0.3).set_delay(0.2)
+	var content_duration := 0.42 if animate_logo else 0.28
+	var content_delay := 0.18 if animate_logo else 0.04
+	var fade_duration := 0.3 if animate_logo else 0.22
+	tween.tween_property(main_content, "position", content_home, content_duration).set_delay(content_delay)
+	tween.tween_property(main_content, "modulate:a", 1.0, fade_duration).set_delay(content_delay)
 	await tween.finished
 
 	current_screen.hide()

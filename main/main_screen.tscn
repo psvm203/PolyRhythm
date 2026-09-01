@@ -1181,7 +1181,7 @@ custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 24
-text = "판정 보정"
+text = "입력 오프셋"
 vertical_alignment = 1
 
 [node name="TimingSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
@@ -1214,7 +1214,7 @@ theme_override_styles/normal = SubResource("StyleButtonNormal")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
-text = "조정"
+text = "보정"
 
 [node name="SeparatorTiming" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2

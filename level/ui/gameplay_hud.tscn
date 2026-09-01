@@ -22,7 +22,7 @@ custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
 theme_override_font_sizes/font_size = 26
-text = "점수  0000000"
+text = "000000"
 
 [node name="Gauge" type="ProgressBar" parent="Top"]
 unique_name_in_owner = true
@@ -32,24 +32,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 value = 70.0
 show_percentage = false
-
-[node name="Accuracy" type="Label" parent="Top"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "정확도  0.0%"
-horizontal_alignment = 2
-
-[node name="Progress" type="Label" parent="Top"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.76, 0.9, 1)
-theme_override_font_sizes/font_size = 20
-text = "진행  0 / 0"
-horizontal_alignment = 2
 
 [node name="Combo" type="Label" parent="."]
 unique_name_in_owner = true
@@ -64,19 +46,6 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 0.92, 0.3, 1)
 theme_override_font_sizes/font_size = 30
 horizontal_alignment = 1
-
-[node name="StageProgress" type="ProgressBar" parent="."]
-unique_name_in_owner = true
-anchors_preset = 10
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -240.0
-offset_top = 138.0
-offset_right = 240.0
-offset_bottom = 148.0
-grow_horizontal = 2
-mouse_filter = 2
-show_percentage = false
 
 [node name="BossPanel" type="VBoxContainer" parent="."]
 unique_name_in_owner = true

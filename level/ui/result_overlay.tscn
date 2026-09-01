@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://level/ui/result_overlay.gd" id="1_result"]
 [ext_resource type="Theme" path="res://main/poly_theme.tres" id="2_theme"]
 [ext_resource type="Script" path="res://main/focus_coordinator.gd" id="3_focus"]
+[ext_resource type="PackedScene" path="res://main/timing_calibration_overlay.tscn" id="4_calibration"]
 
 [sub_resource type="StyleBoxFlat" id="ResultPanel"]
 bg_color = Color(0.025, 0.035, 0.065, 0.98)
@@ -36,6 +37,10 @@ script = ExtResource("1_result")
 
 [node name="FocusCoordinator" type="Node" parent="."]
 script = ExtResource("3_focus")
+
+[node name="TimingCalibrationOverlay" parent="." instance=ExtResource("4_calibration")]
+unique_name_in_owner = true
+layer = 260
 
 [node name="Dim" type="ColorRect" parent="."]
 theme = ExtResource("2_theme")
@@ -95,18 +100,32 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TimingPanel" type="PanelContainer" parent="Dim/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 92)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 142)
 layout_mode = 2
 theme_override_styles/panel = SubResource("SummaryPanel")
 
-[node name="TimingReport" type="Label" parent="Dim/Center/Panel/Margin/Rows/TimingPanel"]
+[node name="TimingContent" type="VBoxContainer" parent="Dim/Center/Panel/Margin/Rows/TimingPanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="TimingReport" type="Label" parent="Dim/Center/Panel/Margin/Rows/TimingPanel/TimingContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 19
-text = "평균 편차  +0.0 ms        평균 오차  0.0 ms\n입력 경향  안정적        이른 추가 입력  0"
+text = "평균 편차  +50.0 ms\n입력 오프셋을 보정해보세요."
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="CalibrationButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/TimingPanel/TimingContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "오프셋 보정"
 
 [node name="Rating" type="Label" parent="Dim/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true

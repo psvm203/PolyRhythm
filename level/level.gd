@@ -18,6 +18,7 @@ const STAGE_DATA := {
 	4: "res://level/data/level_4.yaml",
 }
 const MAIN_SCENE := "res://main/main_screen.tscn"
+const EDITOR_SCENE := "res://editor/level_editor.tscn"
 const NEON_PALETTE := [
 	Color("20e3df"),
 	Color("348cff"),
@@ -142,6 +143,7 @@ func _ready() -> void:
 		countdown.countdown_finished.connect(_on_countdown_finished)
 	if pause_overlay != null:
 		pause_overlay.resume_requested.connect(_set_game_paused.bind(false))
+		pause_overlay.restart_requested.connect(_restart_level_from_pause)
 		pause_overlay.exit_requested.connect(_return_to_main_from_pause)
 		pause_overlay.timing_offset_changed.connect(_set_judgment_offset)
 		pause_overlay.set_exit_visible(true)
@@ -237,6 +239,10 @@ func _finish_level(completed: bool) -> void:
 	})
 	if not _is_custom_level:
 		ProgressStoreScript.record_run(ProgressStoreScript.selected_stage, stats, final_rank, completed)
+	else:
+		level_finished.emit(stats, completed, final_rank)
+		call_deferred("_return_to_editor")
+		return
 	if result_overlay != null:
 		result_overlay.show_result(stats, completed, final_rank)
 	level_finished.emit(stats, completed, final_rank)
@@ -249,6 +255,9 @@ func _retry_level() -> void:
 
 func _return_to_stage_select() -> void:
 	_input_manager_call("stop_rumble")
+	if _is_custom_level:
+		_return_to_editor()
+		return
 	ProgressStoreScript.show_stage_select_on_load = true
 	get_tree().change_scene_to_file(MAIN_SCENE)
 
@@ -256,7 +265,19 @@ func _return_to_stage_select() -> void:
 func _return_to_main_from_pause() -> void:
 	_input_manager_call("stop_rumble")
 	get_tree().paused = false
-	get_tree().change_scene_to_file(MAIN_SCENE)
+	get_tree().change_scene_to_file(EDITOR_SCENE if _is_custom_level else MAIN_SCENE)
+
+
+func _restart_level_from_pause() -> void:
+	_input_manager_call("stop_rumble")
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+func _return_to_editor() -> void:
+	_input_manager_call("stop_rumble")
+	get_tree().paused = false
+	get_tree().change_scene_to_file(EDITOR_SCENE)
 
 
 func _on_countdown_finished() -> void:

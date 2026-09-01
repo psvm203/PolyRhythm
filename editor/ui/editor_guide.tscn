@@ -109,7 +109,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 1, 0.9, 1)
 theme_override_font_sizes/font_size = 31
-text = "LEVEL EDITOR GUIDE"
+text = "레벨 에디터 도움말"
 
 [node name="Subtitle" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Header/HeaderText"]
 layout_mode = 2
@@ -121,7 +121,7 @@ text = "도형을 배치하고 이벤트와 음악을 더해 나만의 리듬을
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.72, 0.3, 1)
 theme_override_font_sizes/font_size = 18
-text = "●  QUICK START"
+text = "●  빠른 시작"
 vertical_alignment = 1
 
 [node name="Divider" type="HSeparator" parent="Dimmer/Center/Panel/Margin/Rows"]
@@ -149,7 +149,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 28
-text = "◇  EDIT"
+text = "◇  편집"
 [node name="Body" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EditCard/Margin/Text"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -160,7 +160,7 @@ text = "3~8 아이콘이나 숫자키로\n도형을 추가합니다.\n\n드래�
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
 theme_override_font_sizes/font_size = 14
-text = "3–8   DELETE   CTRL+D\nCTRL+Z   CTRL+SHIFT+Z"
+text = "3–8   Delete 키   Ctrl+D\nCtrl+Z   Ctrl+Shift+Z"
 
 [node name="EventCard" type="PanelContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards"]
 layout_mode = 2
@@ -179,18 +179,18 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.47, 0.35, 1)
 theme_override_font_sizes/font_size = 28
-text = "◆  EVENT"
+text = "◆  이벤트"
 [node name="Body" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard/Margin/Text"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.82, 0.88, 0.96, 1)
 theme_override_font_sizes/font_size = 16
-text = "도형 선택 → 이벤트 선택\n→ APPLY 순서로 적용합니다.\n\n이벤트 도형에는 주황색 E가\n표시되며 REMOVE로 지웁니다."
+text = "도형 선택 → 이벤트 선택\n→ 적용 순서로 설정합니다.\n\n이벤트 도형에는 주황색 E가\n표시되며 제거 버튼으로 지웁니다."
 [node name="Types" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/EventCard/Margin/Text"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
 theme_override_font_sizes/font_size = 14
-text = "BOSS GUARD\nSAMURAI SPLIT (6각형)\nTIME STOP"
+text = "보스 가드\n사무라이 분할 (6각형)\n시간 정지"
 
 [node name="MusicCard" type="PanelContainer" parent="Dimmer/Center/Panel/Margin/Rows/Cards"]
 layout_mode = 2
@@ -209,18 +209,18 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.45, 1, 1)
 theme_override_font_sizes/font_size = 28
-text = "♫  PLAY"
+text = "♫  음악"
 [node name="Body" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard/Margin/Text"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.82, 0.88, 0.96, 1)
 theme_override_font_sizes/font_size = 16
-text = "▶로 음악을 미리 듣고\n슬라이더로 위치를 찾습니다.\n\nOFFSET은 음악과 테스트가\n시작되는 시간을 지정합니다."
+text = "▶로 음악을 미리 듣고\n슬라이더로 위치를 찾습니다.\n\n시작 지점은 음악과 플레이가\n시작되는 시간을 지정합니다."
 [node name="Keys" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Cards/MusicCard/Margin/Text"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.34, 1)
 theme_override_font_sizes/font_size = 14
-text = "SPACE: PLAY / PAUSE\nOPEN / SAVE / TEST PLAY"
+text = "Space: 재생 및 일시 정지\n불러오기 / 저장 / 플레이"
 
 [node name="Footer" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 layout_mode = 2
@@ -230,7 +230,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.5, 0.66, 0.78, 1)
 theme_override_font_sizes/font_size = 14
-text = "TIP  변경 사항은 자동 저장되며 다음 진입 시 복구됩니다."
+text = "도움말  변경 사항은 자동 저장되며 다음 진입 시 복구됩니다."
 vertical_alignment = 1
 
 [node name="CloseButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Footer"]
@@ -243,4 +243,4 @@ theme_override_styles/normal = SubResource("CloseButton")
 theme_override_styles/hover = SubResource("CloseButtonHover")
 theme_override_styles/pressed = SubResource("CloseButton")
 theme_override_styles/focus = SubResource("CloseButtonHover")
-text = "GOT IT"
+text = "확인"

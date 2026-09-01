@@ -10,9 +10,9 @@ const MAIN_SCENE := "res://main/main_screen.tscn"
 const PREVIEW_PATH := "user://custom_level_preview.yaml"
 const AUTOSAVE_PATH := "user://custom_level_autosave.yaml"
 const EVENT_TYPES := [
-	{"label": "BOSS GUARD", "name": "boss_guard"},
-	{"label": "SAMURAI SPLIT", "name": "samurai_split", "when_sides": 6, "replace_with": [3, 3]},
-	{"label": "TIME STOP", "name": "time_stop", "duration_sec": 0.65},
+	{"label": "보스 가드", "name": "boss_guard"},
+	{"label": "사무라이 분할", "name": "samurai_split", "when_sides": 6, "replace_with": [3, 3]},
+	{"label": "시간 정지", "name": "time_stop", "duration_sec": 0.65},
 ]
 
 var _boss_health := 0
@@ -21,25 +21,37 @@ var _history: SequenceHistory = SequenceHistoryScript.new()
 var _applying_history := false
 var _updating_seek := false
 var _preview_music_path := ""
+var _current_file_path := ""
+var _saved_signature := ""
+var _pending_action := ""
+var _saving_pending_action := false
 
 
 func _ready() -> void:
-	%BackButton.pressed.connect(_exit_editor)
+	%BackButton.pressed.connect(_request_exit)
+	%UndoButton.pressed.connect(_undo)
+	%RedoButton.pressed.connect(_redo)
+	%CloseEditorButton.pressed.connect(_exit_editor)
+	%ReturnEditorButton.pressed.connect(_hide_exit_dialog)
+	%SaveChangesButton.pressed.connect(_save_pending_changes)
+	%DiscardChangesButton.pressed.connect(_discard_pending_changes)
+	%CancelChangesButton.pressed.connect(_cancel_pending_action)
 	%GuideButton.pressed.connect(%GuideOverlay.open)
-	%ImportButton.pressed.connect(%ImportDialog.popup_centered_ratio.bind(0.75))
+	%ImportButton.pressed.connect(_request_import)
 	%ExportButton.pressed.connect(%ExportDialog.popup_centered_ratio.bind(0.75))
 	%MusicButton.pressed.connect(%MusicDialog.popup_centered_ratio.bind(0.75))
 	%ValidateButton.pressed.connect(_validate)
 	%PlayButton.pressed.connect(_test_play)
 	%ImportDialog.file_selected.connect(_import_yaml)
-	%ExportDialog.file_selected.connect(_export_yaml)
+	%ExportDialog.file_selected.connect(_on_export_selected)
+	%ExportDialog.canceled.connect(_cancel_pending_action)
 	%MusicDialog.file_selected.connect(func(path: String) -> void: %MusicPath.text = path)
 	%MusicPreviewButton.pressed.connect(_toggle_music_preview)
 	%MusicStopButton.pressed.connect(_stop_music_preview)
 	%MusicSeek.value_changed.connect(_seek_music_preview)
 	%MusicPreview.finished.connect(_stop_music_preview)
 	%AutosaveTimer.timeout.connect(_save_autosave)
-	%EventType.add_item("EVENT TYPE")
+	%EventType.add_item("이벤트 선택")
 	for event_type in EVENT_TYPES:
 		%EventType.add_item(event_type["label"])
 	%EventApply.pressed.connect(_apply_selected_event)
@@ -54,18 +66,26 @@ func _ready() -> void:
 	%Timeline.tile_inserted.connect(_shift_events_for_insert)
 	%Timeline.tile_removed.connect(_shift_events_for_remove)
 	%Timeline.tile_moved.connect(_move_event_target)
-	%Bpm.value_changed.connect(func(_value: float) -> void: _queue_autosave())
-	%MusicOffset.value_changed.connect(func(_value: float) -> void: _queue_autosave())
-	%MusicPath.text_changed.connect(func(_value: String) -> void: _queue_autosave())
+	%Bpm.value_changed.connect(_on_document_setting_changed)
+	%MusicOffset.value_changed.connect(_on_document_setting_changed)
+	%MusicPath.text_changed.connect(_on_document_setting_changed)
 	%TimelineMode.pressed.connect(_set_map_mode.bind(false))
 	%MapMode.pressed.connect(_set_map_mode.bind(true))
 	%Timeline.set_sequence([3, 4, 5, 4, 6, 3])
 	%MusicPath.text = "res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV"
+	var returning_from_preview := ProgressStoreScript.custom_level_path == PREVIEW_PATH
 	if not ProgressStoreScript.custom_level_path.is_empty() and FileAccess.file_exists(ProgressStoreScript.custom_level_path):
-		_import_yaml(ProgressStoreScript.custom_level_path)
+		_import_yaml(ProgressStoreScript.custom_level_path, not returning_from_preview)
+		if returning_from_preview:
+			_current_file_path = ProgressStoreScript.editor_working_file_path
+			_saved_signature = ProgressStoreScript.editor_saved_signature
 	elif FileAccess.file_exists(AUTOSAVE_PATH):
 		_populate(LevelDataScript.from_yaml(AUTOSAVE_PATH).dictionary())
 		%Status.text = "자동 저장된 레벨을 복구했습니다."
+		_current_file_path = ProgressStoreScript.editor_working_file_path
+		_saved_signature = ProgressStoreScript.editor_saved_signature
+	else:
+		_mark_saved_state("")
 	%Timeline.grab_focus()
 	_set_map_mode(false)
 	_reset_history()
@@ -106,18 +126,18 @@ func _populate(data: Dictionary) -> void:
 
 
 func _update_summary() -> void:
-	%SequenceSummary.text = "%d TILES" % %Timeline.sequence.size()
+	%SequenceSummary.text = "도형 %d개" % %Timeline.sequence.size()
 
 
 func _on_sequence_changed(sequence: Array[int]) -> void:
 	_update_summary()
-	if not _applying_history:
-		_history.record(_history_state())
+	_record_document_change()
 	_queue_autosave()
 
 
 func _reset_history() -> void:
 	_history.reset(_history_state())
+	_update_history_buttons()
 
 
 func _undo() -> void:
@@ -132,21 +152,37 @@ func _redo() -> void:
 	_apply_history(_history.redo())
 
 
+func _record_document_change() -> void:
+	if _applying_history:
+		return
+	_history.record(_history_state())
+	_update_history_buttons()
+
+
+func _on_document_setting_changed(_value: Variant) -> void:
+	_record_document_change()
+	_queue_autosave()
+
+
+func _update_history_buttons() -> void:
+	%UndoButton.disabled = not _history.can_undo()
+	%RedoButton.disabled = not _history.can_redo()
+
+
 func _apply_history(state: Variant) -> void:
 	if not state is Dictionary:
 		return
 	_applying_history = true
-	_events.assign(state.get("events", []))
-	%Timeline.set_sequence(state.get("sequence", []))
-	%Timeline.set_events(_events)
+	_populate(state)
 	_applying_history = false
 	_update_summary()
 	_sync_event_controls()
+	_update_history_buttons()
 	_queue_autosave()
 
 
 func _history_state() -> Dictionary:
-	return {"sequence": %Timeline.sequence.duplicate(), "events": _events.duplicate(true)}
+	return _collect()
 
 
 func _apply_selected_event() -> void:
@@ -193,7 +229,7 @@ func _find_or_create_event(template: Dictionary) -> Dictionary:
 
 func _commit_event_change() -> void:
 	%Timeline.set_events(_events)
-	_history.record(_history_state())
+	_record_document_change()
 	_sync_event_controls()
 	_queue_autosave()
 
@@ -202,6 +238,8 @@ func _sync_event_controls() -> void:
 	var polygon_number: int = %Timeline.selected_index + 1
 	%EventApply.disabled = polygon_number <= 0
 	%EventRemove.disabled = polygon_number <= 0 or not _has_event_at(polygon_number)
+	if %EventType.item_count == 0:
+		return
 	%EventType.select(0)
 	for type_index in EVENT_TYPES.size():
 		for event in _events:
@@ -253,16 +291,105 @@ func _remap_event_targets(mapper: Callable) -> void:
 
 
 func _queue_autosave() -> void:
-	%AutosaveTimer.start()
+	if is_inside_tree():
+		%AutosaveTimer.start()
 
 
 func _save_autosave() -> void:
 	_write_yaml(AUTOSAVE_PATH)
 
 
+func _request_exit() -> void:
+	if _has_unsaved_changes():
+		_show_unsaved_dialog("exit")
+	else:
+		_show_exit_dialog()
+
+
+func _request_import() -> void:
+	if _has_unsaved_changes():
+		_show_unsaved_dialog("import")
+	else:
+		%ImportDialog.popup_centered_ratio(0.75)
+
+
+func _show_unsaved_dialog(action: String) -> void:
+	_pending_action = action
+	%UnsavedDialog.show()
+	if is_inside_tree():
+		%CancelChangesButton.grab_focus()
+
+
+func _save_pending_changes() -> void:
+	if not _current_file_path.is_empty():
+		if _export_yaml(_current_file_path):
+			_continue_pending_action()
+		return
+	_saving_pending_action = true
+	%UnsavedDialog.hide()
+	%ExportDialog.popup_centered_ratio(0.75)
+
+
+func _discard_pending_changes() -> void:
+	%UnsavedDialog.hide()
+	_continue_pending_action()
+
+
+func _cancel_pending_action() -> void:
+	_saving_pending_action = false
+	_pending_action = ""
+	%UnsavedDialog.hide()
+	if is_inside_tree():
+		%Timeline.grab_focus()
+
+
+func _continue_pending_action() -> void:
+	var action := _pending_action
+	_pending_action = ""
+	_saving_pending_action = false
+	%UnsavedDialog.hide()
+	match action:
+		"exit": _exit_editor()
+		"import": %ImportDialog.popup_centered_ratio(0.75)
+
+
+func _has_unsaved_changes() -> bool:
+	return _document_signature() != _saved_signature
+
+
+func _document_signature() -> String:
+	return LevelDataScript.to_yaml(_collect())
+
+
+func _mark_saved_state(path: String) -> void:
+	_current_file_path = path
+	_saved_signature = _document_signature()
+	ProgressStoreScript.editor_working_file_path = path
+	ProgressStoreScript.editor_saved_signature = _saved_signature
+
+
 func _exit_editor() -> void:
-	_save_autosave()
+	_clear_autosave()
 	get_tree().change_scene_to_file(MAIN_SCENE)
+
+
+func _clear_autosave() -> void:
+	%AutosaveTimer.stop()
+	var autosave_path := ProjectSettings.globalize_path(AUTOSAVE_PATH)
+	if FileAccess.file_exists(AUTOSAVE_PATH):
+		DirAccess.remove_absolute(autosave_path)
+
+
+func _show_exit_dialog() -> void:
+	%ExitDialog.show()
+	if is_inside_tree():
+		%ReturnEditorButton.grab_focus()
+
+
+func _hide_exit_dialog() -> void:
+	%ExitDialog.hide()
+	if is_inside_tree():
+		%Timeline.grab_focus()
 
 
 func _toggle_music_preview() -> void:
@@ -320,43 +447,73 @@ func _validate() -> bool:
 	return errors.is_empty()
 
 
-func _import_yaml(path: String) -> void:
+func _import_yaml(path: String, mark_as_saved: bool = true) -> void:
 	var data := LevelDataScript.from_yaml(path).dictionary()
 	_populate(data)
 	_reset_history()
 	_sync_event_controls()
 	%Status.text = "불러옴: %s" % path
 	_validate()
+	if mark_as_saved:
+		_mark_saved_state(path)
 
 
-func _export_yaml(path: String) -> void:
+func _export_yaml(path: String) -> bool:
 	if not _validate():
-		return
+		return false
 	if path.get_extension().to_lower() != "yaml":
 		path += ".yaml"
-	_write_yaml(path)
+	if not _write_yaml(path):
+		return false
+	_mark_saved_state(path)
 	%Status.text = "저장됨: %s" % path
+	return true
 
 
-func _write_yaml(path: String) -> void:
+func _on_export_selected(path: String) -> void:
+	if not _export_yaml(path):
+		if _saving_pending_action:
+			%UnsavedDialog.show()
+		return
+	if _saving_pending_action:
+		_continue_pending_action()
+
+
+func _write_yaml(path: String) -> bool:
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		%Status.text = "⚠ 파일을 저장할 수 없습니다: %s" % path
-		return
+		return false
 	file.store_string(LevelDataScript.to_yaml(_collect()))
+	return true
 
 
 func _test_play() -> void:
 	if not _validate():
 		return
 	_write_yaml(PREVIEW_PATH)
+	ProgressStoreScript.editor_working_file_path = _current_file_path
+	ProgressStoreScript.editor_saved_signature = _saved_signature
 	ProgressStoreScript.custom_level_path = PREVIEW_PATH
 	get_tree().change_scene_to_file(LEVEL_SCENE)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and (event.ctrl_pressed or event.meta_pressed) and event.keycode == KEY_Z:
-		_redo() if event.shift_pressed else _undo()
+	if event.is_action_pressed("ui_cancel"):
+		if %GuideOverlay.visible:
+			%GuideOverlay.close()
+		elif %UnsavedDialog.visible:
+			_cancel_pending_action()
+		elif %ExitDialog.visible:
+			_hide_exit_dialog()
+		else:
+			_request_exit()
+		get_viewport().set_input_as_handled()
+		return
+	if %UnsavedDialog.visible or %ExitDialog.visible or %GuideOverlay.visible:
+		return
+	if event is InputEventKey and event.pressed and not event.echo and (event.ctrl_pressed or event.meta_pressed) and event.keycode in [KEY_Z, KEY_Y]:
+		_redo() if event.keycode == KEY_Y or event.shift_pressed else _undo()
 		get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
 		_toggle_music_preview()
@@ -364,8 +521,3 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed and not event.echo and event.unicode >= 51 and event.unicode <= 56:
 		%Timeline.add_tile(event.unicode - 48)
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel"):
-		if %GuideOverlay.visible:
-			%GuideOverlay.close()
-		else:
-			get_tree().change_scene_to_file(MAIN_SCENE)

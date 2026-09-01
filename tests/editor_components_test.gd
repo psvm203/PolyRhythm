@@ -24,10 +24,13 @@ func _init() -> void:
 	_expect(not history.can_undo(), "reset creates a new history root")
 	history.record({"sequence": [3, 4], "events": []})
 	_expect(history.undo()["events"][0]["at"] == [1], "history deeply preserves event state")
+	history.reset({"bpm": 120.0})
+	history.record({"bpm": 120.0})
+	_expect(not history.can_undo(), "identical document states do not create redundant undo steps")
 	_expect(AudioStreamLoaderScript.load_stream(MUSIC_PATH) != null, "shared loader resolves project audio")
 	_expect(AudioStreamLoaderScript.load_stream("res://missing.wav") == null, "shared loader rejects missing audio")
 	if _failures == 0:
-		print("Editor component tests passed: 9 assertions")
+		print("Editor component tests passed: 10 assertions")
 		quit(0)
 	else:
 		push_error("Editor component tests failed: %d assertion(s)" % _failures)

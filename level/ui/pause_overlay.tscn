@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://level/ui/pause_overlay.gd" id="1_pause"]
 [ext_resource type="Theme" path="res://main/poly_theme.tres" id="2_theme"]
 [ext_resource type="Script" path="res://main/focus_coordinator.gd" id="3_focus"]
+[ext_resource type="PackedScene" path="res://main/timing_calibration_overlay.tscn" id="4_calibration"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
 bg_color = Color(0.025, 0.055, 0.12, 0.97)
@@ -24,6 +25,10 @@ script = ExtResource("1_pause")
 
 [node name="FocusCoordinator" type="Node" parent="."]
 script = ExtResource("3_focus")
+
+[node name="TimingCalibrationOverlay" parent="." instance=ExtResource("4_calibration")]
+unique_name_in_owner = true
+layer = 210
 
 [node name="Dimmer" type="ColorRect" parent="."]
 theme = ExtResource("2_theme")
@@ -116,6 +121,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 min_value = 0.0
 max_value = 100.0
 step = 1.0
@@ -156,6 +162,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 min_value = 0.0
 max_value = 100.0
 step = 1.0
@@ -196,6 +203,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 min_value = 0.0
 max_value = 100.0
 step = 1.0
@@ -236,6 +244,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 max_value = 100.0
 step = 1.0
 value = 70.0
@@ -270,13 +279,14 @@ custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "판정 보정"
+text = "입력 오프셋"
 vertical_alignment = 1
 
 [node name="TimingSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Timing"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 min_value = -150.0
 max_value = 150.0
 step = 1.0
@@ -290,6 +300,14 @@ theme_override_font_sizes/font_size = 20
 text = "+0 ms"
 horizontal_alignment = 2
 vertical_alignment = 1
+
+[node name="CalibrationButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Timing"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
+text = "보정"
 
 [node name="Dialogue" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 54)
@@ -312,18 +330,42 @@ theme_override_font_sizes/font_size = 24
 toggle_mode = true
 text = "Off"
 
-[node name="ResumeButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 58)
+[node name="FooterSpacer" type="Control" parent="Dimmer/Center/Panel/Margin/Rows"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.08, 0.95, 0.92, 1)
-theme_override_font_sizes/font_size = 23
-text = "닫기"
+size_flags_vertical = 3
+mouse_filter = 2
 
-[node name="ExitButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 54)
+[node name="FooterButtons" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="ResumeButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/FooterButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 58)
+layout_mode = 2
+focus_neighbor_left = NodePath("../ExitButton")
+focus_neighbor_right = NodePath("../RestartButton")
+theme_override_colors/font_color = Color(0.08, 0.95, 0.92, 1)
+theme_override_font_sizes/font_size = 21
+text = "계속하기"
+
+[node name="RestartButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/FooterButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 58)
+layout_mode = 2
+focus_neighbor_left = NodePath("../ResumeButton")
+focus_neighbor_right = NodePath("../ExitButton")
+theme_override_colors/font_color = Color(1, 0.78, 0.34, 1)
+theme_override_font_sizes/font_size = 21
+text = "재시작"
+
+[node name="ExitButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/FooterButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 58)
+layout_mode = 2
+focus_neighbor_left = NodePath("../RestartButton")
+focus_neighbor_right = NodePath("../ResumeButton")
 theme_override_colors/font_color = Color(1, 0.48, 0.58, 1)
 theme_override_font_sizes/font_size = 21
 text = "메인화면"

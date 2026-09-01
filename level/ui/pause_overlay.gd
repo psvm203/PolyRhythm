@@ -3,6 +3,7 @@ extends CanvasLayer
 const SettingsStoreScript = preload("res://main/settings_store.gd")
 
 signal resume_requested
+signal restart_requested
 signal exit_requested
 signal timing_offset_changed(offset_sec: float)
 
@@ -23,6 +24,8 @@ signal timing_offset_changed(offset_sec: float)
 @onready var vibration_enabled: Button = %VibrationEnabled
 @onready var skip_seen_dialogue: Button = %SkipSeenDialogue
 @onready var resolution_option: OptionButton = %ResolutionOption
+@onready var calibration_button: Button = %CalibrationButton
+@onready var timing_calibration: CanvasLayer = %TimingCalibrationOverlay
 
 
 func _ready() -> void:
@@ -32,7 +35,11 @@ func _ready() -> void:
 		input_manager.connect("active_device_changed", _update_controller_prompt.unbind(1))
 	hide()
 	%ResumeButton.pressed.connect(resume_requested.emit)
+	%RestartButton.pressed.connect(restart_requested.emit)
 	%ExitButton.pressed.connect(exit_requested.emit)
+	calibration_button.pressed.connect(timing_calibration.open)
+	timing_calibration.offset_selected.connect(_apply_calibrated_offset)
+	timing_calibration.closed.connect(calibration_button.grab_focus)
 	fullscreen_toggle.toggled.connect(_set_fullscreen)
 	resolution_option.item_selected.connect(SettingsStoreScript.save_resolution)
 	master_slider.value_changed.connect(_set_volume.bind("master_volume", master_value))
@@ -60,20 +67,20 @@ func close() -> void:
 
 
 func set_exit_visible(value: bool) -> void:
+	%RestartButton.visible = value
 	%ExitButton.visible = value
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	var input_manager := _input_manager()
 	var pause_input := bool(input_manager.call("is_pause_input", event)) if input_manager != null else false
-	if visible and (event.is_action_pressed("ui_cancel") or pause_input):
+	if visible and not timing_calibration.visible and (event.is_action_pressed("ui_cancel") or pause_input):
 		resume_requested.emit()
 		get_viewport().set_input_as_handled()
 
 
 func _update_controller_prompt() -> void:
-	var input_manager := _input_manager()
-	%ResumeButton.text = "닫기 (%s)" % input_manager.call("cancel_prompt") if input_manager != null and input_manager.get("active_device_type") == "gamepad" else "닫기"
+	%ResumeButton.text = "계속하기"
 
 
 func _input_manager() -> Node:
@@ -123,6 +130,11 @@ func _set_timing_offset(value: float) -> void:
 	_update_timing_offset_label(value)
 	SettingsStoreScript.save_setting("timing_offset_ms", value)
 	timing_offset_changed.emit(value / 1000.0)
+
+
+func _apply_calibrated_offset(value: float) -> void:
+	timing_slider.set_value_no_signal(value)
+	_set_timing_offset(value)
 
 
 func _set_vibration_strength(value: float) -> void:

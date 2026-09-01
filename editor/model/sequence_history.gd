@@ -11,6 +11,8 @@ func reset(state: Variant) -> void:
 
 
 func record(state: Variant) -> void:
+	if _cursor >= 0 and _entries[_cursor] == state:
+		return
 	_entries.resize(_cursor + 1)
 	_entries.append(state.duplicate(true))
 	_cursor = _entries.size() - 1
