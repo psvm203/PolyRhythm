@@ -88,7 +88,7 @@ size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.72, 0.76, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.4, 0.62, 1)
 theme_override_font_sizes/font_size = 16
-text = "SKIP  »"
+text = "건너뛰기"
 
 [node name="Dialogue" type="Label" parent="DialoguePanel/Margin/Rows"]
 unique_name_in_owner = true
@@ -97,7 +97,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
 theme_override_font_sizes/font_size = 25
-text = "Dialogue"
+text = "대화 내용"
 autowrap_mode = 2
 vertical_alignment = 1
 
@@ -106,5 +106,5 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
 theme_override_font_sizes/font_size = 17
-text = "클릭 또는 SPACE  ▶"
+text = "클릭 또는 Space 키로 계속"
 horizontal_alignment = 2

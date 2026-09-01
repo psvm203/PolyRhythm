@@ -85,7 +85,7 @@ layout_mode = 2
 size_flags_horizontal = 10
 size_flags_vertical = 4
 toggle_mode = true
-text = "OFF"
+text = "끔"
 
 [node name="Resolution" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 70)
@@ -140,7 +140,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 button_pressed = true
-text = "ON"
+text = "켬"
 
 [node name="Music" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 70)
@@ -176,7 +176,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 button_pressed = true
-text = "ON"
+text = "켬"
 
 [node name="Sfx" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
 custom_minimum_size = Vector2(0, 70)
@@ -212,7 +212,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 button_pressed = true
-text = "ON"
+text = "켬"
 
 [node name="ResumeButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true
@@ -228,4 +228,4 @@ custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.48, 0.58, 1)
 theme_override_font_sizes/font_size = 21
-text = "RETURN TO EDITOR"
+text = "에디터로 돌아가기"

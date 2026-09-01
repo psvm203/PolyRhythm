@@ -474,7 +474,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
 theme_override_font_sizes/font_size = 15
-text = "NO RECORD"
+text = "기록 없음"
 horizontal_alignment = 1
 
 [node name="StageOneButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageOne"]
@@ -539,7 +539,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
 theme_override_font_sizes/font_size = 15
-text = "NO RECORD"
+text = "기록 없음"
 horizontal_alignment = 1
 
 [node name="StageTwoButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageTwo"]
@@ -604,7 +604,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
 theme_override_font_sizes/font_size = 15
-text = "NO RECORD"
+text = "기록 없음"
 horizontal_alignment = 1
 
 [node name="StageThreeButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageThree"]
@@ -669,7 +669,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.72, 0.9, 1)
 theme_override_font_sizes/font_size = 15
-text = "NO RECORD"
+text = "기록 없음"
 horizontal_alignment = 1
 
 [node name="StageFourButton" type="Button" parent="StageScreen/StageLayout/CardsSlot/Cards/StageFour"]
@@ -826,7 +826,7 @@ theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
 toggle_mode = true
-text = "OFF"
+text = "끔"
 
 [node name="Separator1" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
@@ -911,7 +911,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 button_pressed = true
-text = "ON"
+text = "켬"
 
 [node name="Separator2" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
@@ -963,7 +963,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 button_pressed = true
-text = "ON"
+text = "켬"
 
 [node name="Separator3" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
@@ -1015,7 +1015,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 button_pressed = true
-text = "ON"
+text = "켬"
 
 [node name="TransitionLogo" type="HBoxContainer" parent="."]
 unique_name_in_owner = true

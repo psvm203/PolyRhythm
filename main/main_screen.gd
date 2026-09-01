@@ -492,7 +492,7 @@ func _set_fullscreen(enabled: bool) -> void:
 
 
 func _update_fullscreen_toggle(enabled: bool) -> void:
-	%FullscreenToggle.text = "ON" if enabled else "OFF"
+	%FullscreenToggle.text = "켬" if enabled else "끔"
 	%ResolutionOption.disabled = enabled
 	var color := Color(0.08, 1.0, 0.92, 1.0) if enabled else Color(0.58, 0.63, 0.74, 1.0)
 	%FullscreenToggle.add_theme_color_override("font_color", color)
@@ -506,7 +506,7 @@ func _set_audio_enabled(enabled: bool, key: String, toggle: CheckButton) -> void
 
 func _sync_audio_toggle(toggle: CheckButton, enabled: bool) -> void:
 	toggle.set_pressed_no_signal(enabled)
-	toggle.text = "ON" if enabled else "OFF"
+	toggle.text = "켬" if enabled else "끔"
 
 
 func _setup_resolution(option: OptionButton, settings: Dictionary) -> void:

@@ -79,7 +79,7 @@ func _set_fullscreen(enabled: bool) -> void:
 
 
 func _update_fullscreen_text(enabled: bool) -> void:
-	fullscreen_toggle.text = "ON" if enabled else "OFF"
+	fullscreen_toggle.text = "켬" if enabled else "끔"
 	resolution_option.disabled = enabled
 
 
@@ -95,7 +95,7 @@ func _set_enabled(enabled: bool, setting_key: String, toggle: CheckButton) -> vo
 
 func _sync_toggle(toggle: CheckButton, enabled: bool) -> void:
 	toggle.set_pressed_no_signal(enabled)
-	toggle.text = "ON" if enabled else "OFF"
+	toggle.text = "켬" if enabled else "끔"
 
 
 func _setup_resolution(settings: Dictionary) -> void:
