@@ -37,6 +37,7 @@ func summary() -> Dictionary:
 	var absolute_total := 0.0
 	var max_error := 0.0
 	var devices := {}
+	var low_frame_inputs := 0
 	for record in _records:
 		var delta := float(record.get("timing_delta_ms", 0.0))
 		signed_total += delta
@@ -44,10 +45,39 @@ func summary() -> Dictionary:
 		max_error = maxf(max_error, absf(delta))
 		var device := str(record.get("device", "unknown"))
 		devices[device] = int(devices.get(device, 0)) + 1
+		if float(record.get("frame_time_ms", 0.0)) >= 33.333:
+			low_frame_inputs += 1
 	return {
 		"count": _records.size(),
 		"average_delta_ms": signed_total / _records.size(),
 		"mean_error_ms": absolute_total / _records.size(),
 		"max_error_ms": max_error,
 		"devices": devices,
+		"low_frame_inputs": low_frame_inputs,
 	}
+
+
+func save_json(path: String, metadata: Dictionary = {}) -> Error:
+	var directory := path.get_base_dir()
+	if not directory.is_empty() and not DirAccess.dir_exists_absolute(directory):
+		var directory_error := DirAccess.make_dir_recursive_absolute(directory)
+		if directory_error != OK:
+			return directory_error
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	file.store_string(JSON.stringify({
+		"version": 1,
+		"saved_at_unix": Time.get_unix_time_from_system(),
+		"metadata": metadata,
+		"summary": summary(),
+		"records": records(),
+	}, "  "))
+	return OK
+
+
+static func load_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return parsed if parsed is Dictionary else {}

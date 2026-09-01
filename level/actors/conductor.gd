@@ -200,6 +200,10 @@ func set_audio_reference(player: AudioStreamPlayer, start_offset_sec: float = 0.
 	audio_start_offset_sec = maxf(start_offset_sec, 0.0)
 
 
+func save_timing_trace(path: String, metadata: Dictionary = {}) -> Error:
+	return timing_trace.save_json(path, metadata)
+
+
 func _discipline_clock_to_audio() -> void:
 	if audio_player == null or not audio_player.playing or audio_player.stream_paused:
 		return

@@ -225,6 +225,15 @@ func _finish_level(completed: bool) -> void:
 		music.stop()
 	var stats := _run_state.snapshot()
 	var final_rank := _run_state.rank(completed)
+	conductor.save_timing_trace("user://timing/latest_run.json", {
+		"stage": ProgressStoreScript.selected_stage,
+		"custom_level": _is_custom_level,
+		"bpm": level_data.bpm,
+		"completed": completed,
+		"rank": final_rank,
+		"resolved_notes": stats["resolved_notes"],
+		"total_notes": stats["total_notes"],
+	})
 	if not _is_custom_level:
 		ProgressStoreScript.record_run(ProgressStoreScript.selected_stage, stats, final_rank, completed)
 	if result_overlay != null:
