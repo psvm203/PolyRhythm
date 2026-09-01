@@ -3,7 +3,12 @@ extends CanvasLayer
 signal dialogue_finished
 
 @export var characters_per_second: float = 42.0
+@export var panel_height: float = 270.0
+@export var panel_side_margin: float = 42.0
+@export var panel_bottom_margin: float = 18.0
 
+@onready var layout_root: Control = $Root
+@onready var dialogue_panel: PanelContainer = $Root/DialoguePanel
 @onready var speaker_label: Label = %Speaker
 @onready var dialogue_label: Label = %Dialogue
 @onready var progress_label: Label = %Progress
@@ -17,9 +22,29 @@ var _typing: bool = false
 
 
 func _ready() -> void:
+	get_viewport().size_changed.connect(_layout_to_viewport)
+	_layout_to_viewport()
 	hide()
 	set_process(false)
 	skip_button.pressed.connect(skip)
+
+
+func _layout_to_viewport() -> void:
+	if layout_root == null:
+		return
+	layout_root.position = Vector2.ZERO
+	var viewport_size := get_viewport().get_visible_rect().size
+	layout_root.size = viewport_size
+	dialogue_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	var height := minf(panel_height, viewport_size.y / 3.0)
+	dialogue_panel.position = Vector2(
+		panel_side_margin,
+		viewport_size.y - height - panel_bottom_margin,
+	)
+	dialogue_panel.size = Vector2(
+		maxf(viewport_size.x - panel_side_margin * 2.0, 0.0),
+		height,
+	)
 
 
 func play(lines: Array[String], speaker: String = "POLY") -> void:

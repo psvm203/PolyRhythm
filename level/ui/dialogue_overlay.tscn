@@ -21,90 +21,102 @@ shadow_size = 20
 layer = 150
 script = ExtResource("1_dialogue")
 
-[node name="Dimmer" type="ColorRect" parent="."]
+[node name="Root" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1600.0
+offset_bottom = 900.0
+
+[node name="Dimmer" type="ColorRect" parent="Root"]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-color = Color(0.01, 0.02, 0.06, 0.12)
+color = Color(0, 0, 0, 0)
 
-[node name="DialoguePanel" type="PanelContainer" parent="."]
-anchors_preset = 12
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 100.0
-offset_top = -390.0
-offset_right = -100.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="DialoguePanel" type="PanelContainer" parent="Root"]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 42.0
+offset_top = 612.0
+offset_right = 1558.0
+offset_bottom = 882.0
 theme_override_styles/panel = SubResource("DialoguePanel")
 
-[node name="Margin" type="MarginContainer" parent="DialoguePanel"]
+[node name="Margin" type="MarginContainer" parent="Root/DialoguePanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 26
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 8
 
-[node name="Rows" type="VBoxContainer" parent="DialoguePanel/Margin"]
+[node name="Content" type="HBoxContainer" parent="Root/DialoguePanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 18
 
-[node name="Header" type="HBoxContainer" parent="DialoguePanel/Margin/Rows"]
+[node name="Portrait" type="Control" parent="Root/DialoguePanel/Margin/Content"]
+custom_minimum_size = Vector2(90, 90)
 layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="Portrait" type="Control" parent="DialoguePanel/Margin/Rows/Header"]
-custom_minimum_size = Vector2(120, 120)
-layout_mode = 2
+size_flags_vertical = 4
+scale = Vector2(0.74, 0.74)
+pivot_offset = Vector2(45, 45)
 mouse_filter = 2
 script = ExtResource("2_portrait")
 
-[node name="Speaker" type="Label" parent="DialoguePanel/Margin/Rows/Header"]
+[node name="Body" type="VBoxContainer" parent="Root/DialoguePanel/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Header" type="HBoxContainer" parent="Root/DialoguePanel/Margin/Content/Body"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Speaker" type="Label" parent="Root/DialoguePanel/Margin/Content/Body/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 19
 text = "POLY"
 vertical_alignment = 1
 
-[node name="Progress" type="Label" parent="DialoguePanel/Margin/Rows/Header"]
+[node name="Progress" type="Label" parent="Root/DialoguePanel/Margin/Content/Body/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.62, 0.78, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 15
 text = "1 / 1"
 vertical_alignment = 1
 
-[node name="SkipButton" type="Button" parent="DialoguePanel/Margin/Rows/Header"]
+[node name="SkipButton" type="Button" parent="Root/DialoguePanel/Margin/Content/Body/Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 44)
+custom_minimum_size = Vector2(94, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.72, 0.76, 0.88, 1)
 theme_override_colors/font_hover_color = Color(1, 0.4, 0.62, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "건너뛰기"
 
-[node name="Dialogue" type="Label" parent="DialoguePanel/Margin/Rows"]
+[node name="Dialogue" type="Label" parent="Root/DialoguePanel/Margin/Content/Body"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 92)
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "대화 내용"
 autowrap_mode = 2
 vertical_alignment = 1
 
-[node name="Continue" type="Label" parent="DialoguePanel/Margin/Rows"]
+[node name="Continue" type="Label" parent="Root/DialoguePanel/Margin/Content/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 14
 text = "클릭 또는 Space 키로 계속"
 horizontal_alignment = 2

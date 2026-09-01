@@ -32,6 +32,7 @@ const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
 @onready var overlay: Control = %Overlay
 @onready var overlay_title: Label = %OverlayTitle
 @onready var overlay_body: Label = %OverlayBody
+@onready var credits_content: HBoxContainer = %CreditsContent
 @onready var exit_buttons: HBoxContainer = %ExitButtons
 @onready var close_button: Button = %CloseButton
 @onready var warning_badge: Control = %WarningBadge
@@ -50,6 +51,10 @@ var _last_slider_sfx_ms := 0
 var _transitioning := false
 var _stage_card_tweens: Dictionary = { }
 var _stage_preview_tween: Tween
+var _mouse_focus_enabled := true
+var _focusable_controls: Array[Control] = []
+var _original_mouse_filters: Dictionary = {}
+var _reduced_motion := false
 
 
 func _ready() -> void:
@@ -74,9 +79,13 @@ func _ready() -> void:
 	%MasterSlider.value_changed.connect(_set_volume.bind("master_volume", %MasterValue))
 	%MusicSlider.value_changed.connect(_set_volume.bind("music_volume", %MusicValue))
 	%SfxSlider.value_changed.connect(_set_volume.bind("sfx_volume", %SfxValue))
+	%TimingSlider.value_changed.connect(_set_timing_offset)
+	%TapKeyOption.item_selected.connect(_set_tap_key)
+	%ReducedMotion.toggled.connect(_set_reduced_motion)
 	%MasterEnabled.toggled.connect(_set_audio_enabled.bind("master_enabled", %MasterEnabled))
 	%MusicEnabled.toggled.connect(_set_audio_enabled.bind("music_enabled", %MusicEnabled))
 	%SfxEnabled.toggled.connect(_set_audio_enabled.bind("sfx_enabled", %SfxEnabled))
+	%SkipSeenDialogue.toggled.connect(_set_skip_seen_dialogue)
 	%MasterSlider.value_changed.connect(_play_slider_sfx)
 	%MusicSlider.value_changed.connect(_play_slider_sfx)
 	%SfxSlider.value_changed.connect(_play_slider_sfx)
@@ -136,20 +145,33 @@ func _refresh_stage_cards() -> void:
 		items.get_node("Stage").add_theme_color_override("font_color", text_color)
 		items.get_node("Number").add_theme_color_override("font_color", text_color)
 		items.get_node("Name").add_theme_color_override("font_color", Color(0.95, 0.96, 1, 1) if active else Color(0.57, 0.57, 0.57, 1))
-		items.get_node("Name").text = names[index] if active else "%s (잠김)" % names[index]
+		items.get_node("Name").text = names[index]
 		var best: Label = items.get_node("Best")
 		var rating_label: Label = items.get_node("Rating")
 		var record := ProgressStoreScript.stage_record(index + 1)
 		best.visible = active
 		rating_label.visible = active
-		best.text = "최고 점수 %07d / %s\n정확도 %.1f%% / 최대 콤보 %d" % [record["score"], record["rank"], record["accuracy"], record["max_combo"]] if record["score"] > 0 else "기록 없음"
+		best.text = "최고 점수 %07d" % record["score"] if record["score"] > 0 else "기록 없음"
 		if record["score"] > 0:
 			var rating := ProgressStoreScript.star_rating(record["accuracy"], record["cleared"])
-			rating_label.text = "★".repeat(rating["stars"])
+			var earned_stars: int = clampi(int(rating["stars"]), 0, 3)
+			rating_label.text = "★".repeat(earned_stars) + "☆".repeat(3 - earned_stars)
 			rating_label.add_theme_color_override("font_color", _rating_color(rating["tier"]))
 		else:
 			rating_label.text = "☆☆☆"
 			rating_label.add_theme_color_override("font_color", Color("52647a"))
+	_configure_stage_focus(buttons, highest)
+
+
+func _configure_stage_focus(buttons: Array[BaseButton], active_count: int) -> void:
+	var count := clampi(active_count, 1, buttons.size())
+	for index in buttons.size():
+		if index >= count:
+			continue
+		var previous_index := wrapi(index - 1, 0, count)
+		var next_index := wrapi(index + 1, 0, count)
+		buttons[index].focus_neighbor_left = buttons[index].get_path_to(buttons[previous_index])
+		buttons[index].focus_neighbor_right = buttons[index].get_path_to(buttons[next_index])
 
 
 func _rating_color(tier: String) -> Color:
@@ -162,6 +184,12 @@ func _rating_color(tier: String) -> Color:
 
 
 func _connect_ui_sfx(node: Node) -> void:
+	if node is Control:
+		var control := node as Control
+		if control.focus_mode != Control.FOCUS_NONE:
+			_focusable_controls.append(control)
+			_original_mouse_filters[control] = control.mouse_filter
+			control.mouse_entered.connect(_focus_hovered_control.bind(control))
 	if node is BaseButton:
 		var button := node as BaseButton
 		button.mouse_entered.connect(_play_focus_sfx)
@@ -169,6 +197,42 @@ func _connect_ui_sfx(node: Node) -> void:
 		button.pressed.connect(_play_click_sfx)
 	for child in node.get_children():
 		_connect_ui_sfx(child)
+
+
+func _focus_hovered_control(control: Control) -> void:
+	if not _mouse_focus_enabled or not control.is_visible_in_tree() or control.focus_mode == Control.FOCUS_NONE:
+		return
+	if control is BaseButton and (control as BaseButton).disabled:
+		return
+	control.grab_focus()
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		if (event as InputEventMouseMotion).relative.length_squared() > 0.0:
+			_set_mouse_focus_enabled(true)
+	elif event is InputEventMouseButton:
+		_set_mouse_focus_enabled(true)
+	elif event is InputEventKey and (event as InputEventKey).pressed:
+		_set_mouse_focus_enabled(false)
+	elif event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
+		_set_mouse_focus_enabled(false)
+	elif event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) > 0.35:
+		_set_mouse_focus_enabled(false)
+
+
+func _set_mouse_focus_enabled(enabled: bool) -> void:
+	if _mouse_focus_enabled == enabled:
+		return
+	_mouse_focus_enabled = enabled
+	for control in _focusable_controls:
+		if not is_instance_valid(control):
+			continue
+		control.mouse_filter = (
+			int(_original_mouse_filters.get(control, Control.MOUSE_FILTER_STOP))
+			if enabled
+			else Control.MOUSE_FILTER_IGNORE
+		)
 
 
 func _play_focus_sfx() -> void:
@@ -197,23 +261,39 @@ func _setup_stage_card(button: BaseButton, card: Control, record: Control, previ
 	button.focus_mode = Control.FOCUS_ALL if active else Control.FOCUS_NONE
 	button.mouse_entered.connect(_on_stage_mouse_entered.bind(button, card, record, preview_stream))
 	button.mouse_exited.connect(_on_stage_mouse_exited.bind(button, card, record))
-	button.focus_entered.connect(_update_stage_card.bind(button, card, record))
-	button.focus_exited.connect(_update_stage_card.bind(button, card, record))
+	button.focus_entered.connect(_on_stage_focus_entered.bind(button, card, record, preview_stream))
+	button.focus_exited.connect(_on_stage_focus_exited.bind(button, card, record))
 
 
 func _on_stage_mouse_entered(
-		button: BaseButton,
-		card: Control,
-		record: Control,
-		preview_stream: AudioStream,
+	button: BaseButton,
+	card: Control,
+	record: Control,
+	_preview_stream: AudioStream,
+) -> void:
+	_update_stage_card(button, card, record)
+
+
+func _on_stage_mouse_exited(button: BaseButton, card: Control, record: Control) -> void:
+	_update_stage_card(button, card, record)
+	if not button.has_focus():
+		_stop_stage_preview()
+
+
+func _on_stage_focus_entered(
+	button: BaseButton,
+	card: Control,
+	record: Control,
+	preview_stream: AudioStream,
 ) -> void:
 	_update_stage_card(button, card, record)
 	_play_stage_preview(preview_stream)
 
 
-func _on_stage_mouse_exited(button: BaseButton, card: Control, record: Control) -> void:
+func _on_stage_focus_exited(button: BaseButton, card: Control, record: Control) -> void:
 	_update_stage_card(button, card, record)
-	_stop_stage_preview()
+	if not button.is_hovered():
+		_stop_stage_preview()
 
 
 func _play_stage_preview(preview_stream: AudioStream) -> void:
@@ -262,6 +342,10 @@ func _update_stage_card(button: BaseButton, card: Control, record: Control) -> v
 		var previous := _stage_card_tweens[card] as Tween
 		if previous != null and previous.is_valid():
 			previous.kill()
+	if _reduced_motion:
+		card.scale = Vector2.ONE
+		card.modulate = Color(1.05, 1.05, 1.05, 1.0) if highlighted else Color.WHITE
+		return
 	var tween := create_tween().set_parallel(true)
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(card, "scale", Vector2.ONE * (1.04 if highlighted else 1.0), 0.18)
@@ -270,6 +354,8 @@ func _update_stage_card(button: BaseButton, card: Control, record: Control) -> v
 
 
 func _process(delta: float) -> void:
+	if _reduced_motion:
+		return
 	_motion_time += delta
 	if background_music.playing:
 		_motion_time = background_music.get_playback_position()
@@ -462,6 +548,7 @@ func _draw_music_notes(view: Vector2) -> void:
 
 func _start_game(stage_number: int = 1) -> void:
 	ProgressStoreScript.selected_stage = stage_number
+	ProgressStoreScript.mark_stage_played(stage_number)
 	ProgressStoreScript.custom_level_path = ""
 	get_tree().change_scene_to_file(LEVEL_SCENE)
 
@@ -478,6 +565,13 @@ func _initialize_settings() -> void:
 	var settings := SettingsStoreScript.load_settings()
 	SettingsStoreScript.apply(settings)
 	%FullscreenToggle.set_pressed_no_signal(settings["fullscreen"])
+	%SkipSeenDialogue.set_pressed_no_signal(settings["skip_seen_dialogue"])
+	_update_skip_seen_dialogue(settings["skip_seen_dialogue"])
+	%TimingSlider.set_value_no_signal(settings["timing_offset_ms"])
+	_update_timing_offset_label(settings["timing_offset_ms"])
+	_setup_tap_key(%TapKeyOption, settings)
+	%ReducedMotion.set_pressed_no_signal(settings["reduced_motion"])
+	_update_reduced_motion(settings["reduced_motion"])
 	_setup_resolution(%ResolutionOption, settings)
 	for row in [[%MasterSlider, %MasterValue, %MasterEnabled, "master"], [%MusicSlider, %MusicValue, %MusicEnabled, "music"], [%SfxSlider, %SfxValue, %SfxEnabled, "sfx"]]:
 		row[0].set_value_no_signal(settings["%s_volume" % row[3]])
@@ -492,21 +586,30 @@ func _set_fullscreen(enabled: bool) -> void:
 
 
 func _update_fullscreen_toggle(enabled: bool) -> void:
-	%FullscreenToggle.text = "켬" if enabled else "끔"
+	%FullscreenToggle.text = "On" if enabled else "Off"
 	%ResolutionOption.disabled = enabled
 	var color := Color(0.08, 1.0, 0.92, 1.0) if enabled else Color(0.58, 0.63, 0.74, 1.0)
 	%FullscreenToggle.add_theme_color_override("font_color", color)
 	%FullscreenToggle.add_theme_color_override("font_pressed_color", color)
 
 
-func _set_audio_enabled(enabled: bool, key: String, toggle: CheckButton) -> void:
+func _set_audio_enabled(enabled: bool, key: String, toggle: Button) -> void:
 	_sync_audio_toggle(toggle, enabled)
 	SettingsStoreScript.save_setting(key, enabled)
 
 
-func _sync_audio_toggle(toggle: CheckButton, enabled: bool) -> void:
+func _set_skip_seen_dialogue(enabled: bool) -> void:
+	_update_skip_seen_dialogue(enabled)
+	SettingsStoreScript.save_setting("skip_seen_dialogue", enabled)
+
+
+func _update_skip_seen_dialogue(enabled: bool) -> void:
+	%SkipSeenDialogue.text = "On" if enabled else "Off"
+
+
+func _sync_audio_toggle(toggle: Button, enabled: bool) -> void:
 	toggle.set_pressed_no_signal(enabled)
-	toggle.text = "켬" if enabled else "끔"
+	toggle.text = "On" if enabled else "Off"
 
 
 func _setup_resolution(option: OptionButton, settings: Dictionary) -> void:
@@ -514,6 +617,34 @@ func _setup_resolution(option: OptionButton, settings: Dictionary) -> void:
 	for size in SettingsStoreScript.RESOLUTIONS:
 		option.add_item("%d × %d" % [size.x, size.y])
 	option.select(SettingsStoreScript.resolution_index(settings))
+
+
+func _setup_tap_key(option: OptionButton, settings: Dictionary) -> void:
+	option.clear()
+	for label in SettingsStoreScript.TAP_KEY_LABELS:
+		option.add_item(label)
+	option.select(SettingsStoreScript.tap_key_index(settings))
+
+
+func _set_tap_key(index: int) -> void:
+	var safe_index := clampi(index, 0, SettingsStoreScript.TAP_KEYCODES.size() - 1)
+	SettingsStoreScript.save_setting("tap_keycode", SettingsStoreScript.TAP_KEYCODES[safe_index])
+
+
+func _set_reduced_motion(enabled: bool) -> void:
+	_update_reduced_motion(enabled)
+	SettingsStoreScript.save_setting("reduced_motion", enabled)
+
+
+func _update_reduced_motion(enabled: bool) -> void:
+	_reduced_motion = enabled
+	%ReducedMotion.set_pressed_no_signal(enabled)
+	%ReducedMotion.text = "On" if enabled else "Off"
+	if enabled:
+		_bass = 0.0
+		_mid = 0.0
+		_treble = 0.0
+	queue_redraw()
 
 
 func _set_volume(value: float, key: String, label: Label) -> void:
@@ -525,22 +656,37 @@ func _update_volume_label(label: Label, value: float) -> void:
 	label.text = "%d%%" % roundi(value)
 
 
+func _set_timing_offset(value: float) -> void:
+	_update_timing_offset_label(value)
+	SettingsStoreScript.save_setting("timing_offset_ms", value)
+
+
+func _update_timing_offset_label(value: float) -> void:
+	%TimingValue.text = "%+d ms" % roundi(value)
+
+
 func _show_credits() -> void:
-	_show_overlay("만든 사람", "POLYRHYTHM\nGodot Engine으로 제작")
+	_show_overlay("", "")
+	overlay_title.hide()
+	overlay_body.hide()
+	credits_content.show()
 
 
 func _show_exit() -> void:
-	_show_overlay("", "게임을 나가시겠습니까?")
+	_show_overlay("", "게임을 종료하시겠습니까?")
+	credits_content.hide()
 	warning_badge.show()
 	overlay_title.hide()
 	exit_buttons.show()
 	close_button.hide()
 	_clear_focus()
-	%CancelExitButton.grab_focus()
+	%ConfirmExitButton.grab_focus()
 
 
 func _show_overlay(title: String, body: String) -> void:
 	warning_badge.hide()
+	credits_content.hide()
+	overlay_body.show()
 	overlay_title.show()
 	overlay_title.text = title
 	overlay_body.text = body
@@ -561,7 +707,9 @@ func _hide_overlay() -> void:
 
 func _show_stage_select() -> void:
 	_refresh_stage_cards()
-	_transition_to(stage_screen, $StageScreen/StageLayout/SmallLogo, %StageTitle, $StageScreen/StageLayout/CardsSlot/Cards, %BackButton)
+	var stage_buttons: Array[BaseButton] = [%StageOneButton, %StageTwoButton, %StageThreeButton, %StageFourButton]
+	var selected_index := ProgressStoreScript.last_played_stage() - 1
+	_transition_to(stage_screen, $StageScreen/StageLayout/SmallLogo, %StageTitle, $StageScreen/StageLayout/CardsSlot/Cards, %BackButton, stage_buttons[selected_index])
 
 
 func _hide_stage_select() -> void:
@@ -574,7 +722,8 @@ func _transition_to(
 		target_logo: Control,
 		target_title: Control,
 		target_body: Control,
-		back_button: Control,
+	back_button: Control,
+	focus_target: Control = null,
 ) -> void:
 	if _transitioning:
 		return
@@ -624,7 +773,8 @@ func _transition_to(
 	target_logo.modulate.a = 1.0
 	transition_logo.hide()
 	_transitioning = false
-	back_button.grab_focus()
+	var target := focus_target if focus_target != null else back_button
+	target.grab_focus()
 
 
 func _transition_to_main(
@@ -708,12 +858,16 @@ func _clear_focus() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and overlay.visible:
+	if not event.is_action_pressed("ui_cancel") or _transitioning:
+		return
+	if overlay.visible:
 		_hide_overlay()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel") and stage_screen.visible:
+	elif stage_screen.visible:
 		_hide_stage_select()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel") and settings_screen.visible:
+	elif settings_screen.visible:
 		_hide_settings()
-		get_viewport().set_input_as_handled()
+	elif main_content.visible:
+		_show_exit()
+	else:
+		return
+	get_viewport().set_input_as_handled()

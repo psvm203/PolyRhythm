@@ -5,6 +5,7 @@ extends CanvasLayer
 @export var fade_duration: float = 0.35
 
 var _tween: Tween = null
+var reduced_motion := false
 
 
 func _ready() -> void:
@@ -19,8 +20,9 @@ func show_judgement(result: String) -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_tween = create_tween()
-	_tween.tween_property(label, "scale", Vector2.ONE * 1.15, 0.08)
-	_tween.tween_property(label, "scale", Vector2.ONE, 0.08)
+	if not reduced_motion:
+		_tween.tween_property(label, "scale", Vector2.ONE * 1.15, 0.08)
+		_tween.tween_property(label, "scale", Vector2.ONE, 0.08)
 	_tween.tween_interval(display_duration)
 	_tween.tween_property(label, "modulate:a", 0.0, fade_duration)
 

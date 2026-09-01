@@ -156,6 +156,37 @@ func get_current_offset() -> Vector2:
 	return current_offset
 
 
+func get_transition_elapsed() -> float:
+	return _transition_time
+
+
+func get_transition_progress() -> float:
+	if transition_duration <= 0.0:
+		return 1.0
+	return clampf(_transition_time / transition_duration, 0.0, 1.0)
+
+
+func get_entrance_edge_gap() -> float:
+	if current_index < 0 or current_index >= entrance_edges_world.size():
+		return INF
+	var moving_edge := get_rotated_entrance_edge_world()
+	var target_edge: PackedVector2Array = entrance_edges_world[current_index]
+	if moving_edge.size() < 2 or target_edge.size() < 2:
+		return INF
+	if Geometry2D.segment_intersects_segment(
+		moving_edge[0],
+		moving_edge[1],
+		target_edge[0],
+		target_edge[1],
+	) != null:
+		return 0.0
+	var moving_a_gap := moving_edge[0].distance_to(Geometry2D.get_closest_point_to_segment(moving_edge[0], target_edge[0], target_edge[1]))
+	var moving_b_gap := moving_edge[1].distance_to(Geometry2D.get_closest_point_to_segment(moving_edge[1], target_edge[0], target_edge[1]))
+	var target_a_gap := target_edge[0].distance_to(Geometry2D.get_closest_point_to_segment(target_edge[0], moving_edge[0], moving_edge[1]))
+	var target_b_gap := target_edge[1].distance_to(Geometry2D.get_closest_point_to_segment(target_edge[1], moving_edge[0], moving_edge[1]))
+	return minf(minf(moving_a_gap, moving_b_gap), minf(target_a_gap, target_b_gap))
+
+
 func get_target_world_position() -> Vector2:
 	if polygons.is_empty():
 		return Vector2.ZERO

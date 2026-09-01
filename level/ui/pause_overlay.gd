@@ -4,18 +4,25 @@ const SettingsStoreScript = preload("res://main/settings_store.gd")
 
 signal resume_requested
 signal exit_requested
+signal timing_offset_changed(offset_sec: float)
+signal reduced_motion_changed(enabled: bool)
 
 @onready var fullscreen_toggle: Button = %FullscreenToggle
 @onready var master_slider: HSlider = %MasterSlider
 @onready var music_slider: HSlider = %MusicSlider
 @onready var sfx_slider: HSlider = %SfxSlider
+@onready var timing_slider: HSlider = %TimingSlider
 @onready var master_value: Label = %MasterValue
 @onready var music_value: Label = %MusicValue
 @onready var sfx_value: Label = %SfxValue
-@onready var master_enabled: CheckButton = %MasterEnabled
-@onready var music_enabled: CheckButton = %MusicEnabled
-@onready var sfx_enabled: CheckButton = %SfxEnabled
+@onready var timing_value: Label = %TimingValue
+@onready var master_enabled: Button = %MasterEnabled
+@onready var music_enabled: Button = %MusicEnabled
+@onready var sfx_enabled: Button = %SfxEnabled
+@onready var skip_seen_dialogue: Button = %SkipSeenDialogue
 @onready var resolution_option: OptionButton = %ResolutionOption
+@onready var tap_key_option: OptionButton = %TapKeyOption
+@onready var reduced_motion: Button = %ReducedMotion
 
 
 func _ready() -> void:
@@ -25,12 +32,16 @@ func _ready() -> void:
 	%ExitButton.pressed.connect(exit_requested.emit)
 	fullscreen_toggle.toggled.connect(_set_fullscreen)
 	resolution_option.item_selected.connect(SettingsStoreScript.save_resolution)
+	tap_key_option.item_selected.connect(_set_tap_key)
+	reduced_motion.toggled.connect(_set_reduced_motion)
 	master_slider.value_changed.connect(_set_volume.bind("master_volume", master_value))
 	music_slider.value_changed.connect(_set_volume.bind("music_volume", music_value))
 	sfx_slider.value_changed.connect(_set_volume.bind("sfx_volume", sfx_value))
+	timing_slider.value_changed.connect(_set_timing_offset)
 	master_enabled.toggled.connect(_set_enabled.bind("master_enabled", master_enabled))
 	music_enabled.toggled.connect(_set_enabled.bind("music_enabled", music_enabled))
 	sfx_enabled.toggled.connect(_set_enabled.bind("sfx_enabled", sfx_enabled))
+	skip_seen_dialogue.toggled.connect(_set_skip_seen_dialogue)
 	_sync_settings()
 
 
@@ -58,14 +69,19 @@ func _sync_settings() -> void:
 	var settings := SettingsStoreScript.load_settings()
 	SettingsStoreScript.apply(settings)
 	_setup_resolution(settings)
+	_setup_tap_key(settings)
+	_sync_reduced_motion(settings["reduced_motion"])
 	fullscreen_toggle.set_pressed_no_signal(settings["fullscreen"])
 	_update_fullscreen_text(fullscreen_toggle.button_pressed)
 	_sync_slider(master_slider, master_value, settings["master_volume"])
 	_sync_slider(music_slider, music_value, settings["music_volume"])
 	_sync_slider(sfx_slider, sfx_value, settings["sfx_volume"])
+	timing_slider.set_value_no_signal(settings["timing_offset_ms"])
+	_update_timing_offset_label(settings["timing_offset_ms"])
 	_sync_toggle(master_enabled, settings["master_enabled"])
 	_sync_toggle(music_enabled, settings["music_enabled"])
 	_sync_toggle(sfx_enabled, settings["sfx_enabled"])
+	_sync_skip_seen_dialogue(settings["skip_seen_dialogue"])
 
 
 func _sync_slider(slider: HSlider, value_label: Label, percent: float) -> void:
@@ -79,7 +95,7 @@ func _set_fullscreen(enabled: bool) -> void:
 
 
 func _update_fullscreen_text(enabled: bool) -> void:
-	fullscreen_toggle.text = "켬" if enabled else "끔"
+	fullscreen_toggle.text = "On" if enabled else "Off"
 	resolution_option.disabled = enabled
 
 
@@ -88,14 +104,34 @@ func _set_volume(value: float, setting_key: String, value_label: Label) -> void:
 	SettingsStoreScript.save_setting(setting_key, value)
 
 
-func _set_enabled(enabled: bool, setting_key: String, toggle: CheckButton) -> void:
+func _set_timing_offset(value: float) -> void:
+	_update_timing_offset_label(value)
+	SettingsStoreScript.save_setting("timing_offset_ms", value)
+	timing_offset_changed.emit(value / 1000.0)
+
+
+func _update_timing_offset_label(value: float) -> void:
+	timing_value.text = "%+d ms" % roundi(value)
+
+
+func _set_enabled(enabled: bool, setting_key: String, toggle: Button) -> void:
 	_sync_toggle(toggle, enabled)
 	SettingsStoreScript.save_setting(setting_key, enabled)
 
 
-func _sync_toggle(toggle: CheckButton, enabled: bool) -> void:
+func _sync_toggle(toggle: Button, enabled: bool) -> void:
 	toggle.set_pressed_no_signal(enabled)
-	toggle.text = "켬" if enabled else "끔"
+	toggle.text = "On" if enabled else "Off"
+
+
+func _set_skip_seen_dialogue(enabled: bool) -> void:
+	_sync_skip_seen_dialogue(enabled)
+	SettingsStoreScript.save_setting("skip_seen_dialogue", enabled)
+
+
+func _sync_skip_seen_dialogue(enabled: bool) -> void:
+	skip_seen_dialogue.set_pressed_no_signal(enabled)
+	skip_seen_dialogue.text = "On" if enabled else "Off"
 
 
 func _setup_resolution(settings: Dictionary) -> void:
@@ -103,3 +139,26 @@ func _setup_resolution(settings: Dictionary) -> void:
 	for size in SettingsStoreScript.RESOLUTIONS:
 		resolution_option.add_item("%d × %d" % [size.x, size.y])
 	resolution_option.select(SettingsStoreScript.resolution_index(settings))
+
+
+func _setup_tap_key(settings: Dictionary) -> void:
+	tap_key_option.clear()
+	for label in SettingsStoreScript.TAP_KEY_LABELS:
+		tap_key_option.add_item(label)
+	tap_key_option.select(SettingsStoreScript.tap_key_index(settings))
+
+
+func _set_tap_key(index: int) -> void:
+	var safe_index := clampi(index, 0, SettingsStoreScript.TAP_KEYCODES.size() - 1)
+	SettingsStoreScript.save_setting("tap_keycode", SettingsStoreScript.TAP_KEYCODES[safe_index])
+
+
+func _set_reduced_motion(enabled: bool) -> void:
+	_sync_reduced_motion(enabled)
+	SettingsStoreScript.save_setting("reduced_motion", enabled)
+	reduced_motion_changed.emit(enabled)
+
+
+func _sync_reduced_motion(enabled: bool) -> void:
+	reduced_motion.set_pressed_no_signal(enabled)
+	reduced_motion.text = "On" if enabled else "Off"

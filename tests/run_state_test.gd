@@ -9,7 +9,7 @@ func _init() -> void:
 	_test_successful_run()
 	_test_failed_run()
 	if _failures == 0:
-		print("Run state tests passed: 10 assertions")
+		print("Run state tests passed: 13 assertions")
 		quit(0)
 	else:
 		push_error("Run state tests failed: %d assertion(s)" % _failures)
@@ -19,13 +19,18 @@ func _init() -> void:
 func _test_successful_run() -> void:
 	var state := RunStateScript.new()
 	state.setup(2)
-	state.apply_judgment("Perfect", 0)
-	state.apply_judgment("Slow", 1)
+	state.apply_judgment("Too Fast", 0, -80.0)
+	state.apply_judgment("Too Fast", 0, -75.0)
+	state.apply_judgment("Perfect", 0, -10.0)
+	state.apply_judgment("Slow", 1, 30.0)
 	_expect(state.resolved_notes == 2, "all notes resolve")
 	_expect(state.score == 1700, "score accumulates")
 	_expect(state.max_combo == 2, "combo accumulates")
 	_expect(is_equal_approx(state.accuracy(), 85.0), "accuracy is calculated")
 	_expect(state.rank() == "A", "completed run receives rank")
+	_expect(is_equal_approx(state.average_offset_ms(), 10.0), "average timing offset is calculated")
+	_expect(is_equal_approx(state.mean_absolute_error_ms(), 20.0), "mean absolute timing error is calculated")
+	_expect(state.early_inputs == 1, "repeated early input on one note is counted once")
 	state.setup(1)
 	_expect(state.score == 0 and state.resolved_notes == 0 and state.gauge == state.START_GAUGE, "setup resets reusable state")
 

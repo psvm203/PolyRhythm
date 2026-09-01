@@ -38,3 +38,16 @@ func _draw() -> void:
 	var label_color := Color(0.04, 0.78, 0.88, 1.0) if active else Color(0.31, 0.31, 0.31, 1.0)
 	draw_circle(center, radius * 0.30, label_color)
 	draw_circle(center, radius * 0.055, Color("071126"))
+	if not active:
+		_draw_lock(center + Vector2(0.0, 16.0))
+
+
+func _draw_lock(center: Vector2) -> void:
+	var lock_color := Color(0.72, 0.74, 0.8, 0.92)
+	var lock_dark := Color(0.075, 0.08, 0.1, 0.98)
+	var body := Rect2(center + Vector2(-28.0, -4.0), Vector2(56.0, 44.0))
+	draw_arc(center + Vector2(0.0, -4.0), 19.0, PI, TAU, 32, lock_color, 7.0, true)
+	draw_rect(body, lock_dark, true)
+	draw_rect(body, lock_color, false, 3.0, true)
+	draw_circle(center + Vector2(0.0, 14.0), 5.0, lock_color)
+	draw_line(center + Vector2(0.0, 17.0), center + Vector2(0.0, 27.0), lock_color, 4.0, true)

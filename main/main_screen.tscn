@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://main/main_screen.gd" id="1_main"]
 [ext_resource type="AudioStream" path="res://main/audio/main_background_bgm.wav" id="2_bgm"]
@@ -85,42 +85,44 @@ corner_radius_bottom_right = 22
 corner_radius_bottom_left = 22
 
 [sub_resource type="StyleBoxFlat" id="StyleBackButton"]
-bg_color = Color(0.035, 0.075, 0.15, 0.76)
+bg_color = Color(0.055, 0.065, 0.095, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.1, 0.85, 0.9, 0.9)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBackHover"]
-bg_color = Color(0.045, 0.13, 0.2, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.1, 0.95, 0.95, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0.05, 0.9, 0.9, 0.22)
+border_color = Color(0.34, 0.39, 0.52, 0.95)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.34)
 shadow_size = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBackHover"]
+bg_color = Color(0.07, 0.12, 0.16, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.1, 0.92, 0.9, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.05, 0.9, 0.88, 0.24)
+shadow_size = 12
+
 [sub_resource type="StyleBoxFlat" id="StyleBackPressed"]
-bg_color = Color(0.055, 0.22, 0.26, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
+bg_color = Color(0.06, 0.25, 0.27, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 border_color = Color(0.15, 1, 0.95, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleSettingsPanel"]
 bg_color = Color(0.025, 0.055, 0.12, 0.82)
@@ -139,8 +141,8 @@ shadow_size = 14
 [sub_resource type="StyleBoxEmpty" id="StyleEmpty"]
 
 [sub_resource type="LabelSettings" id="LabelTitleWhite"]
-font_size = 68
-font_color = Color(0.96, 0.95, 1, 1)
+font_size = 70
+font_color = Color(0.94, 0.95, 0.98, 1)
 outline_size = 0
 outline_color = Color(0, 0, 0, 0.48)
 shadow_size = 0
@@ -148,8 +150,8 @@ shadow_color = Color(0, 0, 0, 0.75)
 shadow_offset = Vector2(4, 8)
 
 [sub_resource type="LabelSettings" id="LabelTitlePink"]
-font_size = 68
-font_color = Color(0.96, 0.025, 0.36, 1)
+font_size = 70
+font_color = Color(1, 0.22, 0.4, 1)
 outline_size = 0
 outline_color = Color(0.15, 0, 0.08, 0.65)
 shadow_size = 0
@@ -158,7 +160,7 @@ shadow_offset = Vector2(4, 8)
 
 [sub_resource type="LabelSettings" id="LabelSmallTitleWhite"]
 font_size = 40
-font_color = Color(0.96, 0.95, 1, 1)
+font_color = Color(0.94, 0.95, 0.98, 1)
 outline_size = 4
 outline_color = Color(0, 0, 0, 0.48)
 shadow_size = 5
@@ -167,12 +169,20 @@ shadow_offset = Vector2(2, 4)
 
 [sub_resource type="LabelSettings" id="LabelSmallTitlePink"]
 font_size = 40
-font_color = Color(0.96, 0.025, 0.36, 1)
+font_color = Color(1, 0.22, 0.4, 1)
 outline_size = 4
 outline_color = Color(0.15, 0, 0.08, 0.65)
 shadow_size = 5
 shadow_color = Color(0, 0, 0, 0.75)
 shadow_offset = Vector2(2, 4)
+
+[sub_resource type="LabelSettings" id="LabelTitleSlash"]
+font_size = 54
+font_color = Color(0.12, 0.86, 0.84, 1)
+
+[sub_resource type="LabelSettings" id="LabelSmallTitleSlash"]
+font_size = 31
+font_color = Color(0.12, 0.86, 0.84, 1)
 
 [node name="MainScreen" type="Control"]
 layout_mode = 3
@@ -231,24 +241,23 @@ theme_override_constants/separation = 22
 [node name="Logo" type="HBoxContainer" parent="Content"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = -6
+theme_override_constants/separation = 8
 
 [node name="Poly" type="Label" parent="Content/Logo"]
 layout_mode = 2
-text = "Poly"
+text = "POLY"
 label_settings = SubResource("LabelTitleWhite")
+
+[node name="Slash" type="Label" parent="Content/Logo"]
+layout_mode = 2
+text = "/"
+label_settings = SubResource("LabelTitleSlash")
+vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="Content/Logo"]
 layout_mode = 2
-text = "Rhythm"
+text = "RHYTHM"
 label_settings = SubResource("LabelTitlePink")
-
-[node name="Tagline" type="Label" parent="Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.52, 0.55, 0.64, 1)
-theme_override_font_sizes/font_size = 15
-text = "도형이 닿는 순간, 한 박자"
-horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Content"]
 custom_minimum_size = Vector2(0, 32)
@@ -318,7 +327,7 @@ theme_override_styles/normal = SubResource("StyleButtonNormal")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
-text = "만든 사람"
+text = "크레딧"
 
 [node name="ExitButton" type="Button" parent="Content/Menu"]
 unique_name_in_owner = true
@@ -346,19 +355,22 @@ grow_vertical = 2
 
 [node name="BackButton" type="Button" parent="StageScreen"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(76, 76)
 layout_mode = 0
-offset_left = 38.0
-offset_top = 38.0
-offset_right = 102.0
-offset_bottom = 102.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 108.0
+offset_bottom = 108.0
 theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
-theme_override_font_sizes/font_size = 38
+theme_override_colors/font_hover_color = Color(0.86, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(0.86, 1, 1, 1)
+theme_override_font_sizes/font_size = 42
 theme_override_styles/normal = SubResource("StyleBackButton")
 theme_override_styles/hover = SubResource("StyleBackHover")
 theme_override_styles/pressed = SubResource("StyleBackPressed")
 theme_override_styles/focus = SubResource("StyleBackHover")
 text = "←"
+tooltip_text = "뒤로 (ESC)"
 
 [node name="StageLayout" type="VBoxContainer" parent="StageScreen"]
 layout_mode = 1
@@ -378,20 +390,26 @@ theme_override_constants/separation = 24
 [node name="SmallLogo" type="HBoxContainer" parent="StageScreen/StageLayout"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = -3
+theme_override_constants/separation = 5
 
 [node name="Poly" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
 layout_mode = 2
-text = "Poly"
+text = "POLY"
 label_settings = SubResource("LabelSmallTitleWhite")
+
+[node name="Slash" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
+layout_mode = 2
+text = "/"
+label_settings = SubResource("LabelSmallTitleSlash")
+vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="StageScreen/StageLayout/SmallLogo"]
 layout_mode = 2
-text = "Rhythm"
+text = "RHYTHM"
 label_settings = SubResource("LabelSmallTitlePink")
 
 [node name="StageTitleSlot" type="Control" parent="StageScreen/StageLayout"]
-custom_minimum_size = Vector2(0, 92)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
 mouse_filter = 2
 
@@ -405,7 +423,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
 theme_override_font_sizes/font_size = 30
-text = "스테이지 선택"
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -524,7 +542,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.57, 0.57, 0.57, 1)
 theme_override_font_sizes/font_size = 24
-text = "🔒  Beat Flow"
+text = "Beat Flow"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -589,7 +607,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.57, 0.57, 0.57, 1)
 theme_override_font_sizes/font_size = 24
-text = "🔒  Pulse Master"
+text = "Shape Samurai"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -654,7 +672,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.57, 0.57, 0.57, 1)
 theme_override_font_sizes/font_size = 24
-text = "🔒  Time Rift"
+text = "Time Rift"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -696,19 +714,22 @@ grow_vertical = 2
 
 [node name="SettingsBackButton" type="Button" parent="SettingsScreen"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(76, 76)
 layout_mode = 0
-offset_left = 38.0
-offset_top = 38.0
-offset_right = 102.0
-offset_bottom = 102.0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 108.0
+offset_bottom = 108.0
 theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
-theme_override_font_sizes/font_size = 38
+theme_override_colors/font_hover_color = Color(0.86, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(0.86, 1, 1, 1)
+theme_override_font_sizes/font_size = 42
 theme_override_styles/normal = SubResource("StyleBackButton")
 theme_override_styles/hover = SubResource("StyleBackHover")
 theme_override_styles/pressed = SubResource("StyleBackPressed")
 theme_override_styles/focus = SubResource("StyleBackHover")
 text = "←"
+tooltip_text = "뒤로 (ESC)"
 
 [node name="SettingsLayout" type="VBoxContainer" parent="SettingsScreen"]
 layout_mode = 1
@@ -728,20 +749,26 @@ theme_override_constants/separation = 24
 [node name="SmallLogo" type="HBoxContainer" parent="SettingsScreen/SettingsLayout"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = -3
+theme_override_constants/separation = 5
 
 [node name="Poly" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
 layout_mode = 2
-text = "Poly"
+text = "POLY"
 label_settings = SubResource("LabelSmallTitleWhite")
+
+[node name="Slash" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
+layout_mode = 2
+text = "/"
+label_settings = SubResource("LabelSmallTitleSlash")
+vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="SettingsScreen/SettingsLayout/SmallLogo"]
 layout_mode = 2
-text = "Rhythm"
+text = "RHYTHM"
 label_settings = SubResource("LabelSmallTitlePink")
 
 [node name="SettingsTitleSlot" type="Control" parent="SettingsScreen/SettingsLayout"]
-custom_minimum_size = Vector2(0, 92)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
 mouse_filter = 2
 
@@ -755,24 +782,21 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
 theme_override_font_sizes/font_size = 30
-text = "설정"
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SettingsPanelSlot" type="Control" parent="SettingsScreen/SettingsLayout"]
-custom_minimum_size = Vector2(0, 510)
+[node name="SettingsPanelSlot" type="ScrollContainer" parent="SettingsScreen/SettingsLayout"]
+custom_minimum_size = Vector2(0, 570)
 layout_mode = 2
 size_flags_vertical = 3
-mouse_filter = 2
+horizontal_scroll_mode = 0
 
 [node name="SettingsPanel" type="PanelContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(0, 820)
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleSettingsPanel")
 
 [node name="Margin" type="MarginContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel"]
@@ -820,13 +844,13 @@ theme_override_colors/font_color = Color(0.58, 0.63, 0.74, 1)
 theme_override_colors/font_hover_color = Color(0.76, 0.8, 0.9, 1)
 theme_override_colors/font_pressed_color = Color(0.08, 1, 0.92, 1)
 theme_override_colors/font_focus_color = Color(0.76, 0.8, 0.9, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleButtonNormal")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
 toggle_mode = true
-text = "끔"
+text = "Off"
 
 [node name="Separator1" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
@@ -906,12 +930,19 @@ text = "80%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="MasterEnabled" type="CheckButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Master"]
+[node name="MasterEnabled" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Master"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
+size_flags_vertical = 4
 button_pressed = true
-text = "켬"
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "On"
 
 [node name="Separator2" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
@@ -935,7 +966,7 @@ custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 24
-text = "음악"
+text = "배경음"
 vertical_alignment = 1
 
 [node name="MusicSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
@@ -958,12 +989,19 @@ text = "70%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="MusicEnabled" type="CheckButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
+[node name="MusicEnabled" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Music"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
+size_flags_vertical = 4
 button_pressed = true
-text = "켬"
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "On"
 
 [node name="Separator3" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
 layout_mode = 2
@@ -1010,30 +1048,200 @@ text = "60%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="SfxEnabled" type="CheckButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Sfx"]
+[node name="SfxEnabled" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Sfx"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
+size_flags_vertical = 4
 button_pressed = true
-text = "켬"
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "On"
+
+[node name="Separator4" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="Timing" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 30
+text = "±"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "판정 보정"
+vertical_alignment = 1
+
+[node name="TimingSlider" type="HSlider" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -150.0
+max_value = 150.0
+step = 1.0
+
+[node name="TimingValue" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Timing"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 24
+text = "+0 ms"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SeparatorTiming" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="TapKey" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.55, 0.28, 1)
+theme_override_font_sizes/font_size = 30
+text = "⌨"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "플레이 키"
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TapKeyOption" type="OptionButton" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/TapKey"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 54)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="SeparatorTapKey" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="ReducedMotionRow" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/ReducedMotionRow"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.5, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "◌"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/ReducedMotionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "모션 감소"
+vertical_alignment = 1
+
+[node name="ReducedMotion" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/ReducedMotionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "Off"
+
+[node name="SeparatorReducedMotion" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+layout_mode = 2
+modulate = Color(0.4, 0.5, 0.75, 0.25)
+
+[node name="Dialogue" type="HBoxContainer" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+
+[node name="Icon" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Dialogue"]
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 0.95, 1)
+theme_override_font_sizes/font_size = 28
+text = "▱"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Dialogue"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "이미 본 대화 건너뛰기"
+vertical_alignment = 1
+
+[node name="SkipSeenDialogue" type="Button" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows/Dialogue"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonPressed")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+toggle_mode = true
+text = "Off"
 
 [node name="TransitionLogo" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
 mouse_filter = 2
-theme_override_constants/separation = -6
+theme_override_constants/separation = 8
 
 [node name="Poly" type="Label" parent="TransitionLogo"]
 layout_mode = 2
 mouse_filter = 2
-text = "Poly"
+text = "POLY"
 label_settings = SubResource("LabelTitleWhite")
+
+[node name="Slash" type="Label" parent="TransitionLogo"]
+layout_mode = 2
+mouse_filter = 2
+text = "/"
+label_settings = SubResource("LabelTitleSlash")
+vertical_alignment = 1
 
 [node name="Rhythm" type="Label" parent="TransitionLogo"]
 layout_mode = 2
 mouse_filter = 2
-text = "Rhythm"
+text = "RHYTHM"
 label_settings = SubResource("LabelTitlePink")
 
 [node name="Overlay" type="Control" parent="."]
@@ -1112,6 +1320,31 @@ text = "Body"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="CreditsContent" type="HBoxContainer" parent="Overlay/Center/Panel/Margin/Items"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+theme_override_constants/separation = 28
+
+[node name="Roles" type="Label" parent="Overlay/Center/Panel/Margin/Items/CreditsContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.68, 0.8, 1)
+theme_override_constants/line_spacing = 14
+theme_override_font_sizes/font_size = 29
+text = "Lead Programmer\nUI/UX, Sound"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Names" type="Label" parent="Overlay/Center/Panel/Margin/Items/CreditsContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
+theme_override_constants/line_spacing = 14
+theme_override_font_sizes/font_size = 29
+text = "이문빈\n허나영"
+vertical_alignment = 1
+
 [node name="CloseButton" type="Button" parent="Overlay/Center/Panel/Margin/Items"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
@@ -1121,32 +1354,36 @@ theme_override_styles/normal = SubResource("StyleButtonNormal")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
 theme_override_styles/focus = SubResource("StyleButtonHover")
-text = "Back"
+text = "닫기"
 
 [node name="ExitButtons" type="HBoxContainer" parent="Overlay/Center/Panel/Margin/Items"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="CancelExitButton" type="Button" parent="Overlay/Center/Panel/Margin/Items/ExitButtons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 54)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleButtonNormal")
-theme_override_styles/hover = SubResource("StyleButtonHover")
-theme_override_styles/focus = SubResource("StyleButtonHover")
-text = "취소"
-
 [node name="ConfirmExitButton" type="Button" parent="Overlay/Center/Panel/Margin/Items/ExitButtons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
+focus_neighbor_left = NodePath("../CancelExitButton")
+focus_neighbor_right = NodePath("../CancelExitButton")
 theme_override_colors/font_color = Color(1, 0.76, 0.86, 1)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleButtonNormal")
 theme_override_styles/hover = SubResource("StyleButtonHover")
 theme_override_styles/focus = SubResource("StyleButtonHover")
-text = "나가기"
+text = "종료"
+
+[node name="CancelExitButton" type="Button" parent="Overlay/Center/Panel/Margin/Items/ExitButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_neighbor_left = NodePath("../ConfirmExitButton")
+focus_neighbor_right = NodePath("../ConfirmExitButton")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleButtonNormal")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/focus = SubResource("StyleButtonHover")
+text = "취소"

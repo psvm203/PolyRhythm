@@ -1,20 +1,68 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://level/ui/result_overlay.gd" id="1_result"]
 
 [sub_resource type="StyleBoxFlat" id="ResultPanel"]
-bg_color = Color(0.025, 0.055, 0.12, 0.98)
+bg_color = Color(0.025, 0.035, 0.065, 0.98)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.4, 0.3, 1, 0.9)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_left = 28
-corner_radius_bottom_right = 28
+border_color = Color(0.32, 0.38, 0.58, 0.9)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
 shadow_color = Color(0, 0, 0, 0.7)
 shadow_size = 28
+
+[sub_resource type="StyleBoxFlat" id="SummaryPanel"]
+bg_color = Color(0.055, 0.07, 0.11, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.3, 0.42, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="ButtonNormal"]
+bg_color = Color(0.075, 0.085, 0.12, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.34, 0.45, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="ButtonFocus"]
+bg_color = Color(0.11, 0.13, 0.18, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12, 0.9, 0.86, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="ButtonPressed"]
+bg_color = Color(0.08, 0.24, 0.25, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16, 1, 0.92, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
 
 [node name="ResultOverlay" type="CanvasLayer"]
 layer = 250
@@ -26,7 +74,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.01, 0.02, 0.06, 0.88)
+color = Color(0.006, 0.01, 0.025, 0.9)
 
 [node name="Center" type="CenterContainer" parent="Dim"]
 layout_mode = 1
@@ -37,60 +85,95 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Dim/Center"]
-custom_minimum_size = Vector2(720, 600)
+custom_minimum_size = Vector2(760, 610)
 layout_mode = 2
 theme_override_styles/panel = SubResource("ResultPanel")
 
-[node name="Rows" type="VBoxContainer" parent="Dim/Center/Panel"]
+[node name="Margin" type="MarginContainer" parent="Dim/Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/margin_left = 46
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 46
+theme_override_constants/margin_bottom = 32
 
-[node name="Title" type="Label" parent="Dim/Center/Panel/Rows"]
-unique_name_in_owner = true
+[node name="Rows" type="VBoxContainer" parent="Dim/Center/Panel/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.15, 1, 0.95, 1)
-theme_override_font_sizes/font_size = 34
-text = "스테이지 클리어"
-horizontal_alignment = 1
+theme_override_constants/separation = 14
 
-[node name="Rank" type="Label" parent="Dim/Center/Panel/Rows"]
+[node name="Rank" type="Label" parent="Dim/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
-theme_override_font_sizes/font_size = 120
+theme_override_font_sizes/font_size = 112
 text = "S"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Summary" type="Label" parent="Dim/Center/Panel/Rows"]
+[node name="SummaryPanel" type="PanelContainer" parent="Dim/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 126)
+layout_mode = 2
+theme_override_styles/panel = SubResource("SummaryPanel")
+
+[node name="Summary" type="Label" parent="Dim/Center/Panel/Margin/Rows/SummaryPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.93, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "플레이 결과"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Rating" type="Label" parent="Dim/Center/Panel/Rows"]
+[node name="TimingPanel" type="PanelContainer" parent="Dim/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+theme_override_styles/panel = SubResource("SummaryPanel")
+
+[node name="TimingReport" type="Label" parent="Dim/Center/Panel/Margin/Rows/TimingPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 19
+text = "평균 편차  +0.0 ms        평균 오차  0.0 ms\n입력 경향  안정적        이른 추가 입력  0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Rating" type="Label" parent="Dim/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 34
 text = "★★★"
 horizontal_alignment = 1
 
-[node name="Buttons" type="HBoxContainer" parent="Dim/Center/Panel/Rows"]
+[node name="Buttons" type="HBoxContainer" parent="Dim/Center/Panel/Margin/Rows"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 20
 
-[node name="RetryButton" type="Button" parent="Dim/Center/Panel/Rows/Buttons"]
+[node name="RetryButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 58)
 layout_mode = 2
-text = "다시 하기"
+focus_neighbor_left = NodePath("../StageSelectButton")
+focus_neighbor_right = NodePath("../StageSelectButton")
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonFocus")
+theme_override_styles/pressed = SubResource("ButtonPressed")
+theme_override_styles/focus = SubResource("ButtonFocus")
+text = "Retry"
 
-[node name="StageSelectButton" type="Button" parent="Dim/Center/Panel/Rows/Buttons"]
+[node name="StageSelectButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 58)
 layout_mode = 2
-text = "스테이지 선택"
+focus_neighbor_left = NodePath("../RetryButton")
+focus_neighbor_right = NodePath("../RetryButton")
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ButtonNormal")
+theme_override_styles/hover = SubResource("ButtonFocus")
+theme_override_styles/pressed = SubResource("ButtonPressed")
+theme_override_styles/focus = SubResource("ButtonFocus")
+text = "Back"

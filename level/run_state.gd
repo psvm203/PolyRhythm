@@ -15,6 +15,8 @@ var gauge: float = START_GAUGE
 var resolved_notes: int = 0
 var accuracy_points: float = 0.0
 var judgments: Dictionary = {}
+var timing_samples_ms: Array[float] = []
+var early_inputs: int = 0
 var _early_penalized: Dictionary = {}
 var _failed: bool = false
 
@@ -28,6 +30,8 @@ func setup(note_count: int) -> void:
 	resolved_notes = 0
 	accuracy_points = 0.0
 	judgments.clear()
+	timing_samples_ms.clear()
+	early_inputs = 0
 	for result in JUDGMENTS:
 		judgments[result] = 0
 	_early_penalized.clear()
@@ -35,18 +39,20 @@ func setup(note_count: int) -> void:
 	changed.emit(snapshot())
 
 
-func apply_judgment(result: String, polygon_index: int) -> void:
+func apply_judgment(result: String, polygon_index: int, timing_delta_ms: float = 0.0) -> void:
 	if _failed:
 		return
 	if result == "Too Fast":
 		if not _early_penalized.has(polygon_index):
 			_early_penalized[polygon_index] = true
+			early_inputs += 1
 			gauge = maxf(0.0, gauge - 3.0)
 			_emit_change()
 		return
 	if not judgments.has(result):
 		return
 	judgments[result] += 1
+	timing_samples_ms.append(timing_delta_ms)
 	resolved_notes += 1
 	match result:
 		"Perfect":
@@ -87,6 +93,24 @@ func rank(completed: bool = true) -> String:
 	return "D"
 
 
+func average_offset_ms() -> float:
+	if timing_samples_ms.is_empty():
+		return 0.0
+	var total := 0.0
+	for sample in timing_samples_ms:
+		total += sample
+	return total / timing_samples_ms.size()
+
+
+func mean_absolute_error_ms() -> float:
+	if timing_samples_ms.is_empty():
+		return 0.0
+	var total := 0.0
+	for sample in timing_samples_ms:
+		total += absf(sample)
+	return total / timing_samples_ms.size()
+
+
 func snapshot() -> Dictionary:
 	return {
 		"score": score,
@@ -97,6 +121,9 @@ func snapshot() -> Dictionary:
 		"total": total_notes,
 		"accuracy": accuracy(),
 		"judgments": judgments.duplicate(),
+		"average_offset_ms": average_offset_ms(),
+		"mean_absolute_error_ms": mean_absolute_error_ms(),
+		"early_inputs": early_inputs,
 	}
 
 

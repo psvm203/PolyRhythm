@@ -58,13 +58,20 @@ func _test_miss_deadline(conductor: Node) -> void:
 
 
 func _test_visual_landing_offset(conductor: Node) -> void:
-	conductor.judgment_offset_sec = 0.050
+	conductor.judgment_offset_sec = 0.0
 	conductor.early_window_sec = 0.050
-	_expect_equal(conductor.get_judgment_time(1.500), 1.550, "judgment follows visual landing")
+	_expect_equal(conductor.get_judgment_time(1.500), 1.500, "judgment matches visual landing")
 	_expect_equal(
-		conductor.get_judgment_time(1.500) - conductor.early_window_sec,
+		conductor.classify_timing_delta(
+			1.500 - conductor.get_judgment_time(1.500),
+		),
+		"Perfect",
+		"input at visual contact is Perfect",
+	)
+	_expect_equal(
+		conductor.get_judgment_time(1.500),
 		1.500,
-		"early window does not precede visual landing",
+		"visual and judgment clocks share one center",
 	)
 
 

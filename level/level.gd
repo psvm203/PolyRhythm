@@ -3,6 +3,7 @@ extends Node2D
 const PolygonChain = preload("res://level/geometry/polygon_chain.gd")
 const RunStateScript = preload("res://level/run_state.gd")
 const ProgressStoreScript = preload("res://level/progress_store.gd")
+const SettingsStoreScript = preload("res://main/settings_store.gd")
 const LevelDataScript = preload("res://level/data/level_data.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
 const LevelEventSystemScript = preload("res://level/events/level_event_system.gd")
@@ -16,7 +17,6 @@ const STAGE_DATA := {
 	4: "res://level/data/level_4.yaml",
 }
 const MAIN_SCENE := "res://main/main_screen.tscn"
-const LEVEL_EDITOR_SCENE := "res://editor/level_editor.tscn"
 const NEON_PALETTE := [
 	Color("20e3df"),
 	Color("348cff"),
@@ -54,6 +54,7 @@ signal level_finished(stats: Dictionary, completed: bool, rank: String)
 @onready var dialogue_overlay: CanvasLayer = $DialogueOverlay
 @onready var gameplay_hud: CanvasLayer = $GameplayHUD
 @onready var result_overlay: CanvasLayer = $ResultOverlay
+@onready var level_background: Control = $BackgroundLayer/Background
 
 var _shapes: Array[PackedVector2Array] = []
 var _starter_triangle: PackedVector2Array = PackedVector2Array()
@@ -70,6 +71,7 @@ var _time_stopped := false
 var _event_system: LevelEventSystem = LevelEventSystemScript.new()
 var level_data: LevelData
 var _is_custom_level := false
+var _active_dialogue_id := ""
 
 
 func _ready() -> void:
@@ -111,6 +113,9 @@ func _ready() -> void:
 		start_offsets,
 		transition_duration,
 	)
+	var game_settings := SettingsStoreScript.load_settings()
+	_set_reduced_motion(game_settings["reduced_motion"])
+	conductor.judgment_offset_sec = float(game_settings["timing_offset_ms"]) / 1000.0
 	conductor.setup(_compute_scheduled_judgment_times())
 	camera.setup(rotator, _polygon_centers)
 	rotator.polygon_advanced.connect(_on_polygon_advanced)
@@ -125,14 +130,19 @@ func _ready() -> void:
 		countdown.countdown_finished.connect(_on_countdown_finished)
 	if pause_overlay != null:
 		pause_overlay.resume_requested.connect(_set_game_paused.bind(false))
-		pause_overlay.exit_requested.connect(_exit_test_play)
-		pause_overlay.set_exit_visible(_is_custom_level)
+		pause_overlay.exit_requested.connect(_return_to_main_from_pause)
+		pause_overlay.timing_offset_changed.connect(_set_judgment_offset)
+		pause_overlay.reduced_motion_changed.connect(_set_reduced_motion)
+		pause_overlay.set_exit_visible(true)
 	if dialogue_overlay != null:
-		dialogue_overlay.dialogue_finished.connect(_start_countdown)
+		dialogue_overlay.dialogue_finished.connect(_on_dialogue_finished)
 	if result_overlay != null:
 		result_overlay.retry_requested.connect(_retry_level)
 		result_overlay.stage_select_requested.connect(_return_to_stage_select)
-	if not level_data.tutorial_lines.is_empty():
+	var skip_seen_dialogue := bool(game_settings["skip_seen_dialogue"])
+	_active_dialogue_id = "stage_%d_tutorial" % ProgressStoreScript.selected_stage if not _is_custom_level else ""
+	var dialogue_was_seen := ProgressStoreScript.has_seen_dialogue(_active_dialogue_id)
+	if not level_data.tutorial_lines.is_empty() and not (skip_seen_dialogue and dialogue_was_seen):
 		_tutorial_preview_active = true
 		rotator.snap_to_target()
 		dialogue_overlay.play(level_data.tutorial_lines, level_data.tutorial_speaker)
@@ -151,7 +161,12 @@ func _start_countdown() -> void:
 		countdown.play()
 
 
-func _on_judged(result: String, polygon_index: int) -> void:
+func _on_dialogue_finished() -> void:
+	ProgressStoreScript.mark_dialogue_seen(_active_dialogue_id)
+	_start_countdown()
+
+
+func _on_judged(result: String, polygon_index: int, timing_delta_ms: float) -> void:
 	var guard_note := _event_system.occurs(EVENT_GUARD, polygon_index)
 	var time_note := _event_system.occurs(EVENT_TIME_STOP, polygon_index)
 	var resolved_result := result
@@ -172,7 +187,7 @@ func _on_judged(result: String, polygon_index: int) -> void:
 			gameplay_hud.update_time_spell(_boss_health, _event_system.occurs(EVENT_TIME_STOP, polygon_index + 1), false)
 		else:
 			gameplay_hud.update_boss(_boss_health, _event_system.occurs(EVENT_GUARD, polygon_index + 1))
-	_run_state.apply_judgment(resolved_result, polygon_index)
+	_run_state.apply_judgment(resolved_result, polygon_index, timing_delta_ms)
 	if not _level_ended and _run_state.resolved_notes >= _run_state.total_notes:
 		_finish_level(_boss_health <= 0)
 
@@ -211,18 +226,13 @@ func _retry_level() -> void:
 
 
 func _return_to_stage_select() -> void:
-	if _is_custom_level:
-		get_tree().change_scene_to_file(LEVEL_EDITOR_SCENE)
-		return
 	ProgressStoreScript.show_stage_select_on_load = true
 	get_tree().change_scene_to_file(MAIN_SCENE)
 
 
-func _exit_test_play() -> void:
-	if not _is_custom_level:
-		return
+func _return_to_main_from_pause() -> void:
 	get_tree().paused = false
-	get_tree().change_scene_to_file(LEVEL_EDITOR_SCENE)
+	get_tree().change_scene_to_file(MAIN_SCENE)
 
 
 func _on_countdown_finished() -> void:
@@ -258,6 +268,17 @@ func _set_game_paused(value: bool) -> void:
 		music.stream_paused = false
 		conductor.resume_clock()
 		set_process(true)
+
+
+func _set_judgment_offset(offset_sec: float) -> void:
+	conductor.judgment_offset_sec = offset_sec
+	if conductor.detailed_timing_logs:
+		print("[TIMING_OFFSET_CHANGED] judgment_offset_ms=%.1f" % (offset_sec * 1000.0))
+
+
+func _set_reduced_motion(enabled: bool) -> void:
+	level_background.call("set_reduced_motion", enabled)
+	judgement.reduced_motion = enabled
 
 
 func _on_polygon_advanced(_from_index: int, to_index: int) -> void:

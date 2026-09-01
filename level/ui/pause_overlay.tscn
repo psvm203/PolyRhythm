@@ -37,37 +37,23 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Dimmer/Center"]
-custom_minimum_size = Vector2(720, 590)
+custom_minimum_size = Vector2(720, 710)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PanelStyle")
 
 [node name="Margin" type="MarginContainer" parent="Dimmer/Center/Panel"]
 layout_mode = 2
 theme_override_constants/margin_left = 56
-theme_override_constants/margin_top = 34
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 56
-theme_override_constants/margin_bottom = 34
+theme_override_constants/margin_bottom = 10
 
 [node name="Rows" type="VBoxContainer" parent="Dimmer/Center/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="Title" type="Label" parent="Dimmer/Center/Panel/Margin/Rows"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.48, 1, 1)
-theme_override_font_sizes/font_size = 34
-text = "일시 정지"
-horizontal_alignment = 1
-
-[node name="Hint" type="Label" parent="Dimmer/Center/Panel/Margin/Rows"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.72, 0.86, 1)
-theme_override_font_sizes/font_size = 17
-text = "ESC를 다시 누르면 게임으로 돌아갑니다"
-horizontal_alignment = 1
+theme_override_constants/separation = 6
 
 [node name="Fullscreen" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Fullscreen"]
@@ -80,15 +66,16 @@ vertical_alignment = 1
 
 [node name="FullscreenToggle" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Fullscreen"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 50)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
 size_flags_horizontal = 10
 size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
 toggle_mode = true
-text = "끔"
+text = "Off"
 
 [node name="Resolution" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Resolution"]
@@ -107,7 +94,7 @@ size_flags_horizontal = 10
 size_flags_vertical = 4
 
 [node name="Master" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
@@ -135,15 +122,18 @@ theme_override_font_sizes/font_size = 20
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="MasterEnabled" type="CheckButton" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
+[node name="MasterEnabled" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Master"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
+size_flags_vertical = 4
 button_pressed = true
-text = "켬"
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "On"
 
 [node name="Music" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
@@ -151,7 +141,7 @@ custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "음악"
+text = "배경음"
 vertical_alignment = 1
 
 [node name="MusicSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
@@ -171,15 +161,18 @@ theme_override_font_sizes/font_size = 20
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="MusicEnabled" type="CheckButton" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
+[node name="MusicEnabled" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Music"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
+size_flags_vertical = 4
 button_pressed = true
-text = "켬"
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "On"
 
 [node name="Sfx" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
-custom_minimum_size = Vector2(0, 70)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
@@ -207,12 +200,105 @@ theme_override_font_sizes/font_size = 20
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="SfxEnabled" type="CheckButton" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
+[node name="SfxEnabled" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Sfx"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
+size_flags_vertical = 4
 button_pressed = true
-text = "켬"
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "On"
+
+[node name="Timing" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Timing"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "판정 보정"
+vertical_alignment = 1
+
+[node name="TimingSlider" type="HSlider" parent="Dimmer/Center/Panel/Margin/Rows/Timing"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -150.0
+max_value = 150.0
+step = 1.0
+
+[node name="TimingValue" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Timing"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+text = "+0 ms"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="TapKey" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/TapKey"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "플레이 키"
+vertical_alignment = 1
+
+[node name="TapKeyOption" type="OptionButton" parent="Dimmer/Center/Panel/Margin/Rows/TapKey"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 50)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ReducedMotionRow" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/ReducedMotionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "모션 감소"
+vertical_alignment = 1
+
+[node name="ReducedMotion" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/ReducedMotionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "Off"
+
+[node name="Dialogue" type="HBoxContainer" parent="Dimmer/Center/Panel/Margin/Rows"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dimmer/Center/Panel/Margin/Rows/Dialogue"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "이미 본 대화 건너뛰기"
+vertical_alignment = 1
+
+[node name="SkipSeenDialogue" type="Button" parent="Dimmer/Center/Panel/Margin/Rows/Dialogue"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 54)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "Off"
 
 [node name="ResumeButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true
@@ -220,7 +306,7 @@ custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.95, 0.92, 1)
 theme_override_font_sizes/font_size = 23
-text = "계속하기"
+text = "닫기"
 
 [node name="ExitButton" type="Button" parent="Dimmer/Center/Panel/Margin/Rows"]
 unique_name_in_owner = true
@@ -228,4 +314,4 @@ custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.48, 0.58, 1)
 theme_override_font_sizes/font_size = 21
-text = "에디터로 돌아가기"
+text = "메인화면"

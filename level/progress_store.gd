@@ -5,6 +5,8 @@ const SAVE_PATH := "user://progress.cfg"
 const SECTION := "progress"
 const UNLOCKED_KEY := "highest_unlocked_stage"
 const PENDING_DIALOGUE_KEY := "pending_unlock_dialogue"
+const LAST_PLAYED_STAGE_KEY := "last_played_stage"
+const SEEN_DIALOGUE_SECTION := "seen_dialogue"
 const LAST_STAGE := 4
 
 static var selected_stage := 1
@@ -15,6 +17,32 @@ static var custom_level_path := ""
 static func highest_unlocked_stage() -> int:
 	var config := _load()
 	return clampi(int(config.get_value(SECTION, UNLOCKED_KEY, 1)), 1, LAST_STAGE)
+
+
+static func last_played_stage() -> int:
+	var config := _load()
+	var highest := highest_unlocked_stage()
+	return clampi(int(config.get_value(SECTION, LAST_PLAYED_STAGE_KEY, 1)), 1, highest)
+
+
+static func mark_stage_played(stage: int) -> void:
+	var config := _load()
+	config.set_value(SECTION, LAST_PLAYED_STAGE_KEY, clampi(stage, 1, highest_unlocked_stage()))
+	_save(config)
+
+
+static func has_seen_dialogue(dialogue_id: String) -> bool:
+	if dialogue_id.is_empty():
+		return false
+	return bool(_load().get_value(SEEN_DIALOGUE_SECTION, dialogue_id, false))
+
+
+static func mark_dialogue_seen(dialogue_id: String) -> void:
+	if dialogue_id.is_empty():
+		return
+	var config := _load()
+	config.set_value(SEEN_DIALOGUE_SECTION, dialogue_id, true)
+	_save(config)
 
 
 static func unlock_next_stage(cleared_stage: int) -> int:
@@ -56,6 +84,9 @@ static func stage_record(stage: int) -> Dictionary:
 		"rank": str(config.get_value(section, "rank", "-")),
 		"accuracy": float(config.get_value(section, "accuracy", 0.0)),
 		"max_combo": int(config.get_value(section, "max_combo", 0)),
+		"average_offset_ms": float(config.get_value(section, "average_offset_ms", 0.0)),
+		"mean_absolute_error_ms": float(config.get_value(section, "mean_absolute_error_ms", 0.0)),
+		"early_inputs": int(config.get_value(section, "early_inputs", 0)),
 		"cleared": bool(config.get_value(section, "cleared", false)),
 	}
 
@@ -66,7 +97,7 @@ static func record_run(stage: int, stats: Dictionary, rank: String, completed: b
 		return
 	var config := _load()
 	var section := "stage_%d" % clampi(stage, 1, LAST_STAGE)
-	for key in ["score", "accuracy", "max_combo"]:
+	for key in ["score", "accuracy", "max_combo", "average_offset_ms", "mean_absolute_error_ms", "early_inputs"]:
 		config.set_value(section, key, stats[key])
 	config.set_value(section, "rank", rank)
 	config.set_value(section, "cleared", true)
