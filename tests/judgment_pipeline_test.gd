@@ -33,6 +33,9 @@ func _init() -> void:
 	pipeline.configure(0.040, 0.020, 0.010)
 	_expect_approx(pipeline.early_window_sec, 0.040, "invalid early window is normalized")
 	_expect_approx(pipeline.late_window_sec, 0.040, "invalid late window is normalized")
+	pipeline.configure(0.025, 0.050, 0.100)
+	_expect(pipeline.overdue_count(PackedFloat32Array([1.0, 2.0, 3.0]), 0, 2.5) == 2, "long frame catches every overdue note")
+	_expect(pipeline.overdue_count(PackedFloat32Array([1.0, 2.0, 3.0]), 2, 2.5) == 0, "catch-up respects current note")
 	_finish()
 
 

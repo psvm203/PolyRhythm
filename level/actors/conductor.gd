@@ -32,6 +32,9 @@ var _observed_contact_times: Dictionary = {}
 var _previous_gap: float = INF
 var _previous_gap_time: float = 0.0
 var _previous_gap_index: int = -1
+var audio_player: AudioStreamPlayer
+var audio_start_offset_sec := 0.0
+var audio_drift_sec := 0.0
 # Tests can provide a deterministic microsecond clock; gameplay uses the engine clock.
 var time_source_usec: Callable
 
@@ -92,6 +95,7 @@ func _process(_delta: float) -> void:
 		return
 	if paused:
 		return
+	_discipline_clock_to_audio()
 	game_time = _get_game_time()
 	if rotator.current_index >= scheduled_judgment_times.size():
 		return
@@ -105,8 +109,7 @@ func _process(_delta: float) -> void:
 		return
 	# Keep the late half of the judgment window open before declaring a miss.
 	if not _judged and is_miss_due(game_time, scheduled):
-		_emit_result("Too Slow", rotator.current_index, game_time - scheduled)
-		_advance_polygon()
+		_resolve_overdue_notes()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -190,6 +193,29 @@ func _now_usec() -> int:
 
 func _sync_clock_source() -> void:
 	_clock.time_source_usec = time_source_usec
+
+
+func set_audio_reference(player: AudioStreamPlayer, start_offset_sec: float = 0.0) -> void:
+	audio_player = player
+	audio_start_offset_sec = maxf(start_offset_sec, 0.0)
+
+
+func _discipline_clock_to_audio() -> void:
+	if audio_player == null or not audio_player.playing or audio_player.stream_paused:
+		return
+	var relative_audio_sec := maxf(audio_player.get_playback_position() - audio_start_offset_sec, 0.0)
+	audio_drift_sec = _clock.discipline_to(relative_audio_sec)
+
+
+func _resolve_overdue_notes() -> void:
+	var safety := 0
+	while not rotator.is_completed() and rotator.current_index < scheduled_judgment_times.size() and safety < 32:
+		var center := _current_judgment_center()
+		if not is_miss_due(game_time, center):
+			break
+		_emit_result("Too Slow", rotator.current_index, game_time - center)
+		_advance_polygon()
+		safety += 1
 
 
 func _advance_polygon() -> void:

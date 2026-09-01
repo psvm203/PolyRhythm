@@ -44,3 +44,12 @@ func is_miss_due(current_time_sec: float, center_time_sec: float) -> bool:
 
 func should_defer(delta_sec: float, result: String) -> bool:
 	return delta_sec < 0.0 and result != "Too Fast" and result != "Too Slow"
+
+
+func overdue_count(centers: PackedFloat32Array, start_index: int, current_time_sec: float) -> int:
+	var count := 0
+	for index in range(maxi(start_index, 0), centers.size()):
+		if not is_miss_due(current_time_sec, centers[index]):
+			break
+		count += 1
+	return count

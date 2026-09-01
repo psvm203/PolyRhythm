@@ -125,6 +125,7 @@ func _ready() -> void:
 		conductor.judgment_offset_sec,
 	)
 	conductor.setup(_note_timeline.contact_times())
+	conductor.set_audio_reference(music, level_data.music_start_offset_sec)
 	camera.setup(rotator, _polygon_centers)
 	rotator.polygon_advanced.connect(_on_polygon_advanced)
 	if conductor != null:
