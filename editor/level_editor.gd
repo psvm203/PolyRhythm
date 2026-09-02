@@ -5,6 +5,7 @@ const ProgressStoreScript = preload("res://level/progress_store.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
 const PolygonPaletteButtonScript = preload("res://editor/components/polygon_palette_button.gd")
 const SequenceHistoryScript = preload("res://editor/model/sequence_history.gd")
+const LevelDocumentScript = preload("res://editor/model/level_document.gd")
 const LEVEL_SCENE := "res://level/level.tscn"
 const MAIN_SCENE := "res://main/main_screen.tscn"
 const PREVIEW_PATH := "user://custom_level_preview.yaml"
@@ -21,8 +22,7 @@ var _history: SequenceHistory = SequenceHistoryScript.new()
 var _applying_history := false
 var _updating_seek := false
 var _preview_music_path := ""
-var _current_file_path := ""
-var _saved_signature := ""
+var _document: RefCounted = LevelDocumentScript.new()
 var _pending_action := ""
 var _saving_pending_action := false
 
@@ -77,13 +77,11 @@ func _ready() -> void:
 	if not ProgressStoreScript.custom_level_path.is_empty() and FileAccess.file_exists(ProgressStoreScript.custom_level_path):
 		_import_yaml(ProgressStoreScript.custom_level_path, not returning_from_preview)
 		if returning_from_preview:
-			_current_file_path = ProgressStoreScript.editor_working_file_path
-			_saved_signature = ProgressStoreScript.editor_saved_signature
+			_document.restore_saved_state(ProgressStoreScript.editor_working_file_path, ProgressStoreScript.editor_saved_signature)
 	elif FileAccess.file_exists(AUTOSAVE_PATH):
 		_populate(LevelDataScript.from_yaml(AUTOSAVE_PATH).dictionary())
 		%Status.text = "자동 저장된 레벨을 복구했습니다."
-		_current_file_path = ProgressStoreScript.editor_working_file_path
-		_saved_signature = ProgressStoreScript.editor_saved_signature
+		_document.restore_saved_state(ProgressStoreScript.editor_working_file_path, ProgressStoreScript.editor_saved_signature)
 	else:
 		_mark_saved_state("")
 	%Timeline.grab_focus()
@@ -100,7 +98,7 @@ func _set_map_mode(enabled: bool) -> void:
 
 
 func _collect() -> Dictionary:
-	return {
+	_document.replace({
 		"sides_sequence": %Timeline.sequence.duplicate(),
 		"repeat_count": 1,
 		"bpm": %Bpm.value,
@@ -109,10 +107,13 @@ func _collect() -> Dictionary:
 		"boss_name": "",
 		"boss_health": _boss_health,
 		"events": _events.duplicate(true),
-	}
+	})
+	return _document.snapshot()
 
 
 func _populate(data: Dictionary) -> void:
+	_document.replace(data)
+	data = _document.snapshot()
 	%Timeline.set_sequence(data.get("sides_sequence", []))
 	%Bpm.value = float(data.get("bpm", 120.0))
 	%MusicPath.text = str(data.get("music_path", ""))
@@ -321,8 +322,8 @@ func _show_unsaved_dialog(action: String) -> void:
 
 
 func _save_pending_changes() -> void:
-	if not _current_file_path.is_empty():
-		if _export_yaml(_current_file_path):
+	if not _document.current_file_path.is_empty():
+		if _export_yaml(_document.current_file_path):
 			_continue_pending_action()
 		return
 	_saving_pending_action = true
@@ -354,18 +355,15 @@ func _continue_pending_action() -> void:
 
 
 func _has_unsaved_changes() -> bool:
-	return _document_signature() != _saved_signature
-
-
-func _document_signature() -> String:
-	return LevelDataScript.to_yaml(_collect())
+	_collect()
+	return _document.has_unsaved_changes()
 
 
 func _mark_saved_state(path: String) -> void:
-	_current_file_path = path
-	_saved_signature = _document_signature()
+	_collect()
+	_document.mark_saved(path)
 	ProgressStoreScript.editor_working_file_path = path
-	ProgressStoreScript.editor_saved_signature = _saved_signature
+	ProgressStoreScript.editor_saved_signature = _document.saved_signature
 
 
 func _exit_editor() -> void:
@@ -492,8 +490,8 @@ func _test_play() -> void:
 	if not _validate():
 		return
 	_write_yaml(PREVIEW_PATH)
-	ProgressStoreScript.editor_working_file_path = _current_file_path
-	ProgressStoreScript.editor_saved_signature = _saved_signature
+	ProgressStoreScript.editor_working_file_path = _document.current_file_path
+	ProgressStoreScript.editor_saved_signature = _document.saved_signature
 	ProgressStoreScript.custom_level_path = PREVIEW_PATH
 	get_tree().change_scene_to_file(LEVEL_SCENE)
 
