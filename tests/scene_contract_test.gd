@@ -32,6 +32,7 @@ func _init() -> void:
 			continue
 		var instance := packed_scene.instantiate()
 		_expect(instance != null, "%s instantiates" % scene_path)
+		_expect(instance.get_script() != null, "%s keeps its root script" % scene_path)
 		for node_path in SCENE_CONTRACTS[scene_path]:
 			_expect(instance.has_node(node_path), "%s contains %s" % [scene_path, node_path])
 		instance.free()

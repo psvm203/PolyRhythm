@@ -5,6 +5,7 @@ const LEVEL_EDITOR_SCENE := "res://editor/level_editor.tscn"
 const ProgressStoreScript = preload("res://level/progress_store.gd")
 const SettingsStoreScript = preload("res://main/settings_store.gd")
 const StageCatalogScript = preload("res://level/data/stage_catalog.gd")
+const ScreenTransitionControllerScript = preload("res://main/screen_transition_controller.gd")
 const STAGE_ONE_BGM: AudioStream = preload("res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV")
 const CYAN := Color("19e0db")
 const MAGENTA := Color("ed1671")
@@ -36,7 +37,7 @@ var _bass := 0.0
 var _mid := 0.0
 var _treble := 0.0
 var _last_slider_sfx_ms := 0
-var _transitioning := false
+var _transition_controller: Node
 var _stage_card_tweens: Dictionary = { }
 var _stage_preview_tween: Tween
 var _mouse_focus_enabled := true
@@ -45,6 +46,9 @@ var _original_mouse_filters: Dictionary = {}
 
 
 func _ready() -> void:
+	_transition_controller = ScreenTransitionControllerScript.new()
+	add_child(_transition_controller)
+	_transition_controller.setup(main_content, main_logo, transition_logo, %StartButton)
 	get_viewport().size_changed.connect(queue_redraw)
 	var input_manager := _input_manager()
 	if input_manager != null:
@@ -716,61 +720,7 @@ func _transition_to(
 	focus_target: Control = null,
 	animate_logo: bool = true,
 ) -> void:
-	if _transitioning:
-		return
-	_transitioning = true
-	_clear_focus()
-	target_screen.modulate.a = 0.0
-	transition_logo.modulate.a = 0.0
-	if animate_logo:
-		transition_logo.show()
-	else:
-		transition_logo.hide()
-	target_screen.show()
-	await _wait_for_layout()
-
-	var content_home := main_content.position
-	var title_home := target_title.position
-	var body_home := target_body.position
-	var main_logo_scale := _logo_scale_for(main_logo)
-	var target_logo_scale := _logo_scale_for(target_logo)
-
-	transition_logo.position = main_logo.global_position
-	transition_logo.scale = main_logo_scale
-	transition_logo.modulate = Color.WHITE
-	# Settings does not use the travelling logo. Let the real title fade with the
-	# main content instead of keeping it hidden until the whole transition ends.
-	main_logo.modulate.a = 0.0 if animate_logo else 1.0
-	target_logo.modulate.a = 0.0
-	target_title.modulate.a = 0.0
-	target_title.position = title_home + Vector2(0, 42)
-	target_body.modulate.a = 0.0
-	target_body.position = body_home + Vector2(0, 110)
-	back_button.modulate.a = 0.0
-	target_screen.modulate.a = 1.0
-
-	var tween := create_tween().set_parallel(true)
-	tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(transition_logo, "position", target_logo.global_position, 0.52)
-	tween.tween_property(transition_logo, "scale", target_logo_scale, 0.52)
-	tween.tween_property(main_content, "position", content_home + Vector2(0, 74), 0.32)
-	tween.tween_property(main_content, "modulate:a", 0.0, 0.25)
-	tween.tween_property(target_title, "position", title_home, 0.42).set_delay(0.18)
-	tween.tween_property(target_title, "modulate:a", 1.0, 0.32).set_delay(0.18)
-	tween.tween_property(target_body, "position", body_home, 0.48).set_delay(0.22)
-	tween.tween_property(target_body, "modulate:a", 1.0, 0.36).set_delay(0.22)
-	tween.tween_property(back_button, "modulate:a", 1.0, 0.28).set_delay(0.25)
-	await tween.finished
-
-	main_content.hide()
-	main_content.position = content_home
-	main_content.modulate.a = 1.0
-	main_logo.modulate.a = 1.0
-	target_logo.modulate.a = 1.0
-	transition_logo.hide()
-	_transitioning = false
-	var target := focus_target if focus_target != null else back_button
-	target.grab_focus()
+	await _transition_controller.transition_to(target_screen, target_logo, target_title, target_body, back_button, focus_target, animate_logo)
 
 
 func _transition_to_main(
@@ -781,77 +731,7 @@ func _transition_to_main(
 	back_button: Control,
 	animate_logo: bool = true,
 ) -> void:
-	if _transitioning:
-		return
-	_transitioning = true
-	_clear_focus()
-	main_content.modulate.a = 0.0
-	transition_logo.modulate.a = 0.0
-	if animate_logo:
-		transition_logo.show()
-	else:
-		transition_logo.hide()
-	main_content.show()
-	await _wait_for_layout()
-
-	var content_home := main_content.position
-	var title_home := current_title.position
-	var body_home := current_body.position
-	var current_logo_scale := _logo_scale_for(current_logo)
-	var main_logo_scale := _logo_scale_for(main_logo)
-	var main_logo_home_global := main_logo.global_position
-
-	main_logo.modulate.a = 0.0 if animate_logo else 1.0
-	main_content.position = content_home + Vector2(0, 74)
-	transition_logo.position = current_logo.global_position
-	transition_logo.scale = current_logo_scale
-	transition_logo.modulate = Color.WHITE
-	current_logo.modulate.a = 0.0
-
-	var tween := create_tween().set_parallel(true)
-	tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(current_title, "position", title_home + Vector2(0, 42), 0.32)
-	tween.tween_property(current_title, "modulate:a", 0.0, 0.24)
-	tween.tween_property(current_body, "position", body_home + Vector2(0, 110), 0.38)
-	tween.tween_property(current_body, "modulate:a", 0.0, 0.28)
-	tween.tween_property(back_button, "modulate:a", 0.0, 0.2)
-	tween.tween_property(transition_logo, "position", main_logo_home_global, 0.52)
-	tween.tween_property(transition_logo, "scale", main_logo_scale, 0.52)
-	var content_duration := 0.42 if animate_logo else 0.28
-	var content_delay := 0.18 if animate_logo else 0.04
-	var fade_duration := 0.3 if animate_logo else 0.22
-	tween.tween_property(main_content, "position", content_home, content_duration).set_delay(content_delay)
-	tween.tween_property(main_content, "modulate:a", 1.0, fade_duration).set_delay(content_delay)
-	await tween.finished
-
-	current_screen.hide()
-	current_logo.modulate.a = 1.0
-	current_title.position = title_home
-	current_title.modulate.a = 1.0
-	current_body.position = body_home
-	current_body.modulate.a = 1.0
-	back_button.modulate.a = 1.0
-	main_logo.modulate.a = 1.0
-	transition_logo.hide()
-	_transitioning = false
-	%StartButton.grab_focus()
-
-
-func _wait_for_layout() -> void:
-	# Visible containers can enqueue another sort while their minimum sizes propagate.
-	# Two completed idle frames make all destination rectangles deterministic before
-	# the overlay logo samples global coordinates.
-	await get_tree().process_frame
-	await get_tree().process_frame
-	transition_logo.reset_size()
-	await get_tree().process_frame
-
-
-func _logo_scale_for(logo: Control) -> Vector2:
-	return Vector2(
-		logo.size.x / maxf(transition_logo.size.x, 1.0),
-		logo.size.y / maxf(transition_logo.size.y, 1.0),
-	)
+	await _transition_controller.transition_to_main(current_screen, current_logo, current_title, current_body, back_button, animate_logo)
 
 
 func _clear_focus() -> void:
@@ -861,7 +741,7 @@ func _clear_focus() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("ui_cancel") or _transitioning:
+	if not event.is_action_pressed("ui_cancel") or _transition_controller.is_transitioning():
 		return
 	if overlay.visible:
 		_hide_overlay()
