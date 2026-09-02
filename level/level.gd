@@ -9,6 +9,7 @@ const StageCatalogScript = preload("res://level/data/stage_catalog.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
 const LevelEventSystemScript = preload("res://level/events/level_event_system.gd")
 const NoteTimelineScript = preload("res://level/timing/note_timeline.gd")
+const LevelResultServiceScript = preload("res://level/level_result_service.gd")
 const EVENT_GUARD := "boss_guard"
 const EVENT_SAMURAI := "samurai_split"
 const EVENT_TIME_STOP := "time_stop"
@@ -221,17 +222,17 @@ func _finish_level(completed: bool) -> void:
 	rotator.paused = true
 	if music != null:
 		music.stop()
-	var stats := _run_state.snapshot()
-	var final_rank := _run_state.rank(completed)
-	conductor.save_timing_trace(timing_trace_path, {
-		"stage": ProgressStoreScript.selected_stage,
-		"custom_level": _is_custom_level,
-		"bpm": level_data.bpm,
-		"completed": completed,
-		"rank": final_rank,
-		"resolved_notes": int(stats.get("resolved", 0)),
-		"total_notes": int(stats.get("total", _level_sequence.size())),
-	})
+	var result := LevelResultServiceScript.build(
+		_run_state,
+		completed,
+		ProgressStoreScript.selected_stage,
+		_is_custom_level,
+		level_data.bpm,
+		_level_sequence.size(),
+	)
+	var stats: Dictionary = result["stats"]
+	var final_rank: String = result["rank"]
+	conductor.save_timing_trace(timing_trace_path, result["trace_metadata"])
 	if not _is_custom_level:
 		ProgressStoreScript.record_run(ProgressStoreScript.selected_stage, stats, final_rank, completed)
 	else:
