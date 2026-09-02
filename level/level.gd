@@ -8,6 +8,7 @@ const LevelDataScript = preload("res://level/data/level_data.gd")
 const StageCatalogScript = preload("res://level/data/stage_catalog.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
 const LevelEventSystemScript = preload("res://level/events/level_event_system.gd")
+const EventHandlerRegistryScript = preload("res://level/events/event_handler_registry.gd")
 const NoteTimelineScript = preload("res://level/timing/note_timeline.gd")
 const LevelResultServiceScript = preload("res://level/level_result_service.gd")
 const EVENT_GUARD := "boss_guard"
@@ -80,6 +81,8 @@ func _ready() -> void:
 	if data_path.is_empty():
 		data_path = StageCatalogScript.data_path(ProgressStoreScript.selected_stage)
 	level_data = LevelDataScript.from_yaml(data_path)
+	for unknown_event in EventHandlerRegistryScript.unknown_event_names(level_data.events):
+		push_warning("Unknown level event ignored at runtime: %s" % unknown_event)
 	_event_system.setup(level_data.events)
 	_level_sequence = _event_system.transform_sequence(level_data.expanded_sequence())
 	music.stream = AudioStreamLoaderScript.load_stream(level_data.music_path)
@@ -176,21 +179,14 @@ func _on_dialogue_finished() -> void:
 
 
 func _on_judged(result: String, polygon_index: int, timing_delta_ms: float) -> void:
-	var guard_note := _event_system.occurs(EVENT_GUARD, polygon_index)
-	var time_note := _event_system.occurs(EVENT_TIME_STOP, polygon_index)
-	var resolved_result := result
-	if (guard_note or time_note) and result != "Perfect" and result != "Too Fast":
-		resolved_result = "Too Slow"
+	var resolution := EventHandlerRegistryScript.resolve_judgment(_event_system, polygon_index, result)
+	var resolved_result: String = resolution["result"]
 	if judgement != null:
-		var display_result := result
-		if time_note and result != "Too Fast":
-			display_result = "TIME BREAK" if result == "Perfect" else "TIME LOST"
-		elif guard_note and result != "Perfect" and result != "Too Fast":
-			display_result = "BLOCKED"
+		var display_result: String = resolution["display_result"]
 		judgement.show_judgement(display_result)
 		_input_manager_call("play_rumble", [display_result])
 	if _boss_health > 0:
-		_boss_health = maxi(0, _boss_health - level_data.boss_damage(resolved_result, guard_note or time_note))
+		_boss_health = maxi(0, _boss_health - level_data.boss_damage(resolved_result, resolution["guarded"]))
 		if _event_system.has_event(EVENT_SAMURAI):
 			gameplay_hud.update_samurai_attack(_boss_health, _event_system.occurs(EVENT_SAMURAI, polygon_index + 1))
 		elif _event_system.has_event(EVENT_TIME_STOP):
@@ -337,8 +333,9 @@ func _on_polygon_advanced(_from_index: int, to_index: int) -> void:
 	queue_redraw()
 	if _event_system.has_event(EVENT_SAMURAI):
 		gameplay_hud.update_samurai_attack(_boss_health, _event_system.occurs(EVENT_SAMURAI, to_index))
-		if _event_system.occurs(EVENT_SAMURAI, to_index):
-			judgement.show_judgement("HEX SPLIT")
+		var cue := EventHandlerRegistryScript.cue(_event_system, to_index)
+		if not cue.is_empty():
+			judgement.show_judgement(cue)
 	elif _event_system.has_event(EVENT_TIME_STOP):
 		gameplay_hud.update_time_spell(_boss_health, _event_system.occurs(EVENT_TIME_STOP, to_index), false)
 		if _event_system.occurs(EVENT_TIME_STOP, to_index):
