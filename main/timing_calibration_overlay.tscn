@@ -88,7 +88,7 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.93, 1, 1)
 theme_override_font_sizes/font_size = 20
-text = "Start를 누른 뒤 삼각형의 변이 도형에 닿는 순간 입력하세요"
+text = "아무 키나 눌러 시작하세요"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -97,27 +97,20 @@ layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 16
 
-[node name="StartButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 54)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Start"
-
 [node name="ApplyButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(170, 54)
 layout_mode = 2
 disabled = true
 theme_override_font_sizes/font_size = 20
-text = "Apply"
+text = "적용"
 
 [node name="CancelButton" type="Button" parent="Dim/Center/Panel/Margin/Rows/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(170, 54)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Cancel"
+text = "취소"
 
 [node name="ClickPlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true

@@ -13,7 +13,6 @@ const ACCEPT_WINDOW_USEC := 250_000
 
 @onready var status_label: Label = %Status
 @onready var visual: Control = %CalibrationVisual
-@onready var start_button: Button = %StartButton
 @onready var apply_button: Button = %ApplyButton
 @onready var click_player: AudioStreamPlayer = %ClickPlayer
 
@@ -25,12 +24,12 @@ var _used_beats: Dictionary = {}
 var _samples_ms: Array[float] = []
 var _sample_devices: Array[String] = []
 var _suggested_offset_ms := 0.0
+var _finished := false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	hide()
-	start_button.pressed.connect(_start_calibration)
 	apply_button.pressed.connect(_apply_result)
 	%CancelButton.pressed.connect(close)
 
@@ -38,7 +37,7 @@ func _ready() -> void:
 func open() -> void:
 	_reset()
 	show()
-	start_button.grab_focus()
+	get_viewport().gui_release_focus()
 
 
 func close() -> void:
@@ -55,22 +54,22 @@ func _reset() -> void:
 	_samples_ms.clear()
 	_sample_devices.clear()
 	_suggested_offset_ms = 0.0
-	status_label.text = "Start를 누른 뒤 삼각형의 변이 도형에 닿는 순간 입력하세요"
+	_finished = false
+	status_label.text = "아무 키나 눌러 시작하세요"
+	status_label.show()
 	%Progress.text = "0 / %d" % BEAT_COUNT
 	apply_button.disabled = true
-	start_button.disabled = false
 	visual.call("reset")
 
 
 func _start_calibration() -> void:
 	_reset()
 	_running = true
-	start_button.disabled = true
+	status_label.hide()
 	_started_at_usec = Time.get_ticks_usec() + START_DELAY_USEC
 	for index in BEAT_COUNT:
 		_scheduled_beats.append(_started_at_usec + index * BEAT_INTERVAL_USEC)
 	visual.call("set_timeline", _scheduled_beats, BEAT_INTERVAL_USEC)
-	status_label.text = "삼각형의 변이 도형에 닿는 순간 입력하세요"
 
 
 func _process(_delta: float) -> void:
@@ -90,6 +89,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel"):
 		close()
+		get_viewport().set_input_as_handled()
+		return
+	if not _running and not _finished and is_start_input(event):
+		_start_calibration()
 		get_viewport().set_input_as_handled()
 		return
 	var input_manager := get_node_or_null("/root/InputDeviceManager")
@@ -125,13 +128,14 @@ func _play_beat() -> void:
 func _finish_calibration() -> void:
 	_running = false
 	visual.call("finish")
-	start_button.disabled = false
+	status_label.show()
 	if _samples_ms.size() < 4:
-		status_label.text = "입력이 부족합니다. 다시 측정해 주세요"
+		status_label.text = "입력이 부족합니다. 아무 키나 눌러 다시 측정하세요"
 		return
+	_finished = true
 	var report: Dictionary = CalibrationStatisticsScript.report(_samples_ms, _sample_devices)
 	_suggested_offset_ms = clampf(float(report["center_ms"]), -150.0, 150.0)
-	status_label.text = "권장 보정  %+.0f ms    입력 편차  %.1f ms    제외 %d" % [_suggested_offset_ms, report["spread_ms"], report["rejected_count"]]
+	status_label.text = "권장 보정  %+.0f ms    입력 편차  %.1f ms" % [_suggested_offset_ms, report["spread_ms"]]
 	apply_button.disabled = false
 	apply_button.grab_focus()
 
@@ -147,6 +151,16 @@ static func calculate_median(samples: Array[float]) -> float:
 
 static func calculate_mean_deviation(samples: Array[float], center: float) -> float:
 	return CalibrationStatisticsScript.mean_deviation(samples, center)
+
+
+static func is_start_input(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		return event.pressed and not event.echo
+	if event is InputEventMouseButton:
+		return event.pressed
+	if event is InputEventJoypadButton:
+		return event.pressed
+	return false
 
 
 func _input_device_name(event: InputEvent) -> String:

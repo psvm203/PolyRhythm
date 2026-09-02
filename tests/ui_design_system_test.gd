@@ -59,7 +59,12 @@ func _test_main_settings_layout() -> void:
 		var slider: HSlider = row.get_node(row_name + "Slider")
 		_expect(slider.custom_minimum_size.x >= 340.0, "%s slider remains easy to target" % row_name)
 	_expect(rows.get_node("Timing/Label").text == "입력 오프셋", "main settings names the timing offset directly")
-	_expect(rows.get_node("Timing/CalibrationButton").text == "보정", "main settings uses the concise calibration action")
+	var calibration_button: Button = rows.get_node("Timing/CalibrationButton")
+	var enabled_button: Button = rows.get_node("Master/MasterEnabled")
+	_expect(calibration_button.text == "보정", "main settings uses the concise calibration action")
+	_expect(calibration_button.get_theme_stylebox("normal") == enabled_button.get_theme_stylebox("pressed"), "calibration action uses the enabled toggle surface")
+	var calibration_color := calibration_button.get_theme_color("font_color")
+	_expect(calibration_color.g >= 0.95 and calibration_color.b >= 0.9, "calibration action uses the enabled cyan text color")
 	var cards: HBoxContainer = scene.get_node("StageScreen/StageLayout/CardsSlot/Cards")
 	var stage_names := ["One", "Two", "Three", "Four"]
 	for index in stage_names.size():

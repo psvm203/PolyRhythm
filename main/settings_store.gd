@@ -18,7 +18,14 @@ const DEFAULTS := {
 	"resolution_width": 1280,
 	"resolution_height": 720,
 }
-const RESOLUTIONS: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
+const RESOLUTIONS: Array[Vector2i] = [
+	Vector2i(960, 540),
+	Vector2i(1280, 720),
+	Vector2i(1366, 768),
+	Vector2i(1600, 900),
+	Vector2i(1920, 1080),
+	Vector2i(2560, 1440),
+]
 const AUDIO_BUSES := {"master": &"Master", "music": &"MenuMusic", "sfx": &"SFX"}
 const MIN_TIMING_OFFSET_MS := -150.0
 const MAX_TIMING_OFFSET_MS := 150.0
@@ -80,7 +87,8 @@ static func normalized(settings: Dictionary) -> Dictionary:
 		values["%s_volume" % prefix] = clampf(float(settings.get("%s_volume" % prefix, 100.0)), 0.0, 100.0)
 		values["%s_enabled" % prefix] = bool(settings.get("%s_enabled" % prefix, true))
 	var requested := Vector2i(int(settings.get("resolution_width", 1280)), int(settings.get("resolution_height", 720)))
-	var size := requested if requested in RESOLUTIONS else RESOLUTIONS[0]
+	var default_size := Vector2i(DEFAULTS["resolution_width"], DEFAULTS["resolution_height"])
+	var size := requested if requested in RESOLUTIONS else default_size
 	values["resolution_width"] = size.x
 	values["resolution_height"] = size.y
 	return values

@@ -27,11 +27,16 @@ func _init() -> void:
 	_expect(values["timing_offset_ms"] == SettingsStoreScript.MAX_TIMING_OFFSET_MS, "timing offset is clamped")
 	_expect(values["controller_vibration_enabled"] == false, "vibration toggle is preserved")
 	_expect(values["controller_vibration_strength"] == 100.0, "vibration strength is clamped")
-	_expect(SettingsStoreScript.resolution_index(SettingsStoreScript.DEFAULTS) == 0, "default resolution selects first preset")
+	_expect(SettingsStoreScript.RESOLUTIONS == [Vector2i(960, 540), Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)], "resolution presets cover the supported window sizes")
+	_expect(SettingsStoreScript.resolution_index(SettingsStoreScript.DEFAULTS) == 1, "default resolution selects its preset")
+	var compact := SettingsStoreScript.normalized({"resolution_width": 960, "resolution_height": 540})
+	_expect(Vector2i(compact["resolution_width"], compact["resolution_height"]) == Vector2i(960, 540), "compact window resolution is preserved")
+	var laptop := SettingsStoreScript.normalized({"resolution_width": 1366, "resolution_height": 768})
+	_expect(Vector2i(laptop["resolution_width"], laptop["resolution_height"]) == Vector2i(1366, 768), "laptop window resolution is preserved")
 	var defaults := SettingsStoreScript.normalized({})
 	_expect(defaults == SettingsStoreScript.DEFAULTS, "missing values use defaults")
 	if _failures == 0:
-		print("Settings store tests passed: 11 assertions")
+		print("Settings store tests passed: 14 assertions")
 		quit(0)
 	else:
 		push_error("Settings store tests failed: %d assertion(s)" % _failures)

@@ -1209,11 +1209,14 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(116, 54)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.78, 1, 0.96, 1)
+theme_override_colors/font_hover_color = Color(0.78, 1, 0.96, 1)
+theme_override_colors/font_focus_color = Color(0.78, 1, 0.96, 1)
 theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleButtonNormal")
-theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/normal = SubResource("StyleButtonPressed")
+theme_override_styles/hover = SubResource("StyleButtonPressed")
 theme_override_styles/pressed = SubResource("StyleButtonPressed")
-theme_override_styles/focus = SubResource("StyleButtonHover")
+theme_override_styles/focus = SubResource("StyleButtonPressed")
 text = "보정"
 
 [node name="SeparatorTiming" type="HSeparator" parent="SettingsScreen/SettingsLayout/SettingsPanelSlot/SettingsPanel/Margin/Rows"]
