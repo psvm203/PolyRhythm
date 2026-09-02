@@ -439,10 +439,13 @@ func _format_time(seconds: float) -> String:
 
 
 func _validate() -> bool:
-	var errors := LevelDataScript.validate(_collect())
-	%Status.text = "✓ 플레이 가능한 레벨입니다." if errors.is_empty() else "⚠ " + "\n⚠ ".join(errors)
-	%Status.modulate = Color("55efb0") if errors.is_empty() else Color("ff6680")
-	return errors.is_empty()
+	var diagnostics := LevelDataScript.validate_detailed(_collect(), _document.current_file_path)
+	var messages := PackedStringArray()
+	for diagnostic in diagnostics:
+		messages.append("[%s] %s" % [diagnostic["field"], diagnostic["message"]])
+	%Status.text = "✓ 플레이 가능한 레벨입니다." if diagnostics.is_empty() else "⚠ " + "\n⚠ ".join(messages)
+	%Status.modulate = Color("55efb0") if diagnostics.is_empty() else Color("ff6680")
+	return diagnostics.is_empty()
 
 
 func _import_yaml(path: String, mark_as_saved: bool = true) -> void:

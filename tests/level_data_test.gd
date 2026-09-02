@@ -29,6 +29,9 @@ func _init() -> void:
 	_expect(data.expand_layout({"sides_sequence": [0, 2, 13, "bad"]}) == [3], "invalid polygon sides cannot reach geometry generation")
 	_expect(data.expand_layout({"sides_sequence": [4], "repeat_count": 100000}).size() == 1000, "corrupt repeat counts are bounded")
 	_expect(not data.validate({"sides_sequence": "bad", "bpm": {}, "repeat_count": null}).is_empty(), "validation handles malformed value types")
+	var diagnostics := data.validate_detailed({"sides_sequence": [], "bpm": 0, "repeat_count": 0, "music_path": ""}, "user://broken.yaml")
+	_expect(diagnostics[0]["code"] == "missing_sequence" and diagnostics[0]["field"] == "sides_sequence", "validation exposes stable diagnostic codes and fields")
+	_expect(diagnostics[0]["source_path"] == "user://broken.yaml", "validation diagnostics retain their source path")
 	_expect(stage_two.expanded_sequence().size() == 160, "stage two has a full arrangement")
 	_expect(stage_three.expanded_sequence().size() == 192, "stage three has a full arrangement")
 	_expect(stage_three.bpm > stage_two.bpm, "final stage increases tempo")
@@ -65,7 +68,7 @@ func _init() -> void:
 	_expect(stage_two.boss_damage("Slow", true) == 0, "imprecise hit is blocked")
 	_expect(stage_two.boss_damage("Perfect", false) == 2, "Perfect damages boss")
 	if _failures == 0:
-		print("Level data tests passed: 31 assertions")
+		print("Level data tests passed: 33 assertions")
 		quit(0)
 	else:
 		push_error("Level data tests failed: %d assertion(s)" % _failures)

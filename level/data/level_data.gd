@@ -97,23 +97,45 @@ static func _positive_float(value: Variant, fallback: float) -> float:
 
 static func validate(data: Dictionary) -> PackedStringArray:
 	var errors := PackedStringArray()
+	for diagnostic in validate_detailed(data):
+		errors.append(diagnostic["message"])
+	return errors
+
+
+static func validate_detailed(data: Dictionary, source_path: String = "") -> Array[Dictionary]:
+	var diagnostics: Array[Dictionary] = []
 	var sequence: Variant = data.get("sides_sequence", [])
 	if not sequence is Array or sequence.is_empty():
-		errors.append("도형 배열을 하나 이상 입력하세요.")
+		_append_diagnostic(diagnostics, "missing_sequence", "sides_sequence", "도형 배열을 하나 이상 입력하세요.", source_path)
 	if sequence is Array:
 		for sides in sequence:
 			var side_count := _safe_int(sides, 0)
 			if side_count < 3 or side_count > 12:
-				errors.append("도형의 변 개수는 3~12여야 합니다.")
+				_append_diagnostic(diagnostics, "invalid_polygon", "sides_sequence", "도형의 변 개수는 3~12여야 합니다.", source_path)
 				break
 	if _finite_float(data.get("bpm", 0.0), 0.0) <= 0.0:
-		errors.append("BPM은 0보다 커야 합니다.")
+		_append_diagnostic(diagnostics, "invalid_bpm", "bpm", "BPM은 0보다 커야 합니다.", source_path)
 	if _safe_int(data.get("repeat_count", 1), 0) < 1:
-		errors.append("반복 횟수는 1 이상이어야 합니다.")
+		_append_diagnostic(diagnostics, "invalid_repeat_count", "repeat_count", "반복 횟수는 1 이상이어야 합니다.", source_path)
 	var music := str(data.get("music_path", ""))
 	if music.is_empty() or not FileAccess.file_exists(music):
-		errors.append("재생할 음악 파일을 찾을 수 없습니다.")
-	return errors
+		_append_diagnostic(diagnostics, "missing_music", "music_path", "재생할 음악 파일을 찾을 수 없습니다.", source_path)
+	return diagnostics
+
+
+static func _append_diagnostic(
+		diagnostics: Array[Dictionary],
+		code: String,
+		field: String,
+		message: String,
+		source_path: String,
+) -> void:
+	diagnostics.append({
+		"code": code,
+		"field": field,
+		"message": message,
+		"source_path": source_path,
+	})
 
 
 static func to_yaml(data: Dictionary) -> String:
