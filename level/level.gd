@@ -5,18 +5,13 @@ const RunStateScript = preload("res://level/run_state.gd")
 const ProgressStoreScript = preload("res://level/progress_store.gd")
 const SettingsStoreScript = preload("res://main/settings_store.gd")
 const LevelDataScript = preload("res://level/data/level_data.gd")
+const StageCatalogScript = preload("res://level/data/stage_catalog.gd")
 const AudioStreamLoaderScript = preload("res://level/audio/audio_stream_loader.gd")
 const LevelEventSystemScript = preload("res://level/events/level_event_system.gd")
 const NoteTimelineScript = preload("res://level/timing/note_timeline.gd")
 const EVENT_GUARD := "boss_guard"
 const EVENT_SAMURAI := "samurai_split"
 const EVENT_TIME_STOP := "time_stop"
-const STAGE_DATA := {
-	1: "res://level/data/level_1.yaml",
-	2: "res://level/data/level_2.yaml",
-	3: "res://level/data/level_3.yaml",
-	4: "res://level/data/level_4.yaml",
-}
 const MAIN_SCENE := "res://main/main_screen.tscn"
 const EDITOR_SCENE := "res://editor/level_editor.tscn"
 const NEON_PALETTE := [
@@ -82,7 +77,7 @@ func _ready() -> void:
 	var data_path: String = ProgressStoreScript.custom_level_path
 	_is_custom_level = not data_path.is_empty()
 	if data_path.is_empty():
-		data_path = STAGE_DATA.get(ProgressStoreScript.selected_stage, STAGE_DATA[1])
+		data_path = StageCatalogScript.data_path(ProgressStoreScript.selected_stage)
 	level_data = LevelDataScript.from_yaml(data_path)
 	_event_system.setup(level_data.events)
 	_level_sequence = _event_system.transform_sequence(level_data.expanded_sequence())

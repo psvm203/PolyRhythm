@@ -4,24 +4,10 @@ const LEVEL_SCENE := "res://level/level.tscn"
 const LEVEL_EDITOR_SCENE := "res://editor/level_editor.tscn"
 const ProgressStoreScript = preload("res://level/progress_store.gd")
 const SettingsStoreScript = preload("res://main/settings_store.gd")
+const StageCatalogScript = preload("res://level/data/stage_catalog.gd")
 const STAGE_ONE_BGM: AudioStream = preload("res://level/data/BR-Freaky_feat_LezaLee_-fulllength-loopable-121_9BPM-Dm.WAV")
 const CYAN := Color("19e0db")
 const MAGENTA := Color("ed1671")
-const STAGE_TWO_UNLOCK_DIALOGUE: Array[String] = [
-	"첫 스테이지를 통과했네.",
-	"STAGE 02: Beat Flow가 열렸어.",
-	"이번에는 박자 변화가 더 잦아. 도형이 닿는 순간에 집중해.",
-]
-const STAGE_THREE_UNLOCK_DIALOGUE: Array[String] = [
-	"Beat Flow 클리어. 감이 잡힌 것 같네.",
-	"STAGE 03: Shape Samurai가 열렸어.",
-	"육각형이 둘로 갈라질 때 입력도 두 번 필요해. 경로를 잘 봐.",
-]
-const STAGE_FOUR_UNLOCK_DIALOGUE: Array[String] = [
-	"Shape Samurai를 쓰러뜨렸어.",
-	"마지막 스테이지, STAGE 04: Time Rift가 열렸어.",
-	"시간 정지가 풀리는 순간을 놓치지 마.",
-]
 
 @onready var menu: VBoxContainer = %Menu
 @onready var main_content: Control = %Content
@@ -117,12 +103,9 @@ func _show_unlock_flow() -> void:
 	_show_stage_select()
 	await get_tree().create_timer(0.7).timeout
 	var unlocked_stage := ProgressStoreScript.consume_unlock_dialogue()
-	if unlocked_stage == 2:
-		unlock_dialogue.play(STAGE_TWO_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
-	elif unlocked_stage == 3:
-		unlock_dialogue.play(STAGE_THREE_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
-	elif unlocked_stage == 4:
-		unlock_dialogue.play(STAGE_FOUR_UNLOCK_DIALOGUE, "루미 (리듬 안내자)")
+	var lines := StageCatalogScript.unlock_dialogue(unlocked_stage)
+	if not lines.is_empty():
+		unlock_dialogue.play(lines, StageCatalogScript.UNLOCK_SPEAKER)
 
 
 func _update_controller_prompt() -> void:
@@ -151,7 +134,6 @@ func _refresh_stage_cards() -> void:
 		$StageScreen/StageLayout/CardsSlot/Cards/StageFour/Items/Record,
 	]
 	var buttons: Array[BaseButton] = [%StageOneButton, %StageTwoButton, %StageThreeButton, %StageFourButton]
-	var names := ["Rhythm Start", "Beat Flow", "Shape Samurai", "Time Rift"]
 	var active_style := cards[0].get_theme_stylebox("panel").duplicate()
 	var locked_style := cards[1].get_theme_stylebox("panel").duplicate()
 	for index in cards.size():
@@ -165,7 +147,7 @@ func _refresh_stage_cards() -> void:
 		items.get_node("Stage").add_theme_color_override("font_color", text_color)
 		items.get_node("Number").add_theme_color_override("font_color", text_color)
 		items.get_node("Name").add_theme_color_override("font_color", Color(0.95, 0.96, 1, 1) if active else Color(0.57, 0.57, 0.57, 1))
-		items.get_node("Name").text = names[index]
+		items.get_node("Name").text = StageCatalogScript.display_name(index + 1)
 		var best: Label = items.get_node("Best")
 		var rating_label: Label = items.get_node("Rating")
 		var record := ProgressStoreScript.stage_record(index + 1)
